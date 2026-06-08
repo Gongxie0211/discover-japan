@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇯🇵 Discover Japan — ミャンマーからの旅人へ</title>
+<style>
+  :root {
+    --bg: #080808;
+    --card: #131313;
+    --gold: #f0c040;
+    --red: #e63946;
+    --text: #f0ece4;
+    --muted: #999;
+    --border: rgba(255,255,255,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI','Noto Sans JP','Myanmar Text',sans-serif; line-height: 1.6; }
+  ruby { ruby-align: center; }
+  rt { font-size: 0.52em; color: var(--gold); letter-spacing: 0.04em; }
+
+  .hero {
+    min-height: 85vh;
+    background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 60px 20px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse at 30% 40%, rgba(240,192,64,.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 70%, rgba(230,57,70,.10) 0%, transparent 50%);
+  }
+  .hero-inner { position: relative; z-index: 1; max-width: 700px; }
+  .hero-flag { font-size: 4.5rem; margin-bottom: 20px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .hero h1 {
+    font-size: clamp(2rem,6vw,4.5rem); font-weight: 900; letter-spacing: .07em;
+    background: linear-gradient(90deg,#fff,var(--gold),#fff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    margin-bottom: 16px;
+  }
+  .hero-sub { font-size: clamp(.95rem,2.2vw,1.25rem); color: rgba(255,255,255,.82); margin-bottom: 10px; }
+  .hero-mm  { font-size: 1.05rem; color: var(--gold); margin-bottom: 36px; }
+  .hero-stats { display:flex; gap:36px; justify-content:center; flex-wrap:wrap; }
+  .stat strong { display:block; font-size:2rem; color:var(--gold); font-weight:900; }
+  .stat span   { font-size:.78rem; color:rgba(255,255,255,.55); }
+
+  .rnav {
+    position:sticky; top:0; z-index:200;
+    background:rgba(8,8,8,.96); backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--gold);
+    padding:10px 16px; display:flex; gap:6px; flex-wrap:wrap; justify-content:center;
+  }
+  .rnav a {
+    color:rgba(255,255,255,.7); text-decoration:none; font-size:.76rem;
+    padding:5px 13px; border-radius:20px; border:1px solid rgba(255,255,255,.15);
+    transition:all .2s; white-space:nowrap;
+  }
+  .rnav a:hover { background:var(--gold); color:#000; border-color:var(--gold); font-weight:700; }
+
+  .region { max-width:1400px; margin:72px auto 0; padding:0 20px 56px; }
+  .region-title { text-align:center; margin-bottom:40px; padding-bottom:28px; position:relative; }
+  .region-title::after {
+    content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:72px; height:3px; background:var(--gold); border-radius:2px;
+  }
+  .region-title .big-emoji { font-size:2.8rem; display:block; margin-bottom:10px; }
+  .region-title h2 { font-size:1.9rem; font-weight:900; color:var(--gold); }
+  .region-title p  { color:var(--muted); margin-top:6px; font-size:.92rem; }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:28px; }
+
+  .card { background:var(--card); border-radius:20px; overflow:hidden; border:1px solid var(--border); transition:transform .3s,box-shadow .3s; }
+  .card:hover { transform:translateY(-8px); box-shadow:0 20px 60px rgba(0,0,0,.65); }
+
+  .card-photo {
+    position:relative; height:260px; overflow:hidden;
+    background: linear-gradient(135deg,#1a1a3a,#2a2a4a);
+  }
+  .card-photo img {
+    width:100%; height:100%; object-fit:cover; display:none;
+    transition:transform .5s ease;
+  }
+  .card-photo img.loaded { display:block; }
+  .card:hover .card-photo img { transform:scale(1.07); }
+
+  .card-photo::before {
+    content:''; position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:36px; height:36px; border:3px solid rgba(255,255,255,.15);
+    border-top-color:var(--gold); border-radius:50%;
+    animation:spin .8s linear infinite; z-index:1;
+  }
+  .card-photo.loaded::before { display:none; }
+  @keyframes spin { to{transform:translate(-50%,-50%) rotate(360deg)} }
+
+  .photo-overlay {
+    position:absolute; inset:0;
+    background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.08) 55%);
+    display:flex; flex-direction:column; justify-content:flex-end; padding:20px; z-index:2;
+  }
+  .pref-name    { font-size:1.85rem; font-weight:900; color:#fff; line-height:1.2; }
+  .pref-name-en { font-size:.76rem; color:var(--gold); letter-spacing:.2em; text-transform:uppercase; margin-top:4px; }
+  .pref-badge {
+    position:absolute; top:14px; right:14px; z-index:3;
+    background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff; font-size:.68rem; padding:4px 10px; border-radius:20px;
+  }
+
+  .card-body { padding:20px; }
+
+  .spot { margin-bottom:18px; }
+  .spot:last-of-type { margin-bottom:0; }
+
+  .spot-row { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:5px; }
+  .spot-name { display:flex; align-items:center; gap:8px; font-size:.95rem; font-weight:800; color:#fff; flex:1; min-width:0; }
+  .sicon { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,var(--gold),#d4882a); display:flex; align-items:center; justify-content:center; font-size:.88rem; flex-shrink:0; }
+  .spot-desc { font-size:.78rem; color:#a09888; line-height:1.65; padding-left:36px; margin-bottom:7px; }
+
+  .map-btn {
+    display:inline-flex; align-items:center; gap:5px;
+    background:rgba(66,133,244,.15); border:1px solid rgba(66,133,244,.4);
+    color:#7ab3f5; text-decoration:none; font-size:.72rem; font-weight:700;
+    padding:4px 10px; border-radius:20px; margin-left:36px;
+    transition:all .2s; white-space:nowrap;
+  }
+  .map-btn:hover { background:rgba(66,133,244,.3); color:#fff; }
+
+  .divider { height:1px; background:var(--border); margin:18px 0; }
+  .food-lbl { font-size:.64rem; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+  .food-list { display:flex; flex-wrap:wrap; gap:8px; }
+  .food-chip {
+    display:flex; align-items:center; gap:5px; flex-direction:column;
+    background:rgba(240,192,64,.1); border:1px solid rgba(240,192,64,.28);
+    color:var(--gold); padding:6px 12px; border-radius:12px;
+    font-size:.8rem; font-weight:700; text-align:center;
+  }
+  .food-chip-en { font-size:.67rem; color:var(--muted); font-weight:400; }
+
+  .must-badge { display:inline-block; background:var(--red); color:#fff; font-size:.68rem; font-weight:800; padding:3px 10px; border-radius:4px; margin-bottom:14px; letter-spacing:.06em; }
+
+  footer { background:#050505; border-top:1px solid var(--border); text-align:center; padding:60px 20px; color:var(--muted); font-size:.88rem; margin-top:40px; }
+  footer strong { color:var(--gold); }
+  .to-top { position:fixed; bottom:20px; right:20px; z-index:300; width:46px; height:46px; border-radius:50%; background:var(--gold); color:#000; border:none; font-size:1.1rem; font-weight:900; cursor:pointer; box-shadow:0 4px 20px rgba(240,192,64,.4); transition:transform .2s; }
+  .to-top:hover { transform:scale(1.15); }
+
+  @media(max-width:640px){ .grid{grid-template-columns:1fr;} .card-photo{height:220px;} }
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-flag">🇯🇵</div>
+    <h1>DISCOVER JAPAN</h1>
+    <p class="hero-sub"><ruby>日本<rt>にほん</rt></ruby>へようこそ ― 47都道府県、無限の感動。</p>
+    <p class="hero-sub">Your first journey will be your most unforgettable.</p>
+    <p class="hero-mm">မြန်မာနိုင်ငံမှ ဂျပန်သို့ ကြိုဆိုပါသည် 🙏</p>
+    <div class="hero-stats">
+      <div class="stat"><strong>47</strong><span>都道府県</span></div>
+      <div class="stat"><strong>94</strong><span>Iconic Spots</span></div>
+      <div class="stat"><strong>94</strong><span>Local Foods</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NAV ═══ -->
+<nav class="rnav">
+  <a href="#hokkaido">🏔 <ruby>北海道<rt>ほっかいどう</rt></ruby></a>
+  <a href="#tohoku">🌿 <ruby>東北<rt>とうほく</rt></ruby></a>
+  <a href="#kanto">🗼 <ruby>関東<rt>かんとう</rt></ruby></a>
+  <a href="#chubu">🗻 <ruby>中部<rt>ちゅうぶ</rt></ruby></a>
+  <a href="#kinki">⛩ <ruby>近畿<rt>きんき</rt></ruby></a>
+  <a href="#chugoku">🦌 <ruby>中国<rt>ちゅうごく</rt></ruby></a>
+  <a href="#shikoku">🍊 <ruby>四国<rt>しこく</rt></ruby></a>
+  <a href="#kyushu">🌋 <ruby>九州<rt>きゅうしゅう</rt></ruby></a>
+</nav>
+
+
+<!-- ════════════════════════════════════
+     ① 北海道 HOKKAIDO
+════════════════════════════════════ -->
+<div class="region" id="hokkaido">
+  <div class="region-title">
+    <span class="big-emoji">🏔</span>
+    <h2><ruby>北海道<rt>ほっかいどう</rt></ruby> — HOKKAIDO</h2>
+    <p>Japan's wild north — vast landscapes, fresh seafood, infinite sky</p>
+  </div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Shiretoko National Park" data-bg="linear-gradient(135deg,#0d2b4a,#1a6699)">
+        <img alt="北海道">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>北海道<rt>ほっかいどう</rt></ruby></div>
+          <div class="pref-name-en">HOKKAIDO</div>
+        </div>
+        <div class="pref-badge">🏔 Pref. 01</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🚢</span><ruby>小樽運河<rt>おたるうんが</rt></ruby></div>
+          </div>
+          <div class="spot-desc">၁၉၂၀ ခုနှစ်မှ တည်ဆောက်ခဲ့သော ကျောက်ခြင်း အဆောင်အများ သည် မီးထိုးကြည်နီး သည့် ချောင်းမကျေးဇူး၏ အနားတွင် တည်ရှိသည်။ ည (night) တွင် ရထားမီးများ ရေမှုံးပြင်ထွက်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Otaru+Canal+Hokkaido+Japan" target="_blank">📍 Maps</a>
+        </div>
+
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🦅</span><ruby>知床半島<rt>しれとこはんとう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">UNESCO သမ္မတ သဘာဝအလယ်နီ ဖြစ်သည့် ဤဒေသတွင် သမင်ငါး ရုံးများ ကို လုပ်ဆောင်သည့် သက္ခုမုံ ကြီးများ ကို တွေ့ရှိနိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Shiretoko+National+Park+Hokkaido+Japan" target="_blank">📍 Maps</a>
+        </div>
+
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 <ruby>名産品<rt>めいさんひん</rt></ruby></div>
+        <div class="food-list">
+          <div class="food-chip">🦀 <ruby>タラバガニ<rt>たらばがに</rt></ruby><span class="food-chip-en">King Crab</span></div>
+          <div class="food-chip">🐑 ジンギスカン<span class="food-chip-en">Lamb BBQ</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     ② 東北 TOHOKU (2-7)
+════════════════════════════════════ -->
+<div class="region" id="tohoku">
+  <div class="region-title">
+    <span class="big-emoji">🌿</span>
+    <h2><ruby>東北<rt>とうほく</rt></ruby> — TOHOKU</h2>
+    <p>Ancient festivals, sacred gorges, and soul-warming hot springs</p>
+  </div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Hirosaki Castle" data-bg="linear-gradient(135deg,#1a3d1a,#2e7d32)">
+        <img alt="青森県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>青森県<rt>あおもりけん</rt></ruby></div>
+          <div class="pref-name-en">AOMORI</div>
+        </div>
+        <div class="pref-badge">🌸 Pref. 02</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>弘前城<rt>ひろさきじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">နွေရာသီတွင် အပ်နှံများ ၂,၅၀၀ ခု အပန်းချရန်နေရာကို ပန်းတစ်ဒီ အောင်ဆက်စပ်ပြီး နံရံထည့်ခွင့်ပေးသည်။ အလှအပ (beauty) မြင့်မားသည့်နေရာဖြစ်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Hirosaki+Castle+Aomori+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌊</span><ruby>奥入瀬渓流<rt>おいらせけいりゅう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">သုံးလောင်းအြ ကျောက်များအုပ်ခြင်းနှင့် ရေစီးကြော်သည့် တောက်အုံးများ ကြည့်တွေ့နိုင်သည့် အလှကြီးမားသော အနေအထားရှိသည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Oirase+Gorge+Aomori+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍎 <ruby>青森<rt>あおもり</rt></ruby>りんご<span class="food-chip-en">Aomori Apple</span></div>
+          <div class="food-chip">🐚 ホタテ<span class="food-chip-en">Giant Scallops</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Chūson-ji" data-bg="linear-gradient(135deg,#1a3d1a,#388e3c)">
+        <img alt="岩手県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>岩手県<rt>いわてけん</rt></ruby></div>
+          <div class="pref-name-en">IWATE</div>
+        </div>
+        <div class="pref-badge">✨ Pref. 03</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>平泉<rt>ひらいずみ</rt></ruby>・<ruby>中尊寺<rt>ちゅうそんじ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">A 900-year-old Golden Hall shimmers inside a UNESCO temple. Its gold-leafed walls house paradise itself — a vision that leaves every visitor breathless.</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Chusonji+Temple+Hiraizumi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏖</span><ruby>浄土ヶ浜<rt>じょうどがはま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">White volcanic rocks rise from a turquoise bay so serene that monks named it "Shore of Paradise." Kayak through sea caves into pure silence.</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Jodogahama+Beach+Iwate+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍜 わんこそば<span class="food-chip-en">Endless Noodle Challenge</span></div>
+          <div class="food-chip">🫖 <ruby>南部鉄器<rt>なんぶてっき</rt></ruby><span class="food-chip-en">Iron Teapot</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Matsushima" data-bg="linear-gradient(135deg,#1a3d1a,#43a047)">
+        <img alt="宮城県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>宮城県<rt>みやぎけん</rt></ruby></div>
+          <div class="pref-name-en">MIYAGI</div>
+        </div>
+        <div class="pref-badge">🏝 Pref. 04</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏝</span><ruby>松島<rt>まつしま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ရေကြီးခွင့်နှင့် သစ်သီးများသည့် ကျွန်းတင်းများ ၂၆၀ ကျွန်း စုချပ်ခွင်းရှိသည်။ ဂုံက်လွှတ်သည့်အချိန်တွင် ရိုးရီးဘူးများလူံကျောင်း၏ လှမ်းမြင့်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Matsushima+Bay+Miyagi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>仙台城跡<rt>せんだいじょうせき</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကြီးမြတ်သည့် နိုင်ငံတော်၏ အုပ်ချုပ်ရန်မြို့တွင် မည်သည့် အလှတည်ဆောက်ချုပ်ခြင်းများ ရှိ၏။ အရှေ့တိုင်းသည့် အလှကြီးမားသည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Sendai+Castle+Ruins+Miyagi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥩 <ruby>牛<rt>ぎゅう</rt></ruby>タン<span class="food-chip-en">Grilled Beef Tongue</span></div>
+          <div class="food-chip">🎣 <ruby>笹<rt>ささ</rt></ruby>かまぼこ<span class="food-chip-en">Bamboo Fish Cake</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Kakunodate" data-bg="linear-gradient(135deg,#1a3d1a,#2e7d32)">
+        <img alt="秋田県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>秋田県<rt>あきたけん</rt></ruby></div>
+          <div class="pref-name-en">AKITA</div>
+        </div>
+        <div class="pref-badge">⚔ Pref. 05</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏘</span><ruby>角館<rt>かくのだて</rt></ruby></div>
+          </div>
+          <div class="spot-desc">၄၀၀ ခုနှစ်အကြေးယူ ယုဒ္ဓသီများ လမ်းများ ကျေးဇူးများ။ နွေရာသီတွင် ပန်းပွင့်များ မြို့ကို ဆုံးချုံးရှီသည့် အလှ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kakunodate+Samurai+District+Akita+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">💎</span><ruby>田沢湖<rt>たざわこ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အရှည်ဆုံးရေကန်။ အစုံစီးပွားအုပ်ချုံးဒီ စောင်းတုံးလုံးများ။ ကြည်လင်အုံးအဝါရည်မြင့်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Lake+Tazawa+Akita+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍢 きりたんぽ<span class="food-chip-en">Rice-Stick Hotpot</span></div>
+          <div class="food-chip">🍝 <ruby>稲庭<rt>いなにわ</rt></ruby>うどん<span class="food-chip-en">Silky Flat Noodles</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Zaō Onsen" data-bg="linear-gradient(135deg,#1a3d1a,#4caf50)">
+        <img alt="山形県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>山形県<rt>やまがたけん</rt></ruby></div>
+          <div class="pref-name-en">YAMAGATA</div>
+        </div>
+        <div class="pref-badge">❄ Pref. 06</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛷</span><ruby>蔵王<rt>ざおう</rt></ruby>の<ruby>樹氷<rt>じゅひょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ရာသီအချိန်တွင် ဆီးခြင်း အခြုံများဖြစ်သည့် နတ်သမ္မတ သဘာဝအလယ်နီများ။ အခြုံအုံးအများများကြီး လည်လုံးဒီ ဖြစ်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Zao+Snow+Monsters+Yamagata+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛪</span><ruby>山寺<rt>やまでら</rt></ruby>（<ruby>立石寺<rt>りっしゃくじ</rt></ruby>）</div>
+          </div>
+          <div class="spot-desc">တောင်တက်မြူ ၁,၀၁၅ တွင် အစ်ခွင့်ခွင့်ခွင့်ကြီးများတည်ရှိသည်။ တောင်ထိပ်သို့ ရောက်တွေ့သည့်အခါ မြေလုံးများအုံးအဝါများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Yamadera+Temple+Yamagata+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍒 <ruby>山形<rt>やまがた</rt></ruby>さくらんぼ<span class="food-chip-en">Ruby Red Cherries</span></div>
+          <div class="food-chip">🥘 <ruby>芋煮<rt>いもに</rt></ruby><span class="food-chip-en">Taro River Stew</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Tsuruga Castle" data-bg="linear-gradient(135deg,#1a3d1a,#388e3c)">
+        <img alt="福島県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>福島県<rt>ふくしまけん</rt></ruby></div>
+          <div class="pref-name-en">FUKUSHIMA</div>
+        </div>
+        <div class="pref-badge">🍑 Pref. 07</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>鶴<rt>つる</rt></ruby>ヶ<ruby>城<rt>じょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အလွန်အံ့အားသည့် အုပ်ချုပ်ရန်မြို့အုံးအများများတည်ရှိသည်။ အလှ (beauty) နှင့်အခြုံများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Tsurugajo+Castle+Aizuwakamatsu+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌈</span><ruby>五色沼<rt>ごしきぬま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">တစ်ခါ ဒီမြေခွင့်ကို ပြေးမျ ပြတ်သောအခါ အုံးအများများ ပွင့်လင်းခြင်း သည့်အုံးများရှိသည်။ လမ်းခုံးများ ၄ ကီလိုမီတာရှိသည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Goshikinuma+Five+Colored+Lakes+Fukushima+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍜 <ruby>喜多方<rt>きたかた</rt></ruby>ラーメン<span class="food-chip-en">Famous Kitakata Ramen</span></div>
+          <div class="food-chip">🍑 <ruby>福島<rt>ふくしま</rt></ruby>の<ruby>桃<rt>もも</rt></ruby><span class="food-chip-en">Japan's Sweetest Peaches</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     ③ 関東 KANTO (8-14)
+════════════════════════════════════ -->
+<div class="region" id="kanto">
+  <div class="region-title">
+    <span class="big-emoji">🗼</span>
+    <h2><ruby>関東<rt>かんとう</rt></ruby> — KANTO</h2>
+    <p>Tokyo's neon energy meets ancient shrines and seaside drama</p>
+  </div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Kairakuen" data-bg="linear-gradient(135deg,#4a1a1a,#b71c1c)">
+        <img alt="茨城県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>茨城県<rt>いばらきけん</rt></ruby></div>
+          <div class="pref-name-en">IBARAKI</div>
+        </div>
+        <div class="pref-badge">🌸 Pref. 08</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌸</span><ruby>偕楽園<rt>かいらくえん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ ဂုဏ်အမြင့်ဆုံး အုံးပွင့်များ တည်းချခွင့်။ သုံးထောင်ခြုံအုံးများ သိုင်းအုံးများအုံးမြင့်သည့် ပွင့်လင်းခြင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kairakuen+Garden+Mito+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">💦</span><ruby>袋田<rt>ふくろだ</rt></ruby>の<ruby>滝<rt>たき</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အဆင့်မြင့် ရေအုံးအများများ။ ရာသီအချိန်တွင် အဝါများ အုံးအများများစီးမျ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Fukuroda+Falls+Ibaraki+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🫘 <ruby>水戸納豆<rt>みとなっとう</rt></ruby><span class="food-chip-en">Fermented Soybeans</span></div>
+          <div class="food-chip">🐟 あんこう<ruby>鍋<rt>なべ</rt></ruby><span class="food-chip-en">Anglerfish Hotpot</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Nikkō Tōshō-gū" data-bg="linear-gradient(135deg,#4a1a1a,#c62828)">
+        <img alt="栃木県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>栃木県<rt>とちぎけん</rt></ruby></div>
+          <div class="pref-name-en">TOCHIGI</div>
+        </div>
+        <div class="pref-badge">🏛 Pref. 09</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>日光東照宮<rt>にっこうとうしょうぐう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အလွန်အံ့အားသည့် ဘုံးတည်ဆောက်ချုပ်များ။ အခြုံအုံးများ အုံးအများများရှိသည့် အလှကြီးမားသည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Nikko+Toshogu+Shrine+Tochigi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏔</span><ruby>那須高原<rt>なすこうげん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကျွန်းအုံးအများများ အုံးအများများစီးမျ။ အုံးအများများ တည်းချခွင့်နှင့် အုံးအများများစီးမျ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Nasu+Highlands+Tochigi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥟 <ruby>宇都宮<rt>うつのみや</rt></ruby><ruby>餃子<rt>ぎょうざ</rt></ruby><span class="food-chip-en">Pan-Fried Dumplings</span></div>
+          <div class="food-chip">🍓 とちおとめ<span class="food-chip-en">Japan's No.1 Strawberry</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Kusatsu, Gunma" data-bg="linear-gradient(135deg,#4a1a1a,#d32f2f)">
+        <img alt="群馬県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>群馬県<rt>ぐんまけん</rt></ruby></div>
+          <div class="pref-name-en">GUNMA</div>
+        </div>
+        <div class="pref-badge">♨ Pref. 10</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">♨️</span><ruby>草津温泉<rt>くさつおんせん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အလွန်ကျော်ကြားသည့် အူးအုံး။ တစ်ထောင်ခုနှစ်အကြေးယူ သည့် သည့်အုံးအများများ။ ည (night) တွင် အဝါများ မီးကျီသည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kusatsu+Onsen+Gunma+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏭</span><ruby>富岡製糸場<rt>とみおかせいしじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ ခေတ်သစ်ပြည့်လည်သည့် အုံးတည်ဆောက်ချုပ်များ။ အလွန်နည်းဆုံးအုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Tomioka+Silk+Mill+Gunma+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍝 <ruby>水沢<rt>みずさわ</rt></ruby>うどん<span class="food-chip-en">Chewy Thick Noodles</span></div>
+          <div class="food-chip">🟢 こんにゃく<span class="food-chip-en">Konjac Jelly</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Kawagoe, Saitama" data-bg="linear-gradient(135deg,#4a1a1a,#b71c1c)">
+        <img alt="埼玉県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>埼玉県<rt>さいたまけん</rt></ruby></div>
+          <div class="pref-name-en">SAITAMA</div>
+        </div>
+        <div class="pref-badge">🏮 Pref. 11</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏮</span><ruby>川越<rt>かわごえ</rt></ruby>（<ruby>小江戸<rt>こえど</rt></ruby>）</div>
+          </div>
+          <div class="spot-desc">စာခြင်းအုံးအများများ တည်ရှိသည့် အုံးခုံးများ။ အုံးအများများ အုံးအများများစီးမျများည(nights) အုံးအများများမီးများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kawagoe+Little+Edo+Saitama+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>三峯神社<rt>みつみねじんじゃ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">တောင်ထိပ်သို့ အုံးအများများစီးမျ။ အုံးအများများ တည်တံဆိုင်း အုံးအများများရှိသည့် အလှကြီးမားသည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Mitsumine+Shrine+Chichibu+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍘 <ruby>草加<rt>そうか</rt></ruby>せんべい<span class="food-chip-en">Artisan Rice Crackers</span></div>
+          <div class="food-chip">🥜 <ruby>深谷<rt>ふかや</rt></ruby>ねぎ<span class="food-chip-en">Sweet Giant Leeks</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Narita, Chiba" data-bg="linear-gradient(135deg,#4a1a1a,#c62828)">
+        <img alt="千葉県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>千葉県<rt>ちばけん</rt></ruby></div>
+          <div class="pref-name-en">CHIBA</div>
+        </div>
+        <div class="pref-badge">⛩ Pref. 12</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>成田山新勝寺<rt>なりたさんしんしょうじ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အလွန်ကျော်ကြားသည့် ဘုံးတည်ဆောက်ချုပ်များ။ တစ်ကျိပ်အုံးအများများ အုံးအများများစီးမျ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Naritasan+Shinshoji+Temple+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌊</span><ruby>館山<rt>たてやま</rt></ruby>・<ruby>外房<rt>そとぼう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကမ်းမြို့ အုံးအများများစီးမျ။ ငါးများ ခုံးများစီးမျ။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Tateyama+Chiba+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥜 <ruby>落花生<rt>らっかせい</rt></ruby><span class="food-chip-en">Japan's Finest Peanuts</span></div>
+          <div class="food-chip">🦞 <ruby>伊勢海老<rt>いせえび</rt></ruby><span class="food-chip-en">Spiny Lobster</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Shibuya Scramble Crossing" data-bg="linear-gradient(135deg,#4a1a1a,#e53935)">
+        <img alt="東京都">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>東京都<rt>とうきょうと</rt></ruby></div>
+          <div class="pref-name-en">TOKYO</div>
+        </div>
+        <div class="pref-badge">🌟 Pref. 13</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏮</span><ruby>浅草<rt>あさくさ</rt></ruby>・<ruby>雷門<rt>かみなりもん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အဟောင်းဆုံးမြို့အုံးများ။ အုံးအများများအုံးတည်တံဆိုင်း ကြည့်တွေ့နိုင်သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Senso-ji+Asakusa+Tokyo+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🚦</span><ruby>渋谷<rt>しぶや</rt></ruby>スクランブル</div>
+          </div>
+          <div class="spot-desc">ကမ္ဘာ၏ အကျယ်ဆုံးလူများစီးမျ။ ခင်းကျင်းများ အုံးအများများ။ အုံးအများများခွင့်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Shibuya+Scramble+Crossing+Tokyo+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥞 အုံးများ<span class="food-chip-en">Tokyo-Style Pancake</span></div>
+          <div class="food-chip">🍌 အုံးများ<span class="food-chip-en">Iconic Banana Cake</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Great Buddha of Kamakura" data-bg="linear-gradient(135deg,#4a1a1a,#d32f2f)">
+        <img alt="神奈川県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>神奈川県<rt>かながわけん</rt></ruby></div>
+          <div class="pref-name-en">KANAGAWA</div>
+        </div>
+        <div class="pref-badge">🗿 Pref. 14</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🗿</span><ruby>鎌倉大仏<rt>かまくらだいぶつ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဒီုံးတည်တံဆိုင်း ၏ အုံးအများများ။ ၇၀၀ ခုနှစ်ကြေးယူ သည့်အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Great+Buddha+Kamakura+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">♨️</span><ruby>箱根<rt>はこね</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အုံးအများများစီးမျ အုံးအများများ။ အုံးအများများတည်တံဆိုင်းများစီးမျ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Hakone+Kanagawa+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥟 အုံးများ<span class="food-chip-en">Yokohama Steamed Dumpling</span></div>
+          <div class="food-chip">🐟 အုံးများ<span class="food-chip-en">Tiny Whitebait on Rice</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     ④ 中部 CHUBU (15-20)
+════════════════════════════════════ -->
+<div class="region" id="chubu">
+  <div class="region-title">
+    <span class="big-emoji">🗻</span>
+    <h2><ruby>中部<rt>ちゅうぶ</rt></ruby> — CHUBU (Pref 15–20)</h2>
+    <p>Mt. Fuji, the Japan Alps, snow corridors, and fairytale villages</p>
+  </div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Sado Island" data-bg="linear-gradient(135deg,#1a3a4a,#1565c0)">
+        <img alt="新潟県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>新潟県<rt>にいがたけん</rt></ruby></div>
+          <div class="pref-name-en">NIIGATA</div>
+        </div>
+        <div class="pref-badge">🍚 Pref. 15</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏝</span><ruby>佐渡島<rt>さどがしま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အုံးအများများ စဉ်ဆက်မြစုံ။ အုံးအများများ တည်တံဆိုင်း အုံးအများများစီးမျ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Sado+Island+Niigata+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛷</span><ruby>越後湯沢<rt>えちごゆざわ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အုံးအများများ ဖြည့်စွက်ခွင့်။ အုံးအများများစီးမျ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Echigo-Yuzawa+Niigata+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍚 コシヒカリ<span class="food-chip-en">Japan's Finest Rice</span></div>
+          <div class="food-chip">🍶 <ruby>越後<rt>えちご</rt></ruby>の<ruby>地酒<rt>じざけ</rt></ruby><span class="food-chip-en">Premium Sake</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Tateyama Kurobe Alpine Route" data-bg="linear-gradient(135deg,#1a3a4a,#1976d2)">
+        <img alt="富山県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>富山県<rt>とやまけん</rt></ruby></div>
+          <div class="pref-name-en">TOYAMA</div>
+        </div>
+        <div class="pref-badge">❄ Pref. 16</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏔</span><ruby>立山<rt>たてやま</rt></ruby>・<ruby>雪<rt>ゆき</rt></ruby>の<ruby>大谷<rt>おおたに</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ငါး အုံးအများများ အုံးအများများစီးမျ။ အုံးအများများတည်တံဆိုင်း ကြည့်တွေ့နိုင်သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Tateyama+Snow+Corridor+Toyama+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏞</span><ruby>黒部<rt>くろべ</rt></ruby>ダム</div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အကျယ်ဆုံးတည်တံဆိုင်း။ အုံးအများများစီးမျ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kurobe+Dam+Toyama+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🦐 <ruby>白<rt>しろ</rt></ruby>えび<span class="food-chip-en">Pearl Shrimp — Toyama Only</span></div>
+          <div class="food-chip">🍣 <ruby>富山湾<rt>とやまわん</rt></ruby><ruby>寿司<rt>すし</rt></ruby><span class="food-chip-en">Toyama Bay Sushi</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Kenroku-en" data-bg="linear-gradient(135deg,#1a3a4a,#0d47a1)">
+        <img alt="石川県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>石川県<rt>いしかわけん</rt></ruby></div>
+          <div class="pref-name-en">ISHIKAWA</div>
+        </div>
+        <div class="pref-badge">✨ Pref. 17</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌿</span><ruby>兼六園<rt>けんろくえん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အလွန်ကျော်ကြားသည့် အုံးအများများ။ အုံးအများများတည်တံဆိုင်း ကြည့်တွေ့နိုင်သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kenrokuen+Garden+Kanazawa+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏮</span>ひがし<ruby>茶屋街<rt>ちゃやがい</rt></ruby></div>
+          </div>
+          <div class="spot-desc">၂၀၀ ခုနှစ်အကြေးယူ အုံးအများများ။ အုံးအများများတည်တံဆိုင်း ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Higashi+Chaya+District+Kanazawa+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🦪 <ruby>能登牡蠣<rt>のとかき</rt></ruby><span class="food-chip-en">Noto Oysters</span></div>
+          <div class="food-chip">🍲 <ruby>治部煮<rt>じぶに</rt></ruby><span class="food-chip-en">Kanazawa Duck Stew</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Eihei-ji" data-bg="linear-gradient(135deg,#1a3a4a,#1565c0)">
+        <img alt="福井県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>福井県<rt>ふくいけん</rt></ruby></div>
+          <div class="pref-name-en">FUKUI</div>
+        </div>
+        <div class="pref-badge">🦀 Pref. 18</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🙏</span><ruby>永平寺<rt>えいへいじ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">၈၀၀ ခုနှစ်အကြေးယူ တောင်တွင် တည်ဆောက်ခွင့်ခွင့်။ တည်တံဆိုင်း အုံးအများများစီးမျ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Eiheiji+Temple+Fukui+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌊</span><ruby>東尋坊<rt>とうじんぼう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အုံးအများများ ကျောက်တုံးများ။ အုံးအများများတည်တံဆိုင်း။ အုံးအများများစီးမျ។</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Tojinbo+Cliffs+Fukui+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🦀 <ruby>越前<rt>えちぜん</rt></ruby>ガニ<span class="food-chip-en">Snow Crab — Japan's Finest</span></div>
+          <div class="food-chip">🍜 <ruby>越前<rt>えちぜん</rt></ruby>おろしそば<span class="food-chip-en">Grated Radish Soba</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Lake Kawaguchiko" data-bg="linear-gradient(135deg,#1a3a4a,#1976d2)">
+        <img alt="山梨県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>山梨県<rt>やまなしけん</rt></ruby></div>
+          <div class="pref-name-en">YAMANASHI</div>
+        </div>
+        <div class="pref-badge">🗻 Pref. 19</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🗻</span><ruby>富士山<rt>ふじさん</rt></ruby>・<ruby>河口湖<rt>かわぐちこ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကမ္ဘာ၏ အလွအပဆုံး တောင်။ အုံးအများများအုံးတည်တံဆိုင်း ကြည့်တွေ့နိုင်သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Lake+Kawaguchiko+Yamanashi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🍇</span><ruby>甲州<rt>こうしゅう</rt></ruby>ワイナリー</div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ စပါးကျယ်ခွင့်။ အုံးအများများစီးမျ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Koshu+Winery+Yamanashi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍲 ほうとう<span class="food-chip-en">Flat Noodle Miso Stew</span></div>
+          <div class="food-chip">🍡 <ruby>信玄餅<rt>しんげんもち</rt></ruby><span class="food-chip-en">Warrior's Mochi Sweet</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Matsumoto Castle" data-bg="linear-gradient(135deg,#1a3a4a,#0288d1)">
+        <img alt="長野県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>長野県<rt>ながのけん</rt></ruby></div>
+          <div class="pref-name-en">NAGANO</div>
+        </div>
+        <div class="pref-badge">🏯 Pref. 20</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>松本城<rt>まつもとじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အဟောင်းဆုံး တည်တံဆိုင်း။ ၅၀၀ ခုနှစ်ကြေးယူ သည့်အုံးအများများ။ အုံးအများများ တည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Matsumoto+Castle+Nagano+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌿</span><ruby>上高地<rt>かみこうち</rt></ruby></div>
+          </div>
+          <div class="spot-desc">၁,၅၀၀ မီတာ အမြင့်တွင် အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kamikochi+Nagano+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍜 <ruby>信州<rt>しんしゅう</rt></ruby>そば<span class="food-chip-en">Mountain Buckwheat Noodles</span></div>
+          <div class="food-chip">🥙 おやき<span class="food-chip-en">Stuffed Grilled Dumpling</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     ⑤ 近畿 KINKI (21-27)
+════════════════════════════════════ -->
+<div class="region" id="kinki">
+  <div class="region-title">
+    <span class="big-emoji">⛩</span>
+    <h2><ruby>近畿<rt>きんき</rt></ruby> — KANSAI (Pref 21–27)</h2>
+    <p>1,000 years of culture, food obsession, and spiritual awakening</p>
+  </div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Ise Grand Shrine" data-bg="linear-gradient(135deg,#3d1a1a,#c41c3b)">
+        <img alt="三重県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>三重県<rt>みえけん</rt></ruby></div>
+          <div class="pref-name-en">MIE</div>
+        </div>
+        <div class="pref-badge">⛩ Pref. 21</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>伊勢神宮<rt>いせじんぐう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အလွန်သူကြည်ငာမြင့်သည့် ဘုံး။ တစ်ထောင်သုံးရာ ခုနှစ်အကြေးယူ သည့်အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Ise+Grand+Shrine+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌊</span><ruby>賢島<rt>かしこじま</rt></ruby>・<ruby>英虞湾<rt>あごわん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ည(night) လျိုငါးများ အုံးအများများစီးမျ။ အုံးအများများတည်တံဆိုင်း ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Ise+Shima+Ago+Bay+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🦞 <ruby>伊勢海老<rt>いせえび</rt></ruby><span class="food-chip-en">Ise Spiny Lobster</span></div>
+          <div class="food-chip">🥩 <ruby>松阪牛<rt>まつさかうし</rt></ruby><span class="food-chip-en">Japan's Most Prized Wagyu</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Hikone Castle" data-bg="linear-gradient(135deg,#3d1a1a,#b71c1c)">
+        <img alt="滋賀県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>滋賀県<rt>しがけん</rt></ruby></div>
+          <div class="pref-name-en">SHIGA</div>
+        </div>
+        <div class="pref-badge">🏯 Pref. 22</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>彦根城<rt>ひこねじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အလွန်ကျော်ကြားသည့် တည်တံဆိုင်း။ ၄၀၀ ခုနှစ်အကြေးယူ သည့်အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Hikone+Castle+Shiga+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">💧</span><ruby>琵琶湖<rt>びわこ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အကျယ်ဆုံးရေကန်။ အုံးအများများအုံးတည်တံဆိုင်း ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Lake+Biwa+Shiga+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥩 <ruby>近江牛<rt>おうみうし</rt></ruby><span class="food-chip-en">Ohmi Wagyu Beef</span></div>
+          <div class="food-chip">🐟 <ruby>鮒<rt>ふな</rt></ruby>ずし<span class="food-chip-en">Ancient Fermented Carp</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Fushimi Inari-taisha" data-bg="linear-gradient(135deg,#3d1a1a,#d32f2f)">
+        <img alt="京都府">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>京都府<rt>きょうとふ</rt></ruby></div>
+          <div class="pref-name-en">KYOTO</div>
+        </div>
+        <div class="pref-badge">✨ Pref. 23</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>伏見稲荷大社<rt>ふしみいなりたいしゃ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">Thousands of vermillion torii gates form a tunnel climbing an entire mountain. A portal to another world that pilgrims have walked for centuries.</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Fushimi+Inari+Taisha+Kyoto+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">✨</span><ruby>金閣寺<rt>きんかくじ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">A pavilion entirely covered in gold leaf floats above a mirror pond. Every surface reflects perfectly. There is nothing else like it in the world.</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kinkaku-ji+Golden+Pavilion+Kyoto+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍵 အုံးများ<span class="food-chip-en">Matcha Everything</span></div>
+          <div class="food-chip">🍱 အုံးများ<span class="food-chip-en">Multi-Course Zen Cuisine</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Dotonbori" data-bg="linear-gradient(135deg,#3d1a1a,#e53935)">
+        <img alt="大阪府">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>大阪府<rt>おおさかふ</rt></ruby></div>
+          <div class="pref-name-en">OSAKA</div>
+        </div>
+        <div class="pref-badge">🍜 Pref. 24</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🎡</span><ruby>道頓堀<rt>どうとんぼり</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အာရှ၏ အများဆုံး အစားအစာ လမ်း။ ည(night) တွင် မီးများ ကျီးကျီးလင်းလင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Dotonbori+Osaka+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>大阪城<rt>おおさかじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကြီးမြတ်သည့် တည်တံဆိုင်းများ။ အုံးအများများအုံးတည်တံဆိုင်း ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Osaka+Castle+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🐙 အုံးများ<span class="food-chip-en">Octopus Ball Street Food</span></div>
+          <div class="food-chip">🥞 အုံးများ<span class="food-chip-en">Savory Osaka Pancake</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Himeji Castle" data-bg="linear-gradient(135deg,#3d1a1a,#d32f2f)">
+        <img alt="兵庫県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>兵庫県<rt>ひょうごけん</rt></ruby></div>
+          <div class="pref-name-en">HYOGO</div>
+        </div>
+        <div class="pref-badge">🏯 Pref. 25</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>姫路城<rt>ひめじじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကမ္ဘာ၏ အလွအပဆုံး တည်တံဆိုင်း။ အုံးအများများအုံးတည်တံဆိုင်း။ ၆၀၀ ခုနှစ်ကြေးယူ သည့်အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Himeji+Castle+Hyogo+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">♨️</span><ruby>有馬温泉<rt>ありまおんせん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အဟောင်းဆုံး အူးအုံး။ တစ်ထောင်ခုနှစ်အကြေးယူ သည့်အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Arima+Onsen+Hyogo+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥩 <ruby>神戸牛<rt>こうべぎゅう</rt></ruby><span class="food-chip-en">World-Famous Kobe Beef</span></div>
+          <div class="food-chip">🥚 <ruby>明石焼<rt>あかしやき</rt></ruby>き<span class="food-chip-en">Egg-Rich Takoyaki</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Todai-ji Temple" data-bg="linear-gradient(135deg,#3d1a1a,#c41c3b)">
+        <img alt="奈良県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>奈良県<rt>ならけん</rt></ruby></div>
+          <div class="pref-name-en">NARA</div>
+        </div>
+        <div class="pref-badge">🦌 Pref. 26</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🦌</span><ruby>東大寺<rt>とうだいじ</rt></ruby>・<ruby>奈良公園<rt>ならこうえん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဆိုင်း ၁,၂၀၀ ကျွန်း အုံးအများများ။ အုံးအများများ ကြည့်တွေ့နိုင်သည့် ဘုံးတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Todai-ji+Temple+Nara+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌸</span><ruby>吉野山<rt>よしのやま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အုံးအများများ ၃၀,၀၀၀ ခု။ အုံးအများများအုံးတည်တံဆိုင်း။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Yoshino+Mountain+Nara+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍱 <ruby>柿<rt>かき</rt></ruby>の<ruby>葉<rt>は</rt></ruby><ruby>寿司<rt>ずし</rt></ruby><span class="food-chip-en">Persimmon Leaf Sushi</span></div>
+          <div class="food-chip">🍝 <ruby>三輪<rt>みわ</rt></ruby>そうめん<span class="food-chip-en">Ancient Fine Noodles</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Koyasan" data-bg="linear-gradient(135deg,#3d1a1a,#b71c1c)">
+        <img alt="和歌山県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>和歌山県<rt>わかやまけん</rt></ruby></div>
+          <div class="pref-name-en">WAKAYAMA</div>
+        </div>
+        <div class="pref-badge">⛰ Pref. 27</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🙏</span><ruby>高野山<rt>こうやさん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">၉၀၀ မီတာ တောင်အပေါ်ရှိ ဗုဒ္ဓဆုံးမြို့။ ၁၁၇ ဘုံးတည်တံဆိုင်း။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Koyasan+Wakayama+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">💦</span><ruby>那智<rt>なち</rt></ruby>の<ruby>滝<rt>たき</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အမြင့်ဆုံး ရေအုံးအများများ။ ၁၃၃ မီတာ အမြင့်။ သူကြည်ငာမြင့်သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Nachi+Falls+Wakayama+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🫐 <ruby>紀州梅<rt>きしゅううめ</rt></ruby><span class="food-chip-en">Japan's Finest Pickled Plum</span></div>
+          <div class="food-chip">🐟 <ruby>勝浦<rt>かつうら</rt></ruby>マグロ<span class="food-chip-en">Tuna Caught at Dawn</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     CHUBU continued (28-30)
+════════════════════════════════════ -->
+<div class="region" id="chubu-cont">
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Shirakawa-go" data-bg="linear-gradient(135deg,#1a3a4a,#1976d2)">
+        <img alt="岐阜県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>岐阜県<rt>ぎふけん</rt></ruby></div>
+          <div class="pref-name-en">GIFU</div>
+        </div>
+        <div class="pref-badge">🏠 Pref. 28</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏠</span><ruby>白川郷<rt>しらかわごう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ယူနက်စကို တည်ရှိသည့် အုံးအများများ။ နွေရာသီတွင် ဆီးခြင်း အခြုံများ။ ည(night) တွင် ကာတွန်းအုံးအများများကဲ့သို့။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Shirakawa-go+Gifu+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">♨️</span><ruby>下呂温泉<rt>げろおんせん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အရေးကျေးဇူးဆုံးအူးအုံး။ တောင်တွင်ရှိသည့် အုံးအများများ။ နွေရာသီတွင် ငါးများ ကြည့်တွေ့နိုင်သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Gero+Onsen+Gifu+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥩 <ruby>飛騨牛<rt>ひだぎゅう</rt></ruby><span class="food-chip-en">Premium Wagyu</span></div>
+          <div class="food-chip">🌰 <ruby>栗<rt>くり</rt></ruby>きんとん<span class="food-chip-en">Chestnut Confection</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Miho no Matsubara" data-bg="linear-gradient(135deg,#1a3a4a,#1565c0)">
+        <img alt="静岡県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>静岡県<rt>しずおかけん</rt></ruby></div>
+          <div class="pref-name-en">SHIZUOKA</div>
+        </div>
+        <div class="pref-badge">🍵 Pref. 29</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌿</span><ruby>三保<rt>みほ</rt></ruby>の<ruby>松原<rt>まつばら</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ယူနက်စကို သစ်ခြင်းတည်ရှိသည့် အုံးအများများ။ ဖုံ ပင်လယ်ကျော် ကြည့်တွေ့နိုင်သည့် တောင်။ ဓာတ်ပုံ ထောင်ပိုင်းများ ရိုက်ခွင်းခဲ့သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Miho+no+Matsubara+Shizuoka+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">♨️</span><ruby>伊豆<rt>いず</rt></ruby>・<ruby>熱海<rt>あたみ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကမ်းခြင်းအပေါ်သည့် အူးအုံးဟောတယ်များ။ ကိုယ်ပိုင် အုံးအများများတည်တံဆိုင်း။ နွေရာသီတွင် ပျံ့ပြန့်သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Izu+Atami+Shizuoka+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍵 <ruby>静岡茶<rt>しずおかちゃ</rt></ruby><span class="food-chip-en">Japan's Finest Green Tea</span></div>
+          <div class="food-chip">🐟 <ruby>静岡<rt>しずおか</rt></ruby>うなぎ<span class="food-chip-en">Grilled Freshwater Eel</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Nagoya Castle" data-bg="linear-gradient(135deg,#1a3a4a,#1976d2)">
+        <img alt="愛知県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>愛知県<rt>あいちけん</rt></ruby></div>
+          <div class="pref-name-en">AICHI</div>
+        </div>
+        <div class="pref-badge">🏯 Pref. 30</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>名古屋城<rt>なごやじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">တည်တံဆိုင်း၏ အထိပ်တွင် ရွှေမုံးများ ကြည့်တွေ့နိုင်သည်။ တိုကုဂါဝါ အုပ်ချုပ်သူများ ရုံးဆောင်ခွင့်။ အုံးအများများ အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Nagoya+Castle+Aichi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>犬山城<rt>いぬやまじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အဟောင်းဆုံးတည်တံဆိုင်း။ ၁,၃၀၀ ခုနှစ်အကြေးယူ သည့် အုံးအများများ။ ည(night) တွင် မီးကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Inuyama+Castle+Aichi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍱 ひつまぶし<span class="food-chip-en">Eel Rice 3 Ways</span></div>
+          <div class="food-chip">🥩 <ruby>味噌<rt>みそ</rt></ruby>カツ<span class="food-chip-en">Miso-Glazed Pork Cutlet</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     ⑥ 中国 CHUGOKU (31-35)
+════════════════════════════════════ -->
+<div class="region" id="chugoku">
+  <div class="region-title">
+    <span class="big-emoji">🦌</span>
+    <h2><ruby>中国地方<rt>ちゅうごくちほう</rt></ruby> — CHUGOKU (Pref 31–35)</h2>
+    <p>Where myths were born — mystical shrines and dramatic cliffs</p>
+  </div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Tottori Sand Dunes" data-bg="linear-gradient(135deg,#3d1a1a,#c41c3b)">
+        <img alt="鳥取県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>鳥取県<rt>ととりけん</rt></ruby></div>
+          <div class="pref-name-en">TOTTORI</div>
+        </div>
+        <div class="pref-badge">🏜 Pref. 31</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏜</span><ruby>鳥取砂丘<rt>とっとりさきゅう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ သီးခွဲသည့် သဲကန်းများ။ ၁၆ ကီလိုမီတာ။ ကမ္ဘာ စိုးစံက ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Tottori+Sand+Dunes+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">♨️</span><ruby>三朝温泉<rt>みささおんせん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကမ္ဘာ၏ အမြင့်ဆုံး အူးအုံး။ သီးခွဲ အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Misasa+Onsen+Tottori+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🦀 <ruby>松葉<rt>まつば</rt></ruby>ガニ<span class="food-chip-en">Snow Crab</span></div>
+          <div class="food-chip">🍐 <ruby>二十世紀梨<rt>にじゅっせいきなし</rt></ruby><span class="food-chip-en">Crisp Japanese Pear</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Izumo Taisha" data-bg="linear-gradient(135deg,#3d1a1a,#b71c1c)">
+        <img alt="島根県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>島根県<rt>しまねけん</rt></ruby></div>
+          <div class="pref-name-en">SHIMANE</div>
+        </div>
+        <div class="pref-badge">⛩ Pref. 32</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>出雲大社<rt>いずもたいしゃ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အဟောင်းဆုံးဘုံး။ ကံစည်သည့် ဘုံး။ ကြီးမြတ်သည့် ကက္ကကြင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Izumo+Taisha+Shimane+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>松江城<rt>まつえじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အုံးအများများ ကမ်းခြင်း။ ည(night) တွင် အုံးအများများ မီးများ။ ရထားအုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Matsue+Castle+Shimane+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍜 <ruby>出雲<rt>いずも</rt></ruby>そば<span class="food-chip-en">Three-Tier Buckwheat Soba</span></div>
+          <div class="food-chip">🐟 のどぐろ<span class="food-chip-en">Rich Blackthroat Seaperch</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Kurashiki" data-bg="linear-gradient(135deg,#3d1a1a,#c41c3b)">
+        <img alt="岡山県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>岡山県<rt>おかやまけん</rt></ruby></div>
+          <div class="pref-name-en">OKAYAMA</div>
+        </div>
+        <div class="pref-badge">🍑 Pref. 33</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌿</span><ruby>後楽園<rt>こうらくえん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ ကျော်ကြားသည့် အုံးအများများ။ ကျေးဇူးများ အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kouraku-en+Garden+Okayama+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏘</span><ruby>倉敷美観地区<rt>くらしきびかんちく</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အုံးအများများ တည်တံဆိုင်းများ။ ကမ်းခြင်းအုံးအများများ။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kurashiki+Okayama+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍑 <ruby>白桃<rt>はくとう</rt></ruby><span class="food-chip-en">Japan's Finest White Peach</span></div>
+          <div class="food-chip">🐟 ままかり<span class="food-chip-en">Pickled Sashimi Fish</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Itsukushima Shrine" data-bg="linear-gradient(135deg,#3d1a1a,#d32f2f)">
+        <img alt="広島県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>広島県<rt>ひろしまけん</rt></ruby></div>
+          <div class="pref-name-en">HIROSHIMA</div>
+        </div>
+        <div class="pref-badge">⛩ Pref. 34</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>宮島<rt>みやじま</rt></ruby>・<ruby>厳島神社<rt>いつくしまじんじゃ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ပင်လယ်အုံးအများများ။ ယူနက်စကို တည်ရှိသည့် အုံးအများများ။ သမင်ငါး ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Itsukushima+Shrine+Miyajima+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">☮</span><ruby>広島平和記念公園<rt>ひろしまへいわきねんこうえん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">The Atomic Bomb Dome, left exactly as the blast left it in 1945, stands in a park of peace and reconciliation. One of the most moving places a human being can visit.</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Hiroshima+Peace+Memorial+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🦪 <ruby>広島牡蠣<rt>ひろしまかき</rt></ruby><span class="food-chip-en">Japan's Best Oysters</span></div>
+          <div class="food-chip">🥞 <ruby>広島<rt>ひろしま</rt></ruby>お好み焼き<span class="food-chip-en">Layered Hiroshima Pancake</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Tsunoshima Bridge" data-bg="linear-gradient(135deg,#3d1a1a,#c41c3b)">
+        <img alt="山口県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>山口県<rt>やまぐちけん</rt></ruby></div>
+          <div class="pref-name-en">YAMAGUCHI</div>
+        </div>
+        <div class="pref-badge">🌊 Pref. 35</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌊</span><ruby>角島大橋<rt>つのしまおおはし</rt></ruby></div>
+          </div>
+          <div class="spot-desc">တံတားများ ပင်လယ်အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Tsunoshima+Bridge+Yamaguchi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌿</span><ruby>秋吉台<rt>あきよしだい</rt></ruby>・<ruby>秋芳洞<rt>あきよしどう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အကျယ်ဆုံးအုံးအများများ။ တောင်အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Akiyoshi-do+Cave+Yamaguchi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🐡 ふぐ料理<span class="food-chip-en">Pufferfish — Life on the Edge</span></div>
+          <div class="food-chip">🍡 <ruby>外郎<rt>ういろう</rt></ruby><span class="food-chip-en">Traditional Sweet Wagashi</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     ⑦ 四国 SHIKOKU (36-39)
+════════════════════════════════════ -->
+<div class="region" id="shikoku">
+  <div class="region-title">
+    <span class="big-emoji">🍊</span>
+    <h2><ruby>四国<rt>しこく</rt></ruby> — SHIKOKU (Pref 36–39)</h2>
+    <p>The pilgrim's island — ancient walks, wild rivers, and art by the sea</p>
+  </div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Tokushima Prefecture" data-bg="linear-gradient(135deg,#4a2a1a,#d32f2f)">
+        <img alt="徳島県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>徳島県<rt>とくしまけん</rt></ruby></div>
+          <div class="pref-name-en">TOKUSHIMA</div>
+        </div>
+        <div class="pref-badge">💃 Pref. 36</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">💃</span><ruby>阿波踊り<rt>あわおどり</rt></ruby></div>
+          </div>
+          <div class="spot-desc">နွေရာသီတွင် လူများ စုသည့် အုံးအများများ။ ၄၀၀ ခုနှစ်အကြေးယူ သည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Awa+Dance+Festival+Tokushima+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏞</span><ruby>大歩危<rt>おおぼけ</rt></ruby>・<ruby>小歩危<rt>こぼけ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">မြစ်အုံးအများများ။ ကျောက်တုံးများ အုံးအများများ။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Oboke+Koboke+Gorge+Tokushima+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🌿 <ruby>鳴門<rt>なると</rt></ruby>わかめ<span class="food-chip-en">Japan's Finest Seaweed</span></div>
+          <div class="food-chip">🍋 すだち<span class="food-chip-en">Aromatic Citrus Fruit</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Naoshima" data-bg="linear-gradient(135deg,#4a2a1a,#c41c3b)">
+        <img alt="香川県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>香川県<rt>かがわけん</rt></ruby></div>
+          <div class="pref-name-en">KAGAWA</div>
+        </div>
+        <div class="pref-badge">🎨 Pref. 37</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🎨</span><ruby>直島<rt>なおしま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကျွန်းတွင် အနုပညာမြို့။ အုံးအများများတည်တံဆိုင်း။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Naoshima+Art+Island+Kagawa+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>金刀比羅宮<rt>ことひらぐう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">တောင်တွင် ဘုံး။ စပ်သည့် လမ်းများ။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kotohira+Shrine+Kagawa+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍝 <ruby>讃岐<rt>さぬき</rt></ruby>うどん<span class="food-chip-en">Chewy Thick Udon — Japan's Best</span></div>
+          <div class="food-chip">🫒 <ruby>小豆島<rt>しょうどしま</rt></ruby>オリーブ<span class="food-chip-en">Japanese Olive Oil</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Dogo Onsen" data-bg="linear-gradient(135deg,#4a2a1a,#b71c1c)">
+        <img alt="愛媛県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>愛媛県<rt>えひめけん</rt></ruby></div>
+          <div class="pref-name-en">EHIME</div>
+        </div>
+        <div class="pref-badge">♨ Pref. 38</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">♨️</span><ruby>道後温泉<rt>どうごおんせん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အဟောင်းဆုံးအူးအုံး။ တစ်ထောင်သုံးရာ ခုနှစ်အကြေးယူ သည့်အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Dogo+Onsen+Matsuyama+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>松山城<rt>まつやまじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">တောင်တွင် တည်တံဆိုင်း။ ကျွန်းများ ကြည့်တွေ့နိုင်သည်။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Matsuyama+Castle+Ehime+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍊 <ruby>愛媛<rt>えひめ</rt></ruby>みかん<span class="food-chip-en">Japan's Juiciest Mandarin</span></div>
+          <div class="food-chip">🐟 じゃこ天<span class="food-chip-en">Crispy Fish Cake</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Shimanto River" data-bg="linear-gradient(135deg,#4a2a1a,#c41c3b)">
+        <img alt="高知県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>高知県<rt>こうちけん</rt></ruby></div>
+          <div class="pref-name-en">KOCHI</div>
+        </div>
+        <div class="pref-badge">🌊 Pref. 39</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌊</span><ruby>桂浜<rt>かつらはま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ပင်လယ်ကမ်းခြင်း။ ကျောက်တုံးများ ကြည့်တွေ့နိုင်သည်။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Katsurahama+Beach+Kochi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌿</span><ruby>四万十川<rt>しまんとがわ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">မြစ် အုံးအများများ။ သီးခွဲ စားကျေးရွာများ။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Shimanto+River+Kochi+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🐟 カツオのたたき<span class="food-chip-en">Flame-Seared Bonito</span></div>
+          <div class="food-chip">🍊 <ruby>土佐文旦<rt>とさぶんたん</rt></ruby><span class="food-chip-en">Giant Sweet Citrus</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     ⑧ 九州・沖縄 KYUSHU (40-47)
+════════════════════════════════════ -->
+<div class="region" id="kyushu">
+  <div class="region-title">
+    <span class="big-emoji">🌋</span>
+    <h2><ruby>九州<rt>きゅうしゅう</rt></ruby>・<ruby>沖縄<rt>おきなわ</rt></ruby> — KYUSHU & OKINAWA (Pref 40–47)</h2>
+    <p>Volcanoes, coral reefs, and Japan's warmest welcome</p>
+  </div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Dazaifu Tenmangu" data-bg="linear-gradient(135deg,#5a1a1a,#e53935)">
+        <img alt="福岡県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>福岡県<rt>ふくおかけん</rt></ruby></div>
+          <div class="pref-name-en">FUKUOKA</div>
+        </div>
+        <div class="pref-badge">🍜 Pref. 40</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛩</span><ruby>太宰府天満宮<rt>だざいふてんまんぐう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ သင်္ချာဘုံး။ ကျောင်းသားများ စုသည့် အုံးအများများ။ ပန်းများ နွေရာသီတွင်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Dazaifu+Tenmangu+Fukuoka+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌃</span><ruby>博多<rt>はかた</rt></ruby>の<ruby>屋台<rt>やたい</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ည(night) တွင် အုံးအများများ အုံးအများများ။ သုံးရွါများ အုံးအများများ။ လူများ စုသည့် အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Hakata+Food+Stalls+Fukuoka+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍜 <ruby>博多<rt>はかた</rt></ruby>ラーメン<span class="food-chip-en">Creamy Pork Bone Ramen</span></div>
+          <div class="food-chip">🐟 <ruby>辛子明太子<rt>からしめんたいこ</rt></ruby><span class="food-chip-en">Spicy Cod Roe</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Arita ware" data-bg="linear-gradient(135deg,#5a1a1a,#d32f2f)">
+        <img alt="佐賀県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>佐賀県<rt>さがけん</rt></ruby></div>
+          <div class="pref-name-en">SAGA</div>
+        </div>
+        <div class="pref-badge">🏺 Pref. 41</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏺</span><ruby>有田<rt>ありた</rt></ruby>・<ruby>伊万里<rt>いまり</rt></ruby></div>
+          </div>
+          <div class="spot-desc">၄၀၀ ခုနှစ်အကြေးယူ သည့် တုံးများ။ အုံးအများများတည်တံဆိုင်း။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Arita+Porcelain+Saga+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏛</span><ruby>吉野ヶ里遺跡<rt>よしのがりいせき</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ အဟောင်းဆုံးမြို့။ ၂,၀၀၀ ခုနှစ်အကြေးယူ သည့် အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Yoshinogari+Archaeological+Park+Saga+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🦑 <ruby>呼子<rt>よぶこ</rt></ruby>のイカ<span class="food-chip-en">Ultra-Fresh Live Squid</span></div>
+          <div class="food-chip">🍖 <ruby>佐賀牛<rt>さがぎゅう</rt></ruby><span class="food-chip-en">Premium Saga Wagyu</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Gunkanjima" data-bg="linear-gradient(135deg,#5a1a1a,#e53935)">
+        <img alt="長崎県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>長崎県<rt>ながさきけん</rt></ruby></div>
+          <div class="pref-name-en">NAGASAKI</div>
+        </div>
+        <div class="pref-badge">🌉 Pref. 42</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌉</span>グラバー<ruby>園<rt>えん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">အုံးအများများတည်တံဆိုင်း။ ည(night) တွင် မီးများ ကြည့်တွေ့နိုင်သည်။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Glover+Garden+Nagasaki+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">⛪</span><ruby>軍艦島<rt>ぐんかんじま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကျွန်းတွင် ရုံးဆောင်။ ယူနက်စကို တည်ရှိသည့် အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Battleship+Island+Gunkanjima+Nagasaki+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🍜 ちゃんぽん<span class="food-chip-en">Chinese-Japanese Noodle Soup</span></div>
+          <div class="food-chip">🍰 <ruby>長崎<rt>ながさき</rt></ruby>カステラ<span class="food-chip-en">Portuguese-Origin Sponge Cake</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Kumamoto Castle" data-bg="linear-gradient(135deg,#5a1a1a,#d32f2f)">
+        <img alt="熊本県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>熊本県<rt>くまもとけん</rt></ruby></div>
+          <div class="pref-name-en">KUMAMOTO</div>
+        </div>
+        <div class="pref-badge">🌋 Pref. 43</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>熊本城<rt>くまもとじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ ကျော်ကြားသည့် တည်တံဆိုင်း။ ၃၀၀ ခုနှစ် အုံးအများများ။ ကျောက်တုံး အုံးအများများ။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Kumamoto+Castle+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌋</span><ruby>阿蘇山<rt>あそさん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကမ္ဘာ၏ အကျယ်ဆုံးတောင်။ လောင်သည့် အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Mount+Aso+Kumamoto+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🐴 <ruby>馬刺<rt>ばさし</rt></ruby>し<span class="food-chip-en">Sakura Horse Sashimi</span></div>
+          <div class="food-chip">🌿 からし蓮根<span class="food-chip-en">Mustard-Filled Lotus Root</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Beppu Onsen" data-bg="linear-gradient(135deg,#5a1a1a,#e53935)">
+        <img alt="大分県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>大分県<rt>おおいたけん</rt></ruby></div>
+          <div class="pref-name-en">OITA</div>
+        </div>
+        <div class="pref-badge">♨ Pref. 44</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">♨️</span><ruby>別府<rt>べっぷ</rt></ruby>・<ruby>地獄<rt>じごく</rt></ruby>めぐり</div>
+          </div>
+          <div class="spot-desc">အူးအုံးများ အုံးအများများ။ သီးခွဲ အုံးအများများ။ မီးများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Beppu+Hells+Onsen+Oita+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌿</span><ruby>湯布院<rt>ゆふいん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">နံနက် အုံးအများများ။ တောင်တွင် အုံးအများများ။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Yufuin+Oita+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🐟 <ruby>関<rt>せき</rt></ruby>アジ・<ruby>関<rt>せき</rt></ruby>サバ<span class="food-chip-en">Japan's Finest Mackerel & Aji</span></div>
+          <div class="food-chip">🍗 とり天<span class="food-chip-en">Oita-Style Chicken Tempura</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Takachiho Gorge" data-bg="linear-gradient(135deg,#5a1a1a,#d32f2f)">
+        <img alt="宮崎県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>宮崎県<rt>みやざきけん</rt></ruby></div>
+          <div class="pref-name-en">MIYAZAKI</div>
+        </div>
+        <div class="pref-badge">🌊 Pref. 45</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">💦</span><ruby>高千穂峡<rt>たかちほきょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ဂျပန်၏ နတ်များ ကျေးဇူးဒေသ။ အုံးအများများ ကျောက်တုံး။ ရေအုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Takachiho+Gorge+Miyazaki+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌴</span><ruby>青島神社<rt>あおしまじんじゃ</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ကျွန်းတွင် ဘုံး။ ကျောက်တုံးများ ကြည့်တွေ့နိုင်သည်။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Aoshima+Shrine+Miyazaki+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🐔 <ruby>地鶏炭火焼<rt>じどりすみびやき</rt></ruby><span class="food-chip-en">Charcoal Free-Range Chicken</span></div>
+          <div class="food-chip">🥭 <ruby>宮崎<rt>みやざき</rt></ruby>マンゴー<span class="food-chip-en">Japan's Finest Mango</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Sakurajima" data-bg="linear-gradient(135deg,#5a1a1a,#e53935)">
+        <img alt="鹿児島県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>鹿児島県<rt>かごしまけん</rt></ruby></div>
+          <div class="pref-name-en">KAGOSHIMA</div>
+        </div>
+        <div class="pref-badge">🌋 Pref. 46</div>
+      </div>
+      <div class="card-body">
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌋</span><ruby>桜島<rt>さくらじま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">သက်ရှိတောင် အုံးအများများ။ အစီအစဉ်များ လောင်သည့် အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Sakurajima+Volcano+Kagoshima+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🌿</span><ruby>屋久島<rt>やくしま</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ယူနက်စကို ကျွန်း။ သစ်ခြင်းများ အုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Yakushima+Island+Kagoshima+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🐷 <ruby>黒豚<rt>くろぶた</rt></ruby>しゃぶしゃぶ<span class="food-chip-en">Black Pork Hotpot</span></div>
+          <div class="food-chip">🍢 <ruby>薩摩揚<rt>さつまあ</rt></ruby>げ<span class="food-chip-en">Fried Fish Cake</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-photo" data-wiki="Okinawa" data-bg="linear-gradient(135deg,#5a1a1a,#d32f2f)">
+        <img alt="沖縄県">
+        <div class="photo-overlay">
+          <div class="pref-name"><ruby>沖縄県<rt>おきなわけん</rt></ruby></div>
+          <div class="pref-name-en">OKINAWA</div>
+        </div>
+        <div class="pref-badge">🐠 Pref. 47</div>
+      </div>
+      <div class="card-body">
+        <div class="must-badge">✈ MUST VISIT</div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🐠</span><ruby>美<rt>ちゅ</rt></ruby>ら<ruby>海水族館<rt>うみすいぞくかん</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ငါးများ ကြီးမားသည့် အုံးအများများ။ ပင်လယ်မှုံးအုံးအများများ။ အုံးအများများတည်တံဆိုင်း။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Okinawa+Churaumi+Aquarium+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="spot">
+          <div class="spot-row">
+            <div class="spot-name"><span class="sicon">🏯</span><ruby>首里城<rt>しゅりじょう</rt></ruby></div>
+          </div>
+          <div class="spot-desc">ရျူကျူ ကောင်းကင်း။ နီရောင် တည်တံဆိုင်း။ အုံးအများများတည်တံဆိုင်း။ အုံးအများများ ကြည့်တွေ့နိုင်သည်။</div>
+          <a class="map-btn" href="https://maps.google.com/?q=Shuri+Castle+Okinawa+Japan" target="_blank">📍 Maps</a>
+        </div>
+        <div class="divider"></div>
+        <div class="food-lbl">🍽 Local Specialties</div>
+        <div class="food-list">
+          <div class="food-chip">🥬 ゴーヤチャンプルー<span class="food-chip-en">Bitter Melon Stir-Fry</span></div>
+          <div class="food-chip">🍜 <ruby>沖縄<rt>おきなわ</rt></ruby>そば<span class="food-chip-en">Soft Pork Belly Noodles</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div style="font-size:2.5rem;margin-bottom:14px">🇯🇵 🇲🇲</div>
+  <p><strong>DISCOVER JAPAN</strong> — All 47 Prefectures Complete ✓</p>
+  <p style="margin-top:8px;font-size:.8rem;opacity:.45">
+    北海道 · 東北 · 関東 · 中部 · 近畿 · 中国 · 四国 · 九州・沖縄<br>
+    Hokkaido · Tohoku · Kanto · Chubu · Kansai · Chugoku · Shikoku · Kyushu & Okinawa
+  </p>
+</footer>
+
+<button class="to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ═══ PHOTO LOADER ═══ -->
+<script>
+(async () => {
+  const cards = document.querySelectorAll('.card-photo[data-wiki]');
+
+  async function loadPhoto(photoBox) {
+    const title = photoBox.dataset.wiki;
+    const img   = photoBox.querySelector('img');
+    const bg    = photoBox.dataset.bg || 'linear-gradient(135deg,#1a1a3a,#2a2a5a)';
+
+    try {
+      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) throw new Error('no response');
+      const data = await res.json();
+
+      if (data.thumbnail && data.thumbnail.source) {
+        const src = data.thumbnail.source;
+        img.src = src;
+        img.onload  = () => { img.classList.add('loaded'); photoBox.classList.add('loaded'); };
+        img.onerror = () => fallback(photoBox, bg);
+      } else {
+        fallback(photoBox, bg);
+      }
+    } catch (e) {
+      fallback(photoBox, bg);
+    }
+  }
+
+  function fallback(box, bg) {
+    box.style.background = bg;
+    box.classList.add('loaded');
+    const img = box.querySelector('img');
+    if (img) img.remove();
+  }
+
+  for (let i = 0; i < cards.length; i++) {
+    setTimeout(() => loadPhoto(cards[i]), i * 120);
+  }
+})();
+</script>
+
+</body>
+</html>
