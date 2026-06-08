@@ -1,0 +1,251 @@
+{
+  "name": "WF4_朝ブリーフィング_v3",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 30 7 * * 1-6"
+            }
+          ]
+        }
+      },
+      "id": "schedule-001",
+      "name": "⏰ Schedule(7:30)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "m83uxghrdtij7gc",
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "nocodb-tasks-001",
+      "name": "📊 NocoDB - Get All Tasks",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [460, 60],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "m4dt4qlrw9ag6k0",
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "nocodb-deals-001",
+      "name": "💼 NocoDB - Get All Deals",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [460, 240],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "FILL_ME_GAS_ENDPOINT",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "action",
+              "value": "getAllPendingTasks"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          }
+        }
+      },
+      "id": "gas-pending-001",
+      "name": "📝 GAS: Get All Pending Tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 420]
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "REPLACE_TASKS2_TABLE_ID",
+        "returnAll": true,
+        "options": {}
+      },
+      "id": "nocodb-tasks2-001",
+      "name": "🏗 NocoDB - Get All Tasks2 (キーストンHP)",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [460, 600],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "fields": {
+          "values": [
+            {
+              "name": "_src",
+              "stringValue": "keystone_hp"
+            }
+          ]
+        },
+        "include": "all",
+        "options": {}
+      },
+      "id": "set-ks-tag-001",
+      "name": "🏷 Tag: keystone_hp",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 600]
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "merge-001",
+      "name": "⏳ 4並列を集約",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge(append)の出力から4ブランチをフィールド名で分類\n// _src === 'keystone_hp' でキーストンHPタスクを区別\n// $() クロス参照なし → Execute step でも動く\nconst allItems  = $input.all().map(i => i.json);\nconst tasks     = allItems.filter(item => item['タスク名'] !== undefined && item._src !== 'keystone_hp');\nconst ksTasks   = allItems.filter(item => item['タスク名'] !== undefined && item._src === 'keystone_hp');\nconst deals     = allItems.filter(item => item['Deal名']   !== undefined);\nlet pendingAll  = {};\nconst gasItem   = allItems.find(item => item.success !== undefined && item.members !== undefined);\nif (gasItem && gasItem.success && gasItem.members) pendingAll = gasItem.members;\n\n// memberName → chatId\nconst MEMBER_MAP = {\n  '宮脇':   '1074258418',\n  '吉岡':   '6427868789',\n  '小林':   '7669101392',\n  '高田':   'FILL_ME_CHAT_ID_takada',\n  '北庄司': '8857512747'\n};\n\nconst today = new Date(); today.setHours(0, 0, 0, 0);\nconst todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;\n\nfunction daysDiff(ds) {\n  if (!ds) return null;\n  const d = new Date(ds); if (isNaN(d)) return null;\n  d.setHours(0, 0, 0, 0);\n  return Math.floor((today - d) / 86400000);\n}\n\nconst T = { name:'タスク名', assignee:'担当', priority:'優先度', due:'期限', status:'ステータス' };\nconst D = { name:'Deal名', assignee:'担当者', priority:'優先度', status:'ステータス',\n            nextDate:'次回コンタクト予定日', nextAction:'次回アクション', phase:'フェーズ' };\n\nconst items = [];\nfor (const [memberName, chatId] of Object.entries(MEMBER_MAP)) {\n  if (chatId.startsWith('FILL_ME')) continue;\n\n  const myTasks   = tasks.filter(t => t[T.assignee] === memberName && t[T.status] !== '済');\n  const overTasks = myTasks.filter(t => (daysDiff(t[T.due]) ?? -1) > 0);\n  const todTasks  = myTasks.filter(t => daysDiff(t[T.due]) === 0);\n\n  const myDeals   = deals.filter(d => d[D.assignee] === memberName && d[D.status] === '進行中');\n  const overDeals = myDeals.filter(d => (daysDiff(d[D.nextDate]) ?? -1) > 0);\n  const todDeals  = myDeals.filter(d => daysDiff(d[D.nextDate]) === 0);\n\n  const pending = pendingAll[memberName] || [];\n\n  // キーストンHPタスクは北庄司専用（全件 未済のみ）\n  const myKsTasks = memberName === '北庄司'\n    ? ksTasks.filter(t => t[T.status] !== '済')\n    : [];\n\n  items.push({ memberName, chatId, todayStr,\n               overTasks, todTasks, overDeals, todDeals,\n               pending, ksTasks: myKsTasks });\n}\n\nreturn items;",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "code-group-001",
+      "name": "👥 メンバー別データ整理",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "split-001",
+      "name": "🔁 メンバーごとに分割",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $input.first().json;\n\nfunction fmtDate(ds) {\n  if (!ds) return '?';\n  const dt = new Date(ds); if (isNaN(dt)) return ds;\n  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;\n}\nfunction daysDiff(ds) {\n  if (!ds) return null;\n  const t = new Date(); t.setHours(0,0,0,0);\n  const dd = new Date(ds); dd.setHours(0,0,0,0);\n  return Math.floor((t - dd) / 86400000);\n}\n\nconst T = { name:'タスク名', priority:'優先度', due:'期限' };\nconst D = { name:'Deal名', priority:'優先度', nextDate:'次回コンタクト予定日', nextAction:'次回アクション' };\n\nlet msg = `☀️ おはようございます、*${d.memberName}*さん\\n`;\nmsg += `📅 ${d.todayStr}\\n`;\nmsg += `━━━━━━━━━━━━━━\\n\\n`;\n\nif (d.overTasks.length > 0) {\n  msg += `🔴 *期限超過タスク* (${d.overTasks.length}件)\\n`;\n  d.overTasks.forEach((t, i) => {\n    msg += `${i+1}. 【${t[T.priority]||'-'}】${t[T.name]}\\n`;\n    msg += `   期限:${fmtDate(t[T.due])}（${daysDiff(t[T.due])}日経過）\\n`;\n  });\n  msg += '\\n';\n}\n\nif (d.todTasks.length > 0) {\n  msg += `🟡 *本日期限タスク* (${d.todTasks.length}件)\\n`;\n  d.todTasks.forEach((t, i) => {\n    msg += `${i+1}. 【${t[T.priority]||'-'}】${t[T.name]}\\n`;\n  });\n  msg += '\\n';\n}\n\nif (d.overDeals.length > 0) {\n  msg += `🔴 *コンタクト超過 Deal* (${d.overDeals.length}件)\\n`;\n  d.overDeals.forEach((deal, i) => {\n    msg += `${i+1}. 【${deal[D.priority]||'-'}】${deal[D.name]}\\n`;\n    msg += `   ${daysDiff(deal[D.nextDate])}日超過 / ${deal[D.nextAction]||'(未設定)'}\\n`;\n  });\n  msg += '\\n';\n}\n\nif (d.todDeals.length > 0) {\n  msg += `🟢 *本日コンタクト予定* (${d.todDeals.length}件)\\n`;\n  d.todDeals.forEach((deal, i) => {\n    msg += `${i+1}. 【${deal[D.priority]||'-'}】${deal[D.name]}\\n`;\n    msg += `   ${deal[D.nextAction]||'(未設定)'}\\n`;\n  });\n  msg += '\\n';\n}\n\nif (d.pending.length > 0) {\n  msg += `📝 *昨日の未完了タスク*\\n`;\n  d.pending.forEach(t => {\n    msg += `☐ ${t.replace(/^- \\[ \\] /, '')}\\n`;\n  });\n  msg += '\\n';\n}\n\n// キーストンHPタスク（北庄司のみ表示）\nif (d.ksTasks && d.ksTasks.length > 0) {\n  msg += `📋 *キーストンHPタスク* (${d.ksTasks.length}件)\\n`;\n  d.ksTasks.forEach((t, i) => {\n    const diffVal = daysDiff(t['期限']);\n    const overStr = diffVal !== null && diffVal > 0 ? `（${diffVal}日超過）` : '';\n    msg += `${i+1}. 【${t['優先度']||'-'}】${t['タスク名']}\\n`;\n    if (t['期限']) msg += `   期限:${fmtDate(t['期限'])}${overStr}\\n`;\n  });\n  msg += '\\n';\n}\n\nconst hasNothing = !d.overTasks.length && !d.todTasks.length &&\n                   !d.overDeals.length && !d.todDeals.length &&\n                   !d.pending.length   && !(d.ksTasks && d.ksTasks.length);\nif (hasNothing) {\n  msg += `✅ 本日の要対応事項はありません\\n良い一日を！\\n`;\n}\n\nmsg += `━━━━━━━━━━━━━━`;\n\nreturn { chatId: d.chatId, text: msg };",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "code-brief-001",
+      "name": "✉️ 朝ブリーフィング生成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 420]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-dm-001",
+      "name": "📤 Telegram 個人DM",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1780, 420],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "⏰ Schedule(7:30)": {
+      "main": [
+        [
+          { "node": "📊 NocoDB - Get All Tasks",           "type": "main", "index": 0 },
+          { "node": "💼 NocoDB - Get All Deals",           "type": "main", "index": 0 },
+          { "node": "📝 GAS: Get All Pending Tasks",       "type": "main", "index": 0 },
+          { "node": "🏗 NocoDB - Get All Tasks2 (キーストンHP)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "📊 NocoDB - Get All Tasks": {
+      "main": [[{ "node": "⏳ 4並列を集約", "type": "main", "index": 0 }]]
+    },
+    "💼 NocoDB - Get All Deals": {
+      "main": [[{ "node": "⏳ 4並列を集約", "type": "main", "index": 1 }]]
+    },
+    "📝 GAS: Get All Pending Tasks": {
+      "main": [[{ "node": "⏳ 4並列を集約", "type": "main", "index": 2 }]]
+    },
+    "🏗 NocoDB - Get All Tasks2 (キーストンHP)": {
+      "main": [[{ "node": "🏷 Tag: keystone_hp", "type": "main", "index": 0 }]]
+    },
+    "🏷 Tag: keystone_hp": {
+      "main": [[{ "node": "⏳ 4並列を集約", "type": "main", "index": 3 }]]
+    },
+    "⏳ 4並列を集約": {
+      "main": [[{ "node": "👥 メンバー別データ整理", "type": "main", "index": 0 }]]
+    },
+    "👥 メンバー別データ整理": {
+      "main": [[{ "node": "🔁 メンバーごとに分割", "type": "main", "index": 0 }]]
+    },
+    "🔁 メンバーごとに分割": {
+      "main": [
+        [],
+        [{ "node": "✉️ 朝ブリーフィング生成", "type": "main", "index": 0 }]
+      ]
+    },
+    "✉️ 朝ブリーフィング生成": {
+      "main": [[{ "node": "📤 Telegram 個人DM", "type": "main", "index": 0 }]]
+    },
+    "📤 Telegram 個人DM": {
+      "main": [[{ "node": "🔁 メンバーごとに分割", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "tags": [
+    "crux",
+    "morning-briefing",
+    "v3"
+  ]
+}

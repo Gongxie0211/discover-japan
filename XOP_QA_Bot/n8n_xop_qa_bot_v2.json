@@ -1,0 +1,258 @@
+{
+  "name": "XOP Wiki Q&A Bot v2 (Wiki + NocoDB)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "telegram-trigger",
+      "name": "📨 Telegram受信",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false },
+          "conditions": [
+            {
+              "id": "has-text",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "exists" }
+            },
+            {
+              "id": "not-command",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/",
+              "operator": { "type": "string", "operation": "notStartsWith" }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "filter-text",
+      "name": "🔍 テキストのみ通過",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [420, 400]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "question",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "name": "chatId",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "name": "username",
+              "value": "={{ $json.message.from.username || $json.message.from.first_name }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "extract-vars",
+      "name": "📝 変数抽出",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [640, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "FILL_ME_GAS_ENDPOINT",
+        "options": {
+          "timeout": 30000,
+          "response": { "response": { "responseFormat": "json" } }
+        }
+      },
+      "id": "get-wiki",
+      "name": "📚 Wiki取得 (GAS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 240]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://app.nocodb.com/api/v2/tables/m4dt4qlrw9ag6k0/records",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xc-token",
+              "value": "={{ $credentials.httpHeaderAuth.value }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "limit", "value": "100" },
+            { "name": "where", "value": "(ステータス,neq,完了)" }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "response": { "response": { "responseFormat": "json" } }
+        }
+      },
+      "id": "get-deals",
+      "name": "💼 Deals取得 (NocoDB)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FILL_ME_NOCODB",
+          "name": "NocoDB API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://app.nocodb.com/api/v2/tables/m83uxghrdtij7gc/records",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xc-token",
+              "value": "={{ $credentials.httpHeaderAuth.value }}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "limit", "value": "50" },
+            { "name": "where", "value": "(ステータス,neq,Done)" }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "response": { "response": { "responseFormat": "json" } }
+        }
+      },
+      "id": "get-tasks",
+      "name": "✅ Tasks取得 (NocoDB)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 560],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FILL_ME_NOCODB",
+          "name": "NocoDB API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Wiki + Deals + Tasks を合体してClaudeプロンプトを作る\n\nconst question = $('📝 変数抽出').first().json.question;\nconst chatId   = $('📝 変数抽出').first().json.chatId;\nconst username = $('📝 変数抽出').first().json.username;\n\n// ── 1. Wiki コンテンツ ──\nconst wikiData = $('📚 Wiki取得 (GAS)').first().json;\nconst wikiContent = wikiData.success ? wikiData.content : '(Wiki取得失敗)';\n\n// ── 2. Deals (案件) フォーマット ──\nconst dealsData = $('💼 Deals取得 (NocoDB)').first().json;\nlet dealsText = '## 現在の案件パイプライン\\n';\nif (dealsData.list && dealsData.list.length > 0) {\n  dealsData.list.forEach(deal => {\n    const fields = Object.entries(deal)\n      .filter(([k]) => !k.startsWith('nc_') && k !== 'Id' && deal[k])\n      .map(([k, v]) => `  ${k}: ${v}`)\n      .join('\\n');\n    dealsText += `\\n### 案件ID: ${deal.Id}\\n${fields}\\n`;\n  });\n  dealsText += `\\n合計 ${dealsData.list.length} 件（完了除く）`;\n} else {\n  dealsText += '現在アクティブな案件なし';\n}\n\n// ── 3. Tasks フォーマット ──\nconst tasksData = $('✅ Tasks取得 (NocoDB)').first().json;\nlet tasksText = '## 未完了タスク一覧\\n';\nif (tasksData.list && tasksData.list.length > 0) {\n  tasksData.list.forEach(task => {\n    const fields = Object.entries(task)\n      .filter(([k]) => !k.startsWith('nc_') && k !== 'Id' && task[k])\n      .map(([k, v]) => `  ${k}: ${v}`)\n      .join('\\n');\n    tasksText += `\\n### タスクID: ${task.Id}\\n${fields}\\n`;\n  });\n  tasksText += `\\n合計 ${tasksData.list.length} 件（Done除く）`;\n} else {\n  tasksText += '未完了タスクなし';\n}\n\n// ── 4. System Prompt 組み立て ──\nconst systemPrompt = `あなたはプロテケアXOP（株式会社クラックス）の社内AIアシスタントです。\n以下の3つの情報源を使って、質問に日本語で答えてください。\n\n【ルール】\n- 数字（価格・スペック・日付）は正確に引用する\n- 情報がない場合は「記録にありません」と答える\n- 回答は簡潔に（最大500文字）。箇条書きで整理する\n- 内部文書なので社外秘データもそのまま回答してよい\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n【情報源1: XOP製品・戦略Wiki】\n${wikiContent}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n【情報源2: 案件パイプライン（リアルタイム）】\n${dealsText}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n【情報源3: タスク管理（リアルタイム）】\n${tasksText}`;\n\nconst userMessage = `【質問者】${username}\\n【質問】${question}`;\n\nreturn {\n  chatId,\n  question,\n  username,\n  systemPrompt,\n  userMessage,\n  wikiFileCount: wikiData.fileCount || 0,\n  dealsCount: dealsData.list?.length || 0,\n  tasksCount: tasksData.list?.length || 0\n};"
+      },
+      "id": "build-prompt",
+      "name": "🧩 プロンプト構築 (Wiki+DB)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1080, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $credentials.httpHeaderAuth.value }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-3-5-haiku-20241022\",\n  \"max_tokens\": 1024,\n  \"system\": {{ JSON.stringify($json.systemPrompt) }},\n  \"messages\": [{\"role\": \"user\", \"content\": {{ JSON.stringify($json.userMessage) }}}]\n}",
+        "options": { "timeout": 60000 }
+      },
+      "id": "claude-api",
+      "name": "🤖 Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FILL_ME_ANTHROPIC",
+          "name": "Anthropic API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst answer = response.content?.[0]?.text || 'エラー: 回答を取得できませんでした';\n\nconst chatId       = $('🧩 プロンプト構築 (Wiki+DB)').first().json.chatId;\nconst wikiCount    = $('🧩 プロンプト構築 (Wiki+DB)').first().json.wikiFileCount;\nconst dealsCount   = $('🧩 プロンプト構築 (Wiki+DB)').first().json.dealsCount;\nconst tasksCount   = $('🧩 プロンプト構築 (Wiki+DB)').first().json.tasksCount;\n\nconst footer = `\\n\\n_参照: Wiki${wikiCount}件 / 案件${dealsCount}件 / タスク${tasksCount}件_`;\nconst text = `💡 *XOP Bot*\\n\\n${answer}${footer}`;\n\nreturn { chatId, text };"
+      },
+      "id": "format-answer",
+      "name": "✂️ 回答整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1520, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": { "parse_mode": "Markdown" }
+      },
+      "id": "telegram-send",
+      "name": "📤 Telegram返信",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1740, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "📨 Telegram受信": {
+      "main": [[{ "node": "🔍 テキストのみ通過", "type": "main", "index": 0 }]]
+    },
+    "🔍 テキストのみ通過": {
+      "main": [[{ "node": "📝 変数抽出", "type": "main", "index": 0 }]]
+    },
+    "📝 変数抽出": {
+      "main": [
+        [
+          { "node": "📚 Wiki取得 (GAS)",      "type": "main", "index": 0 },
+          { "node": "💼 Deals取得 (NocoDB)",  "type": "main", "index": 0 },
+          { "node": "✅ Tasks取得 (NocoDB)",  "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "📚 Wiki取得 (GAS)":     { "main": [[{ "node": "🧩 プロンプト構築 (Wiki+DB)", "type": "main", "index": 0 }]] },
+    "💼 Deals取得 (NocoDB)": { "main": [[{ "node": "🧩 プロンプト構築 (Wiki+DB)", "type": "main", "index": 1 }]] },
+    "✅ Tasks取得 (NocoDB)": { "main": [[{ "node": "🧩 プロンプト構築 (Wiki+DB)", "type": "main", "index": 2 }]] },
+    "🧩 プロンプト構築 (Wiki+DB)": { "main": [[{ "node": "🤖 Claude API", "type": "main", "index": 0 }]] },
+    "🤖 Claude API":         { "main": [[{ "node": "✂️ 回答整形", "type": "main", "index": 0 }]] },
+    "✂️ 回答整形":           { "main": [[{ "node": "📤 Telegram返信", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["xop", "qa-bot", "nocodb", "v2"]
+}

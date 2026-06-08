@@ -1,0 +1,358 @@
+{
+  "name": "WF1_音声入力_v5_LangChain統一",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "node-trigger",
+      "name": "📨 Telegram受信",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        400
+      ],
+      "webhookId": "REPLACE_WEBHOOK_ID",
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-cmd",
+              "leftValue": "={{ $json.message.text || '' }}",
+              "rightValue": "^(修正|削除|上書き)",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-cmd",
+      "name": "🛠 コマンド判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        420,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-voice",
+              "leftValue": "={{ !!$json.message.voice }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-voice",
+      "name": "🔀 音声テキスト判定",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        640,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "get",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "download": true
+      },
+      "id": "node-get-voice",
+      "name": "📥 音声取得",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        380
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 音声パス: LangChain Gemini の transcribeRecording 出力\n// テキストパス: Telegram メッセージ（message フィールドあり）\n\nconst input = $input.first().json;\nlet memoText = '';\nlet sourceType = 'text';\nlet chatId = '';\nlet username = 'unknown';\nlet telegramMsgId = '';\nlet telegramUserId = '';\n\nif (input.message) {\n  // ── テキストパス: Telegram メッセージがそのまま流れてくる ──\n  const msg  = input.message || {};\n  memoText   = msg.text || '';\n  sourceType = 'text';\n  chatId     = String(msg.chat?.id || '');\n  username   = msg.from?.username || msg.from?.first_name || 'unknown';\n  telegramMsgId  = String(msg.message_id || '');\n  telegramUserId = String(msg.from?.id   || '');\n} else {\n  // ── 音声パス: LangChain Gemini 出力 ──\n  memoText   = input?.content?.parts?.[0]?.text || input?.text || '(文字起こし失敗)';\n  sourceType = 'voice';\n  // chatId / username は Telegram受信から取得\n  try {\n    const trigMsg = $('📨 Telegram受信').first().json.message || {};\n    chatId     = String(trigMsg.chat?.id || '');\n    username   = trigMsg.from?.username || trigMsg.from?.first_name || 'unknown';\n    telegramMsgId  = String(trigMsg.message_id || '');\n    telegramUserId = String(trigMsg.from?.id   || '');\n  } catch(e) {}\n}\n\n// username: GAS バリデーション回避（/ \\ . : をアンダースコアに置換）\nusername = username.replace(/[\\/\\\\.:]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').substring(0, 50) || 'unknown';\n\n// ── Layer 1 正規化 ──\nmemoText = memoText.replace(/ゾップ|ゾッポ|ExOP|X\\.O\\.P/gi, 'XOP');\nmemoText = memoText.replace(/プロテア(?!ケア)|プロテカ|プロテーケア|プロテラ/g, 'プロテケア');\nmemoText = memoText.replace(/ウォーターセラミックス|水セラミック/g, 'ウォーターセラミック');\nmemoText = memoText.replace(/クラック(?!ス)|クラクス/g, 'クラックス');\nmemoText = memoText.replace(/湯沢/g, '湯澤');\nmemoText = memoText.replace(/稲沢/g, '稲澤');\nmemoText = memoText.replace(/中沢/g, '中澤');\nmemoText = memoText.replace(/笹木/g, '佐々木');\nmemoText = memoText.replace(/パナホーム(?!リフォーム)/g, 'Panaホームリフォーム');\nmemoText = memoText.replace(/アルティス/g, 'Artis');\nmemoText = memoText.replace(/マリナベイシップ/g, 'MarinaBayShip株式会社');\nmemoText = memoText.replace(/アナザーストーリージャパン/g, 'AnotherStoryJapan');\nmemoText = memoText.replace(/起訴者/g, 'キーストーン社');\n\n// 音声の場合：日本語間の余分なスペース除去\nif (sourceType === 'voice') {\n  for (let i = 0; i < 3; i++) {\n    memoText = memoText.replace(\n      /([ぁ-んァ-ヶー一-龯、。！？])[\\s\\u3000]+([ぁ-んァ-ヶー一-龯、。！？])/g,\n      '$1$2'\n    );\n  }\n}\n\n// ── JST タイムスタンプ ──\nconst now = new Date();\nconst jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);\nconst yyyy = jst.getUTCFullYear();\nconst mm   = String(jst.getUTCMonth() + 1).padStart(2, '0');\nconst dd   = String(jst.getUTCDate()).padStart(2, '0');\nconst hh   = String(jst.getUTCHours()).padStart(2, '0');\nconst min  = String(jst.getUTCMinutes()).padStart(2, '0');\nconst dateStr = `${yyyy}-${mm}-${dd}`;\n\n// ── YAML フロントマター + 本文 ──\nconst markdown = `---\nmember: ${username}\ndate: ${dateStr}\ntime: ${hh}:${min}\nsource: ${sourceType}\ntelegram_chat_id: ${chatId}\ntelegram_message_id: ${telegramMsgId}\ntelegram_user_id: ${telegramUserId}\ncreated_at: ${now.toISOString()}\n---\n\n${memoText}\n`;\n\nreturn {\n  chatId, username, content: markdown,\n  memoText, sourceType, dateStr,\n  timeStr: `${hh}${min}`\n};"
+      },
+      "id": "node-prepare",
+      "name": "📝 メモ整形 (YAML+正規化)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "FILL_ME_GAS_INBOX_ENDPOINT",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ username: $json.username, content: $json.content }) }}",
+        "options": {
+          "timeout": 30000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          }
+        }
+      },
+      "id": "node-gas-save",
+      "name": "💾 Drive保存 (GAS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1740,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 保存結果を確認して返信テキストを生成\nconst gasResult = $input.first().json;\nconst meta      = $('📝 メモ整形 (YAML+正規化)').first().json;\n\nconst icon = meta.sourceType === 'voice' ? '🎤' : '📝';\n\nlet replyText;\nif (gasResult.success) {\n  const preview = meta.memoText.length > 500\n    ? meta.memoText.substring(0, 500) + '\\n...(以下省略)'\n    : meta.memoText;\n  replyText =\n    `${icon} *INBOXに保存しました* (${meta.timeStr.slice(0,2)}:${meta.timeStr.slice(2)})\\n` +\n    `📄 \\`${gasResult.path}\\`\\n\\n` +\n    `${preview}\\n\\n` +\n    `─────────────\\n` +\n    `修正は「修正: 内容」、削除は「削除」と返信してください。`;\n} else {\n  replyText =\n    `⚠️ *Drive保存に失敗しました*\\n` +\n    `エラー: ${gasResult.error}\\n\\n` +\n    `${icon} 文字起こし結果:\\n${meta.memoText}`;\n}\n\nreturn {\n  chatId : meta.chatId,\n  text   : replyText\n};"
+      },
+      "id": "node-build-reply",
+      "name": "📋 返信テキスト生成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1960,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "node-reply",
+      "name": "📤 Telegram返信",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2180,
+        500
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "🛠 修正・削除コマンドを受け取りました。\n（このコマンド処理は次のステップで実装予定です）",
+        "additionalFields": {}
+      },
+      "id": "node-cmd-placeholder",
+      "name": "🛠 コマンド処理(未実装)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        260
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribeRecording",
+        "binaryPropertyName": "data",
+        "options": {
+          "language": "ja",
+          "prompt": "必ず日本語として認識し日本語で出力すること。英語・中国語など他言語に聞こえても必ず日本語として処理すること。"
+        }
+      },
+      "id": "node-transcribe",
+      "name": "🤖 Gemini文字起こし",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        380
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FILL_ME_GEMINI_LANGCHAIN",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "📨 Telegram受信": {
+      "main": [
+        [
+          {
+            "node": "🛠 コマンド判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🛠 コマンド判定": {
+      "main": [
+        [
+          {
+            "node": "🛠 コマンド処理(未実装)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🔀 音声テキスト判定",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔀 音声テキスト判定": {
+      "main": [
+        [
+          {
+            "node": "📥 音声取得",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📝 メモ整形 (YAML+正規化)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 音声取得": {
+      "main": [
+        [
+          {
+            "node": "🤖 Gemini文字起こし",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 メモ整形 (YAML+正規化)": {
+      "main": [
+        [
+          {
+            "node": "💾 Drive保存 (GAS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Drive保存 (GAS)": {
+      "main": [
+        [
+          {
+            "node": "📋 返信テキスト生成",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 返信テキスト生成": {
+      "main": [
+        [
+          {
+            "node": "📤 Telegram返信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Gemini文字起こし": {
+      "main": [
+        [
+          {
+            "node": "📝 メモ整形 (YAML+正規化)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "tags": [
+    "crux",
+    "voice-memo",
+    "inbox",
+    "gemini",
+    "langchain",
+    "v5"
+  ]
+}

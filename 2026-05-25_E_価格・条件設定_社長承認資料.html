@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>価格・条件設定 社長承認資料</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-mid: #243560;
+    --gold: #c9a84c;
+    --gold-light: #fdf3dc;
+    --red: #c00000;
+    --green: #2c6e20;
+    --green-light: #edf6e9;
+    --blue-light: #eef2ff;
+    --border: #d0d8e8;
+    --off-white: #f4f6fb;
+    --text: #1a1a1a;
+    --muted: #556;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: #eaeff8;
+    color: var(--text);
+    padding: 32px 20px 80px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ヘッダー */
+  .header {
+    background: var(--navy);
+    border-radius: 12px 12px 0 0;
+    border-bottom: 5px solid var(--gold);
+    padding: 30px 40px;
+    color: #fff;
+    position: relative;
+  }
+  .header .badge {
+    position: absolute; top: 26px; right: 36px;
+    background: var(--red); color: #fff;
+    font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    padding: 5px 14px; border-radius: 4px;
+  }
+  .header .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .header h1 { font-size: 22px; font-weight: 900; line-height: 1.4; }
+  .header .meta { margin-top: 10px; font-size: 12px; opacity: 0.6; display: flex; gap: 20px; }
+
+  /* カード */
+  .card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.09);
+    overflow: hidden;
+  }
+
+  /* リード */
+  .lead {
+    background: var(--gold-light);
+    border-bottom: 2px solid var(--gold);
+    padding: 20px 40px;
+    font-size: 13.5px;
+    line-height: 1.9;
+    color: #3a2800;
+  }
+  .lead strong { color: #7a4e00; }
+
+  /* セクション */
+  .section {
+    padding: 28px 40px;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 22px;
+  }
+  .section-badge {
+    padding: 5px 14px; border-radius: 30px;
+    font-size: 12px; font-weight: 800; letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+  .badge-domestic { background: var(--navy); color: var(--gold); }
+  .badge-overseas { background: #0e7490; color: #fff; }
+  .section-title { font-size: 17px; font-weight: 900; color: var(--navy); }
+
+  /* 決定カード */
+  .decision-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .decision-item {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .decision-head {
+    background: var(--off-white);
+    padding: 12px 18px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .decision-num {
+    background: var(--navy); color: var(--gold);
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 900; flex-shrink: 0;
+  }
+  .decision-label { font-size: 14px; font-weight: 800; color: var(--navy); flex: 1; }
+  .decision-answer {
+    background: var(--navy); color: var(--gold);
+    font-size: 13px; font-weight: 800;
+    padding: 4px 14px; border-radius: 20px;
+  }
+
+  .decision-body {
+    padding: 16px 18px;
+    display: flex; gap: 20px;
+  }
+  .decision-main { flex: 1; }
+  .decision-value {
+    font-size: 22px; font-weight: 900; color: var(--navy);
+    line-height: 1.2; margin-bottom: 6px;
+  }
+  .decision-desc {
+    font-size: 12.5px; color: var(--muted); line-height: 1.8;
+  }
+  .decision-reason {
+    background: var(--blue-light);
+    border-left: 3px solid #6080d0;
+    padding: 10px 14px;
+    font-size: 12px; color: #2a3a80;
+    line-height: 1.8; border-radius: 0 6px 6px 0;
+    flex: 1; min-width: 200px;
+  }
+  .decision-reason .r-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 2px;
+    color: #6080d0; margin-bottom: 4px;
+  }
+
+  /* フロー図 */
+  .flow {
+    display: flex; align-items: center; gap: 0;
+    background: var(--off-white); border: 1.5px solid var(--border);
+    border-radius: 8px; overflow: hidden; margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .flow-node {
+    flex: 1; min-width: 100px;
+    padding: 12px 10px; text-align: center;
+    font-size: 12px; font-weight: 600; line-height: 1.5;
+    border-right: 1px solid var(--border);
+  }
+  .flow-node:last-child { border-right: none; }
+  .flow-node.hl { background: var(--navy); color: var(--gold); font-weight: 800; }
+  .flow-node .fn-label { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+  .flow-node.hl .fn-label { color: rgba(255,255,255,0.5); }
+  .flow-arrow { font-size: 16px; color: #aab; padding: 0 2px; flex-shrink: 0; }
+
+  /* 試算テーブル */
+  .calc-table {
+    width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px;
+  }
+  .calc-table th {
+    background: var(--navy); color: var(--gold);
+    padding: 9px 12px; font-size: 11px; font-weight: 800; letter-spacing: 1px;
+    text-align: left;
+  }
+  .calc-table td {
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .calc-table tr:last-child td { border-bottom: none; }
+  .calc-table tr.highlight td { background: #fffbe6; font-weight: 700; }
+  .calc-table .num { text-align: right; font-weight: 700; color: var(--navy); }
+  .calc-table .profit { color: var(--green); font-weight: 800; }
+
+  /* まとめ表 */
+  .summary-table {
+    width: 100%; border-collapse: collapse; font-size: 13.5px;
+  }
+  .summary-table th {
+    background: var(--navy); color: var(--gold);
+    padding: 11px 16px; font-size: 12px; font-weight: 800; letter-spacing: 1px;
+    text-align: left;
+  }
+  .summary-table td {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    line-height: 1.7; vertical-align: top;
+  }
+  .summary-table tr:nth-child(even) td { background: var(--off-white); }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table .item { font-weight: 800; color: var(--navy); white-space: nowrap; }
+  .summary-table .decided {
+    display: inline-block; background: var(--green); color: #fff;
+    font-size: 11px; font-weight: 800; padding: 2px 10px;
+    border-radius: 3px; margin-left: 8px;
+  }
+
+  /* 承認欄 */
+  .approval-box {
+    margin: 0 40px 32px;
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .approval-head {
+    background: var(--gold);
+    padding: 12px 20px;
+    font-size: 13px; font-weight: 900; color: var(--navy);
+    letter-spacing: 1px;
+  }
+  .approval-body {
+    padding: 20px 24px;
+    display: flex; gap: 20px; align-items: flex-start;
+  }
+  .approval-check {
+    flex: 1;
+    font-size: 13.5px; line-height: 2; color: var(--text);
+  }
+  .approval-check li { list-style: none; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .approval-check li:last-child { border-bottom: none; }
+  .check-box {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid #aab; border-radius: 3px; margin-right: 10px;
+    vertical-align: middle;
+  }
+  .approval-sign {
+    width: 180px; flex-shrink: 0;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 14px 16px; text-align: center;
+    font-size: 12px; color: var(--muted);
+  }
+  .approval-sign .sign-label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    letter-spacing: 1px; margin-bottom: 30px;
+  }
+  .approval-sign .sign-line {
+    border-top: 1.5px solid var(--text);
+    margin-top: 40px; padding-top: 6px;
+    font-size: 11px; color: var(--muted);
+  }
+  .approval-date {
+    font-size: 12px; color: var(--muted); margin-top: 10px;
+    text-align: right; padding: 0 24px 16px;
+  }
+
+  /* 注記 */
+  .note {
+    margin: 0 40px 32px;
+    background: #fff9e6; border: 1.5px solid var(--gold);
+    border-radius: 8px; padding: 14px 18px;
+    font-size: 12.5px; color: #4a3900; line-height: 1.9;
+  }
+  .note strong { color: #7a5c00; }
+
+  @media (max-width: 640px) {
+    .header, .section, .lead { padding-left: 20px; padding-right: 20px; }
+    .decision-body { flex-direction: column; }
+    .approval-body { flex-direction: column; }
+    .approval-sign { width: 100%; }
+    .approval-box, .note { margin-left: 20px; margin-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">社長承認待ち</div>
+  <div class="eyebrow">Output E — 社長承認資料</div>
+  <h1>価格・ロット・支払い条件<br>決定事項のご確認</h1>
+  <div class="meta">
+    <span>作成日：2026年5月25日</span>
+    <span>作成者：宮脇</span>
+    <span>承認者：吉岡社長</span>
+  </div>
+</div>
+
+<div class="card">
+
+  <!-- リード -->
+  <div class="lead">
+    国内Bトラック（シェアモデル）と海外KICHI（原液販売）の両方を進めるにあたり、<strong>社長の承認が必要な条件設定を5点</strong>まとめました。<br>
+    宮脇がロジックを組みました。内容をご確認いただき、最下部の承認欄にサインをお願いします。
+  </div>
+
+  <!-- ======= 国内 Bトラック ======= -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-domestic">国内 Bトラック</span>
+      <span class="section-title">シェアモデル 運用条件</span>
+    </div>
+
+    <div style="background:#f0f4ff; border:1.5px solid #b0c0e8; border-radius:8px; padding:14px 18px; margin-bottom:18px; font-size:13px; line-height:1.9; color:#1a2060;">
+      <strong>前提：</strong>代理店への液剤は<strong>CRUX側が提供（無償）</strong>し、施工売上をシェアする方式を採用。<br>
+      代理店は液剤を「買う」のではなく、施工完了後にシェア分をCRUXへ支払う。液剤代は別途請求しない。
+    </div>
+
+    <!-- 代理店手取り比較表 -->
+    <div style="margin-bottom:22px;">
+      <div style="font-size:12px; font-weight:800; color:var(--muted); letter-spacing:1px; margin-bottom:10px;">
+        ▼ なぜ「液剤無償提供＋シェア」なのか —— 同じ仕事（120㎡ 施工 / ¥5,500/㎡）での代理店の手取り比較
+      </div>
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr>
+            <th style="background:var(--navy); color:var(--gold); padding:10px 14px; text-align:left; font-size:11px; font-weight:800; letter-spacing:1px; width:36%;">項目</th>
+            <th style="background:#2c6e20; color:#fff; padding:10px 14px; text-align:right; font-size:11px; font-weight:800; letter-spacing:1px;">A｜液剤無償＋シェア<br><span style="font-weight:600; opacity:0.85;">（採用モデル）</span></th>
+            <th style="background:#7a2020; color:#fff; padding:10px 14px; text-align:right; font-size:11px; font-weight:800; letter-spacing:1px;">B｜液剤購入＋シェア<br><span style="font-weight:600; opacity:0.85;">（不採用）</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border);">施工収入</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:right; font-weight:700;">¥660,000</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:right; font-weight:700;">¥660,000</td>
+          </tr>
+          <tr style="background:var(--off-white);">
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border);">① 液剤購入費</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:right; color:#2c6e20; font-weight:700;">¥0<span style="font-size:11px; font-weight:400; color:var(--muted);"> （CRUXが提供）</span></td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:right; color:#c00000; font-weight:700;">¥240,000<span style="font-size:11px; font-weight:400; color:var(--muted);"> （¥110,000/L × 2.2L）</span></td>
+          </tr>
+          <tr>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border);">② CRUXへのシェア（Bronze 50%）</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:right; font-weight:700;">¥330,000</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:right; font-weight:700;">¥330,000</td>
+          </tr>
+          <tr>
+            <td style="padding:13px 14px; background:#e8f5e3; font-weight:800; color:var(--navy);">代理店の手取り</td>
+            <td style="padding:13px 14px; background:#e8f5e3; text-align:right; font-size:16px; font-weight:900; color:#2c6e20;">¥330,000<br><span style="font-size:11px; font-weight:600; color:var(--muted);">ここから人件費</span></td>
+            <td style="padding:13px 14px; background:#fde8e8; text-align:right; font-size:16px; font-weight:900; color:#c00000;">¥90,000<br><span style="font-size:11px; font-weight:600; color:var(--muted);">ここから人件費 → 代理店が入らない</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="decision-list">
+
+      <!-- 決定① -->
+      <div class="decision-item">
+        <div class="decision-head">
+          <div class="decision-num">1</div>
+          <div class="decision-label">液剤の提供タイミング</div>
+          <div class="decision-answer">案件確定後に発送</div>
+        </div>
+        <div class="decision-body">
+          <div class="decision-main">
+            <div class="flow">
+              <div class="flow-node">
+                <div class="fn-label">代理店</div>
+                施工案件<br>受注
+              </div>
+              <div class="flow-arrow">▶</div>
+              <div class="flow-node">
+                <div class="fn-label">代理店→CRUX</div>
+                面積・日程<br>を連絡
+              </div>
+              <div class="flow-arrow">▶</div>
+              <div class="flow-node hl">
+                <div class="fn-label">CRUX</div>
+                液剤を<br>発送
+              </div>
+              <div class="flow-arrow">▶</div>
+              <div class="flow-node">
+                <div class="fn-label">代理店</div>
+                施工<br>完了
+              </div>
+              <div class="flow-arrow">▶</div>
+              <div class="flow-node">
+                <div class="fn-label">翌月末</div>
+                シェア分<br>を振込
+              </div>
+            </div>
+          </div>
+          <div class="decision-reason">
+            <div class="r-label">この理由</div>
+            代理店が在庫を抱えなくてよい。CRUXも無駄な在庫流出がない。施工写真と一緒に精算するので不正防止にもなる。
+          </div>
+        </div>
+      </div>
+
+      <!-- 決定② -->
+      <div class="decision-item">
+        <div class="decision-head">
+          <div class="decision-num">2</div>
+          <div class="decision-label">ティア維持条件（年間最低活動量）</div>
+          <div class="decision-answer">未達 → 1ティア降格</div>
+        </div>
+        <div class="decision-body">
+          <div class="decision-main">
+            <table class="calc-table">
+              <thead>
+                <tr>
+                  <th>ティア</th>
+                  <th>年間最低件数</th>
+                  <th>年間最低施工金額</th>
+                  <th>未達の場合</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Bronze</td>
+                  <td class="num">3件以上</td>
+                  <td class="num">¥500,000以上</td>
+                  <td>契約見直し</td>
+                </tr>
+                <tr>
+                  <td>Silver</td>
+                  <td class="num">6件以上</td>
+                  <td class="num">¥1,500,000以上</td>
+                  <td>Bronze に降格</td>
+                </tr>
+                <tr class="highlight">
+                  <td>Gold</td>
+                  <td class="num">12件以上</td>
+                  <td class="num">¥4,000,000以上</td>
+                  <td>Silver に降格</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="decision-reason">
+            <div class="r-label">この理由</div>
+            月次にすると繁忙期・閑散期で代理店が苦しくなる。年間にすることで余裕を持ちながらも活動義務を担保できる。
+          </div>
+        </div>
+      </div>
+
+      <!-- 決定③ -->
+      <div class="decision-item">
+        <div class="decision-head">
+          <div class="decision-num">3</div>
+          <div class="decision-label">シェア精算サイクル</div>
+          <div class="decision-answer">月次・翌月末払い</div>
+        </div>
+        <div class="decision-body">
+          <div class="decision-main">
+            <div class="decision-desc">
+              毎月末：代理店が当月の施工実績（面積・金額・施工写真）をCRUXへ報告<br>
+              翌月末まで：CRUXへのシェア分を振込<br>
+              提出物：施工報告書 ＋ 写真 ＋ 請求書（宮脇がフォーマット作成予定）
+            </div>
+          </div>
+          <div class="decision-reason">
+            <div class="r-label">この理由</div>
+            月次精算は一般的なB2B取引の標準。案件ごとの都度請求より管理が楽で、双方の経理負担が少ない。
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======= 海外 KICHI ======= -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-badge badge-overseas">海外 KICHI</span>
+      <span class="section-title">原液一括販売 取引条件</span>
+    </div>
+
+    <!-- 国内 vs 海外 構造比較 -->
+    <div style="margin-bottom:18px;">
+      <div style="font-size:12px; font-weight:800; color:var(--muted); letter-spacing:1px; margin-bottom:10px;">
+        ▼ なぜ海外はシェアモデルではないのか —— 国内と海外の構造の違い
+      </div>
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr>
+            <th style="background:var(--navy); color:var(--gold); padding:10px 14px; text-align:left; font-size:11px; font-weight:800; letter-spacing:1px; width:34%;">比較項目</th>
+            <th style="background:var(--navy); color:var(--gold); padding:10px 14px; text-align:center; font-size:11px; font-weight:800; letter-spacing:1px;">国内 Bトラック</th>
+            <th style="background:#0e7490; color:#fff; padding:10px 14px; text-align:center; font-size:11px; font-weight:800; letter-spacing:1px;">海外 KICHI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:var(--off-white);">
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); font-weight:700; color:var(--navy);">CRUXの管理可能範囲</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:center; color:#2c6e20; font-weight:700;">施工ごとに把握できる</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:center; color:#c00000; font-weight:700;">何㎡施工されたか把握不能</td>
+          </tr>
+          <tr>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); font-weight:700; color:var(--navy);">採用するモデル</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:center; font-weight:800;">シェアモデル（A型）</td>
+            <td style="padding:11px 14px; border-bottom:1px solid var(--border); text-align:center; font-weight:800;">原液一括販売（売り切り型）</td>
+          </tr>
+          <tr style="background:var(--off-white);">
+            <td style="padding:11px 14px; font-weight:700; color:var(--navy);">CRUXの収益タイミング</td>
+            <td style="padding:11px 14px; text-align:center;">施工のたびに継続収益</td>
+            <td style="padding:11px 14px; text-align:center;">液剤を売った時点で確定</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="background:#e0f5f7; border:1.5px solid #70c0cc; border-radius:8px; padding:14px 18px; margin-bottom:18px; font-size:13px; line-height:1.9; color:#0a3040;">
+      <strong>前提：</strong>海外は施工管理ができないため、シェアモデルは採用しない。<br>
+      CRUXが液剤を<strong>一括販売（売り切り型）</strong>し、バイヤーが現地で施工・販売を管理する。
+    </div>
+
+    <div class="decision-list">
+
+      <!-- 決定④ -->
+      <div class="decision-item">
+        <div class="decision-head">
+          <div class="decision-num">4</div>
+          <div class="decision-label">最低発注ロット</div>
+          <div class="decision-answer">5L / 回</div>
+        </div>
+        <div class="decision-body">
+          <div class="decision-main">
+            <table class="calc-table">
+              <thead>
+                <tr>
+                  <th>ロット</th>
+                  <th style="text-align:right">売上（¥750,000/L）</th>
+                  <th style="text-align:right">仕入原価</th>
+                  <th style="text-align:right">粗利</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1L（最小）</td>
+                  <td class="num">¥750,000</td>
+                  <td class="num">¥110,000</td>
+                  <td class="num profit">¥640,000</td>
+                </tr>
+                <tr class="highlight">
+                  <td><strong>5L（推奨）</strong></td>
+                  <td class="num"><strong>¥3,750,000</strong></td>
+                  <td class="num">¥550,000</td>
+                  <td class="num profit"><strong>¥3,200,000</strong></td>
+                </tr>
+                <tr>
+                  <td>10L</td>
+                  <td class="num">¥7,500,000</td>
+                  <td class="num">¥1,100,000</td>
+                  <td class="num profit">¥6,400,000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="decision-reason">
+            <div class="r-label">この理由</div>
+            1Lはお試し感が出て値引き交渉の起点になりやすい。5Lなら輸送コストを吸収でき、バイヤーへの心理的ハードルも高すぎない。
+          </div>
+        </div>
+      </div>
+
+      <!-- 決定⑤ -->
+      <div class="decision-item">
+        <div class="decision-head">
+          <div class="decision-num">5</div>
+          <div class="decision-label">支払い条件</div>
+          <div class="decision-answer">100%前払い（TT送金）</div>
+        </div>
+        <div class="decision-body">
+          <div class="decision-main">
+            <div class="decision-desc">
+              送金確認後に発送。これを絶対ルールとする。<br><br>
+              <strong>将来の緩和ステップ（関係構築後）</strong><br>
+              2回目以降：50%前払い ＋ 残50%発送前<br>
+              信頼できるパートナー確立後：30日後払いも検討可
+            </div>
+          </div>
+          <div class="decision-reason">
+            <div class="r-label">この理由</div>
+            初取引の相手は信用評価ゼロ。商品を送ってから「払えない」と言われたら取り返しがつかない。前払い徹底が海外取引の鉄則。
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- まとめ表 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title" style="font-size:15px;">5決定　一覧</div>
+    </div>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th style="width:50px">#</th>
+          <th style="width:180px">項目</th>
+          <th>決定内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align:center; font-weight:900; color:var(--navy);">①</td>
+          <td class="item">液剤提供タイミング<span class="decided">国内</span></td>
+          <td>案件確定後にCRUXが発送。代理店に在庫義務なし。</td>
+        </tr>
+        <tr>
+          <td style="text-align:center; font-weight:900; color:var(--navy);">②</td>
+          <td class="item">ティア維持条件<span class="decided">国内</span></td>
+          <td>年間最低件数・金額を設定。未達の場合は1ティア降格。</td>
+        </tr>
+        <tr>
+          <td style="text-align:center; font-weight:900; color:var(--navy);">③</td>
+          <td class="item">シェア精算サイクル<span class="decided">国内</span></td>
+          <td>月次・翌月末払い。施工報告書＋写真をセットで提出。</td>
+        </tr>
+        <tr>
+          <td style="text-align:center; font-weight:900; color:var(--navy);">④</td>
+          <td class="item">最低発注ロット<span class="decided" style="background:#0e7490;">海外</span></td>
+          <td>5L / 回（売上¥3,750,000・粗利¥3,200,000）</td>
+        </tr>
+        <tr>
+          <td style="text-align:center; font-weight:900; color:var(--navy);">⑤</td>
+          <td class="item">支払い条件<span class="decided" style="background:#0e7490;">海外</span></td>
+          <td>100%前払い（TT送金確認後に発送）。関係構築後に段階的に緩和。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- 承認欄 -->
+<div style="height:20px;"></div>
+<div class="approval-box">
+  <div class="approval-head">■ 社長承認欄 — 上記5点の内容を確認し、承認します</div>
+  <div class="approval-body">
+    <div class="approval-check">
+      <ul>
+        <li><span class="check-box"></span>① 液剤は案件確定後発送・代理店在庫なし運用</li>
+        <li><span class="check-box"></span>② ティア維持条件（年間最低件数・金額、未達→降格）</li>
+        <li><span class="check-box"></span>③ シェア精算は月次・翌月末払い</li>
+        <li><span class="check-box"></span>④ 海外最低ロット 5L / 回</li>
+        <li><span class="check-box"></span>⑤ 海外支払いは100%前払い（TT送金）</li>
+      </ul>
+    </div>
+    <div class="approval-sign">
+      <div class="sign-label">代表取締役　確認・承認</div>
+      <div class="sign-line">吉岡　　　　　　　　　印</div>
+    </div>
+  </div>
+  <div class="approval-date">承認日：　　　年　　月　　日</div>
+</div>
+
+<!-- 注記 -->
+<div class="note">
+  <strong>【宮脇メモ】</strong><br>
+  ・①〜③は6/10のBトラック説明会（Output B）に反映済みです。承認後、説明会資料に正式記載します。<br>
+  ・④⑤は海外バイヤーへの見積書（現在作成中）に使用します。<br>
+  ・変更がある場合は赤字で修正してそのままお返しください。宮脇が反映します。
+</div>
+
+</body>
+</html>

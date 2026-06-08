@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プロトケアXOP 代理店・施工業者 説明会資料</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-light: #253562;
+    --gold: #c9a84c;
+    --gold-light: #e2c170;
+    --gold-dark: #a07830;
+    --white: #ffffff;
+    --off-white: #f4f6fb;
+    --text-dark: #1a2744;
+    --text-mid: #4a5568;
+    --text-light: #8a98b8;
+    --red: #c00000;
+    --green: #2c4a1e;
+    --green-mid: #3d8a30;
+    --orange: #d4880a;
+    --bronze: #8B5A00;
+    --silver: #555;
+    --gold-tier: #8B6914;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Helvetica Neue', sans-serif;
+    background: #0d1526;
+    overflow: hidden;
+  }
+
+  .slideshow { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column;
+    opacity: 0; transition: opacity 0.35s ease;
+  }
+  .slide.active { display: flex; opacity: 1; }
+
+  /* ── Common Header ── */
+  .slide-header {
+    background: var(--navy);
+    padding: 14px 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--gold);
+    flex-shrink: 0;
+  }
+  .slide-header .logo { font-size: 11px; font-weight: 800; letter-spacing: 3px; color: var(--gold); }
+  .slide-header .slide-title-bar { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
+  .slide-header .slide-num { font-size: 11px; color: var(--gold); font-weight: 700; letter-spacing: 2px; }
+
+  .slide-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+
+  /* ── Nav ── */
+  .nav {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px; z-index: 100;
+    background: rgba(26,39,68,0.95); border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 40px; padding: 9px 22px; backdrop-filter: blur(8px);
+  }
+  .nav button {
+    background: none; border: 1.5px solid var(--gold); color: var(--gold);
+    border-radius: 50%; width: 34px; height: 34px; font-size: 16px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .nav button:hover { background: var(--gold); color: var(--navy); }
+  .nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .nav button:disabled:hover { background: none; color: var(--gold); }
+  .progress-dots { display: flex; gap: 6px; align-items: center; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(201,168,76,0.3); cursor: pointer; transition: all 0.2s; }
+  .dot.active { background: var(--gold); transform: scale(1.4); }
+
+  /* ════ SLIDE 1 — Title ════ */
+  #slide-1 { background: linear-gradient(145deg, #0d1526 0%, var(--navy) 55%, #1f3060 100%); }
+  #slide-1 .slide-header { background: transparent; border-bottom-color: rgba(201,168,76,0.3); }
+  #slide-1 .title-content {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 40px; position: relative;
+  }
+  #slide-1 .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 5px; color: var(--gold); text-transform: uppercase; margin-bottom: 18px; }
+  #slide-1 .main-title { font-size: 52px; font-weight: 900; color: #fff; letter-spacing: 3px; text-align: center; line-height: 1.15; text-shadow: 0 2px 20px rgba(0,0,0,0.4); }
+  #slide-1 .main-title .accent { color: var(--gold); display: block; font-size: 60px; }
+  #slide-1 .gold-line { width: 80px; height: 3px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 22px auto; }
+  #slide-1 .subtitle { font-size: 20px; font-weight: 300; color: rgba(255,255,255,0.75); letter-spacing: 3px; text-align: center; }
+  #slide-1 .meta { margin-top: 36px; display: flex; gap: 28px; }
+  #slide-1 .meta-item { font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; text-align: center; }
+  #slide-1 .meta-item span { display: block; color: var(--gold); font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+
+  /* ════ SLIDE 2 — なぜ今 ════ */
+  #slide-2 .slide-body { background: var(--off-white); padding: 36px 52px; gap: 20px; }
+  .section-heading { font-size: 26px; font-weight: 800; color: var(--navy); border-left: 5px solid var(--gold); padding-left: 16px; letter-spacing: 1px; }
+  .three-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; flex: 1; }
+  .col-card {
+    background: #fff; border-radius: 12px; border-top: 5px solid var(--navy);
+    padding: 24px 20px; box-shadow: 0 3px 16px rgba(26,39,68,0.08);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .col-card .card-icon { font-size: 32px; }
+  .col-card .card-title { font-size: 17px; font-weight: 800; color: var(--navy); line-height: 1.3; }
+  .col-card .card-desc { font-size: 13.5px; color: var(--text-mid); line-height: 1.7; flex: 1; }
+  .col-card .card-point {
+    background: var(--off-white); border-left: 3px solid var(--gold);
+    padding: 8px 12px; font-size: 12.5px; font-weight: 700; color: var(--navy); border-radius: 0 6px 6px 0;
+  }
+
+  /* ════ SLIDE 3 — 製品 ════ */
+  #slide-3 .slide-body { background: var(--off-white); padding: 32px 52px; gap: 16px; }
+  .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; }
+  .product-card {
+    background: #fff; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 3px 16px rgba(26,39,68,0.08);
+    display: flex; flex-direction: column;
+  }
+  .product-card .pc-header {
+    background: var(--navy); color: #fff;
+    padding: 16px 22px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .product-card .pc-name { font-size: 22px; font-weight: 900; letter-spacing: 2px; }
+  .product-card .pc-tag { font-size: 11px; background: var(--gold); color: var(--navy); font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .product-card .pc-body { padding: 20px 22px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+  .product-card .pc-target { font-size: 13px; font-weight: 700; color: var(--gold-dark); }
+  .product-card .pc-features { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .product-card .pc-features li { font-size: 13px; color: var(--text-mid); padding-left: 14px; position: relative; line-height: 1.6; }
+  .product-card .pc-features li::before { content: '✓'; position: absolute; left: 0; color: var(--green-mid); font-weight: 700; }
+  .product-card .pc-track { background: #f0f7f0; border: 1px solid #a5d6a7; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 700; color: var(--green); }
+  .product-card.xop .pc-header { background: #1a4a7a; }
+  .product-card.xop .pc-track { background: #e8f0ff; border-color: #9ec8f0; color: #1a4a7a; }
+
+  /* ════ SLIDE 4 — ビジネスモデル ════ */
+  #slide-4 .slide-body { background: var(--off-white); padding: 32px 52px; flex-direction: row; gap: 32px; }
+  .flow-col { flex: 0 0 220px; display: flex; flex-direction: column; gap: 0; align-items: stretch; }
+  .flow-node {
+    background: #fff; border: 2px solid var(--navy); border-radius: 10px;
+    padding: 12px 18px; text-align: center;
+  }
+  .flow-node.highlight { background: var(--navy); border-color: var(--gold); }
+  .flow-node .fn-title { font-size: 16px; font-weight: 800; color: var(--navy); }
+  .flow-node.highlight .fn-title { color: #fff; }
+  .flow-node .fn-sub { font-size: 11px; color: var(--gold-dark); margin-top: 2px; font-weight: 600; }
+  .flow-node.highlight .fn-sub { color: var(--gold); }
+  .flow-arrow { display: flex; flex-direction: column; align-items: center; padding: 3px 0; }
+  .flow-arrow .arrow-line { width: 2px; height: 16px; background: linear-gradient(180deg, var(--navy), var(--gold)); }
+  .flow-arrow .arrow-label { font-size: 10px; font-weight: 700; color: var(--gold-dark); background: var(--off-white); padding: 1px 7px; border-radius: 3px; white-space: nowrap; }
+  .flow-arrow .arrow-head { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid var(--gold); }
+  .right-col { flex: 1; display: flex; flex-direction: column; gap: 16px; justify-content: center; }
+  .model-explain {
+    background: var(--navy); border-radius: 12px; border: 2px solid var(--gold);
+    padding: 22px 26px; color: #fff;
+  }
+  .model-explain .me-title { font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--gold); margin-bottom: 14px; }
+  .model-step { display: flex; gap: 14px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 13.5px; line-height: 1.6; }
+  .model-step:last-child { border-bottom: none; }
+  .model-step .ms-num { background: var(--gold); color: var(--navy); font-size: 11px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .model-step .ms-text { color: rgba(255,255,255,0.85); }
+  .model-step .ms-text strong { color: var(--gold); }
+  .min-price-banner { background: var(--gold); border-radius: 8px; padding: 10px 18px; text-align: center; }
+  .min-price-banner .mpb-label { font-size: 10px; font-weight: 700; color: var(--navy); letter-spacing: 2px; }
+  .min-price-banner .mpb-value { font-size: 22px; font-weight: 900; color: var(--navy); }
+
+  /* ════ SLIDE 5 — 3層ティア ════ */
+  #slide-5 .slide-body { background: var(--off-white); padding: 32px 52px; gap: 18px; }
+  .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex: 1; }
+  .tier-card {
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(26,39,68,0.1);
+    display: flex; flex-direction: column;
+  }
+  .tier-card .tc-header { padding: 18px 22px; color: #fff; }
+  .tier-card.bronze .tc-header { background: linear-gradient(135deg, #8B5A00, #cd7f32); }
+  .tier-card.silver .tc-header { background: linear-gradient(135deg, #444, #888); }
+  .tier-card.gold-t .tc-header { background: linear-gradient(135deg, #7a5a00, #d4a017); }
+  .tier-card .tc-name { font-size: 22px; font-weight: 900; letter-spacing: 2px; }
+  .tier-card .tc-initial { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  .tier-card .tc-initial strong { font-size: 20px; font-weight: 900; }
+  .tier-card .tc-body { background: #fff; padding: 18px 20px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .share-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+  .share-row:last-of-type { border-bottom: none; }
+  .share-label { font-size: 12px; color: var(--text-mid); font-weight: 600; }
+  .share-value { font-size: 18px; font-weight: 900; color: var(--navy); }
+  .share-value.highlight { color: var(--green-mid); }
+  .feature-list { list-style: none; margin-top: 4px; display: flex; flex-direction: column; gap: 5px; }
+  .feature-list li { font-size: 12px; color: var(--text-mid); padding-left: 14px; position: relative; line-height: 1.5; }
+  .feature-list li::before { content: '▶'; position: absolute; left: 0; font-size: 8px; top: 5px; color: var(--gold-dark); }
+  .feature-list li.key { font-weight: 700; color: var(--navy); }
+
+  /* ════ SLIDE 6 — 収益シミュ ════ */
+  #slide-6 .slide-body { background: var(--off-white); padding: 28px 48px; gap: 14px; }
+  .sim-note { font-size: 12px; color: var(--text-mid); }
+  .sim-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; box-shadow: 0 3px 16px rgba(26,39,68,0.1); flex: 1; }
+  .sim-table thead tr { background: var(--navy); }
+  .sim-table thead th { padding: 12px 14px; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--gold); }
+  .sim-table thead th:first-child { text-align: left; }
+  .sim-table tbody tr:nth-child(odd) { background: #fff; }
+  .sim-table tbody tr:nth-child(even) { background: #f6faf5; }
+  .sim-table tbody td { padding: 11px 14px; text-align: center; font-size: 13.5px; border-bottom: 1px solid #eaf3e8; }
+  .sim-table tbody td:first-child { text-align: left; font-weight: 700; color: var(--text-mid); font-size: 12px; }
+  .sim-table tbody tr:last-child td { border-bottom: none; }
+  .highlight-cell { font-weight: 800; color: var(--green-mid); font-size: 15px; }
+  .crux-cell { color: var(--navy); font-weight: 700; }
+  .sim-footer {
+    background: var(--navy); border-radius: 8px; padding: 12px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: #fff; font-size: 13px;
+  }
+  .sim-footer .sf-label { opacity: 0.7; }
+  .sim-footer .sf-value { font-size: 20px; font-weight: 900; color: var(--gold); }
+
+  /* ════ SLIDE 7 — 認定フロー ════ */
+  #slide-7 .slide-body { background: var(--off-white); padding: 28px 48px; gap: 14px; }
+  .flow-steps { display: flex; gap: 0; flex: 1; align-items: stretch; }
+  .flow-step {
+    flex: 1; background: #fff; border-top: 4px solid var(--navy);
+    padding: 14px 12px; position: relative;
+    box-shadow: 0 2px 10px rgba(26,39,68,0.06);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .flow-step::after {
+    content: '›'; position: absolute; right: -10px; top: 50%;
+    transform: translateY(-50%); font-size: 22px; color: var(--gold); z-index: 1; font-weight: 700;
+  }
+  .flow-step:last-child::after { display: none; }
+  .flow-step .fs-num { font-size: 10px; font-weight: 700; color: var(--gold-dark); letter-spacing: 1px; }
+  .flow-step .fs-title { font-size: 13px; font-weight: 800; color: var(--navy); line-height: 1.3; }
+  .flow-step .fs-def { font-size: 10.5px; color: var(--text-mid); line-height: 1.4; }
+  .flow-step .fs-trigger { font-size: 10px; color: var(--green-mid); font-weight: 700; margin-top: auto; padding-top: 6px; border-top: 1px dashed #d0d0d0; }
+  .flow-step.highlight-step { border-top-color: var(--gold); background: #fffbea; }
+
+  /* ════ SLIDE 8 — 独占性 ════ */
+  #slide-8 .slide-body { background: var(--off-white); padding: 36px 52px; gap: 20px; }
+  .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1; }
+  .comparison-card {
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 3px 16px rgba(26,39,68,0.08);
+  }
+  .comparison-card .cch { padding: 14px 20px; font-size: 14px; font-weight: 800; letter-spacing: 1px; }
+  .comparison-card.wrong .cch { background: #ffebee; color: var(--red); }
+  .comparison-card.right .cch { background: var(--navy); color: var(--gold); }
+  .comparison-card .ccb { background: #fff; padding: 18px 20px; flex: 1; font-size: 13.5px; line-height: 1.9; color: var(--text-mid); }
+  .comparison-card.wrong .ccb { background: #fff5f5; }
+  .comparison-card.right .ccb { background: #f6faf5; }
+  .message-box {
+    background: var(--navy); border-radius: 10px; border: 2px solid var(--gold);
+    padding: 20px 28px; color: #fff;
+  }
+  .message-box .mb-label { font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--gold); margin-bottom: 10px; }
+  .message-box .mb-text { font-size: 18px; font-weight: 700; line-height: 1.7; color: #fff; }
+  .message-box .mb-text .accent { color: var(--gold); font-weight: 900; }
+
+  /* ════ SLIDE 9 — Next Steps ════ */
+  #slide-9 { background: linear-gradient(145deg, #0d1526 0%, var(--navy) 55%, #1f3060 100%); }
+  #slide-9 .slide-header { background: rgba(255,255,255,0.04); border-bottom-color: rgba(201,168,76,0.3); }
+  #slide-9 .slide-body { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 60px; gap: 28px; }
+  #slide-9 .ns-title { font-size: 36px; font-weight: 900; color: #fff; letter-spacing: 2px; text-align: center; }
+  #slide-9 .ns-title .accent { color: var(--gold); }
+  .ns-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; width: 100%; }
+  .ns-step {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 10px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .ns-step .ns-num { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 2px; }
+  .ns-step .ns-text { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.5; }
+  .ns-step .ns-sub { font-size: 11.5px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+  .cta-box { background: var(--gold); border-radius: 10px; padding: 14px 40px; text-align: center; }
+  .cta-box .cta-label { font-size: 10px; font-weight: 800; letter-spacing: 4px; color: var(--navy); opacity: 0.7; }
+  .cta-box .cta-text { font-size: 18px; font-weight: 900; color: var(--navy); }
+</style>
+</head>
+<body>
+
+<div class="slideshow" id="slideshow">
+
+  <!-- SLIDE 1 — Title -->
+  <div class="slide active" id="slide-1">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">代理店・施工業者 パートナー説明会</div>
+      <div class="slide-num">01 / 09</div>
+    </div>
+    <div class="slide-body title-content">
+      <div class="eyebrow">Partner Program 2026</div>
+      <div class="main-title">
+        <span class="accent">プロトケア XOP</span>
+        代理店・施工業者<br>パートナープログラム
+      </div>
+      <div class="gold-line"></div>
+      <div class="subtitle">シェアモデルで、一緒に広げましょう</div>
+      <div class="meta">
+        <div class="meta-item"><span>主催</span>株式会社CRUX</div>
+        <div class="meta-item"><span>製造元</span>株式会社キーストーン</div>
+        <div class="meta-item"><span>日付</span>2026年6月</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 — なぜ今 -->
+  <div class="slide" id="slide-2">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">市場機会</div>
+      <div class="slide-num">02 / 09</div>
+    </div>
+    <div class="slide-body" style="background:var(--off-white);padding:36px 52px;gap:20px;">
+      <div class="section-heading">なぜ、今この事業なのか</div>
+      <div class="three-cols">
+        <div class="col-card">
+          <div class="card-icon">🏛</div>
+          <div class="card-title">国内建物の<br>老朽化・メンテ需要</div>
+          <div class="card-desc">築30年超の建物が増加。石材・木材・コンクリートの保護・長寿命化ニーズが急拡大している。塗り替えではなく「浸透保護」という新しい答え。</div>
+          <div class="card-point">既存建物オーナーへの提案商材として最適</div>
+        </div>
+        <div class="col-card">
+          <div class="card-icon">🎯</div>
+          <div class="card-title">参入障壁が高い<br>浸透性塗料市場</div>
+          <div class="card-desc">プロトケアは「基材に浸透し結晶化」する業界唯一の工法。六本木ヒルズ・東京メトロ・GINZASIXなど大型実績あり。後発が簡単に真似できない技術優位性。</div>
+          <div class="card-point">CRUXを通じてしか入手できない独自製品</div>
+        </div>
+        <div class="col-card">
+          <div class="card-icon">🌏</div>
+          <div class="card-title">海外展開が<br>始まっている</div>
+          <div class="card-desc">ハワイ・ドバイ・韓国・シンガポールへの展開が進行中。国内での認定実績が海外紹介の優先権につながる設計。</div>
+          <div class="card-point">Gold代理店はAトラック案件の優先紹介あり</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 — 製品 -->
+  <div class="slide" id="slide-3">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">製品ラインナップ</div>
+      <div class="slide-num">03 / 09</div>
+    </div>
+    <div class="slide-body" style="background:var(--off-white);padding:32px 52px;gap:16px;">
+      <div class="section-heading">プロトケア 2製品ライン</div>
+      <div class="product-grid">
+        <div class="product-card">
+          <div class="pc-header">
+            <div class="pc-name">プロトケア FC</div>
+            <div class="pc-tag">木材専用</div>
+          </div>
+          <div class="pc-body">
+            <div class="pc-target">対象素材：木材・集成材・合板・ツキ板・人工木材・MDF 全般</div>
+            <ul class="pc-features">
+              <li>「木の文化を守る」長寿命化コーティング</li>
+              <li>はっ水・はつ油・防カビで汚染防止</li>
+              <li>紫外線劣化を長期抑制</li>
+              <li>浸透性のため素材感を維持（塗膜なし）</li>
+              <li>耐久性：壁面10年以上</li>
+            </ul>
+            <div class="pc-track">✓ Bトラック対応製品</div>
+          </div>
+        </div>
+        <div class="product-card xop">
+          <div class="pc-header">
+            <div class="pc-name">プロトケア XOP</div>
+            <div class="pc-tag">石材・タイル・コンクリート</div>
+          </div>
+          <div class="pc-body">
+            <div class="pc-target">対象素材：石材・タイル・コンクリート・左官・ALC板 ほか（吸水率0.1%以上の素材全般）</div>
+            <ul class="pc-features">
+              <li>日本初・フッ素系無機塗料（他社はアクリル・ウレタン系）</li>
+              <li>油性汚染物質まではつける浸透性コーティング</li>
+              <li>六本木ヒルズ・GINZA SIX・東京メトロ等の大型実績</li>
+              <li>専門職不要・素人でもムラが生じにくい施工</li>
+              <li>耐久性：壁面10年以上</li>
+            </ul>
+            <div class="pc-track" style="background:#e8f0ff;border-color:#9ec8f0;color:#1a4a7a;">✓ Bトラック対応製品（主力）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 — ビジネスモデル -->
+  <div class="slide" id="slide-4">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">ビジネスモデル</div>
+      <div class="slide-num">04 / 09</div>
+    </div>
+    <div class="slide-body" style="background:var(--off-white);padding:32px 52px;flex-direction:row;gap:32px;">
+      <div style="display:flex;flex-direction:column;gap:0;align-items:stretch;flex:0 0 200px;">
+        <div class="section-heading" style="font-size:22px;margin-bottom:20px;">シェアモデルとは</div>
+        <div class="flow-node"><div class="fn-title">キーストーン</div><div class="fn-sub">製造元</div></div>
+        <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-label">独占供給</div><div class="arrow-head"></div></div>
+        <div class="flow-node highlight"><div class="fn-title">CRUX</div><div class="fn-sub">液剤管理・供給元</div></div>
+        <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-label">案件ごとに供給</div><div class="arrow-head"></div></div>
+        <div class="flow-node"><div class="fn-title">代理店（あなた）</div><div class="fn-sub">施工・営業</div></div>
+        <div class="flow-arrow"><div class="arrow-line"></div><div class="arrow-label">施工・請求</div><div class="arrow-head"></div></div>
+        <div class="flow-node"><div class="fn-title">エンドユーザー</div><div class="fn-sub">オーナー・施主</div></div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:16px;justify-content:center;">
+        <div class="model-explain">
+          <div class="me-title">SHARE MODEL — 仕組み</div>
+          <div class="model-step">
+            <div class="ms-num">1</div>
+            <div class="ms-text">代理店が顧客を開拓・施工する</div>
+          </div>
+          <div class="model-step">
+            <div class="ms-num">2</div>
+            <div class="ms-text">顧客から代理店が代金を収受する</div>
+          </div>
+          <div class="model-step">
+            <div class="ms-num">3</div>
+            <div class="ms-text"><strong>施工売上の一定%をCRUXへ入金</strong>（ティアにより異なる）</div>
+          </div>
+          <div class="model-step">
+            <div class="ms-num">4</div>
+            <div class="ms-text">CRUXが案件ごとに液剤を供給する</div>
+          </div>
+        </div>
+        <div class="min-price-banner">
+          <div class="mpb-label">最低施工単価（CRUX設定）</div>
+          <div class="mpb-value">¥5,500 / ㎡　　代理店はそれ以上で自由設定可</div>
+        </div>
+        <div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:12px 16px;font-size:13px;color:#1a5c1a;font-weight:600;">
+          ✓ 液剤の先行大量購入は不要。初期費用は研修費のみ。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 — 3層ティア -->
+  <div class="slide" id="slide-5">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">パートナーティア</div>
+      <div class="slide-num">05 / 09</div>
+    </div>
+    <div class="slide-body" style="background:var(--off-white);padding:32px 52px;gap:18px;">
+      <div class="section-heading">3層パートナーティア</div>
+      <div class="tier-grid">
+        <div class="tier-card bronze">
+          <div class="tc-header">
+            <div class="tc-name">Bronze</div>
+            <div class="tc-initial">初期費用 <strong>¥200,000</strong>（研修費のみ）</div>
+          </div>
+          <div class="tc-body">
+            <div class="share-row"><span class="share-label">CRUX 取り分</span><span class="share-value">50%</span></div>
+            <div class="share-row"><span class="share-label">代理店 取り分</span><span class="share-value highlight">50%</span></div>
+            <ul class="feature-list">
+              <li>施工・販売可（非独占）</li>
+              <li>キーストーン社認定研修</li>
+              <li>施工マニュアル提供</li>
+            </ul>
+            <div style="font-size:11px;color:var(--text-mid);margin-top:6px;">まずは試してみたい方に</div>
+          </div>
+        </div>
+        <div class="tier-card silver">
+          <div class="tc-header">
+            <div class="tc-name">Silver</div>
+            <div class="tc-initial">初期費用 <strong>¥500,000</strong></div>
+          </div>
+          <div class="tc-body">
+            <div class="share-row"><span class="share-label">CRUX 取り分</span><span class="share-value">45%</span></div>
+            <div class="share-row"><span class="share-label">代理店 取り分</span><span class="share-value highlight">55%</span></div>
+            <ul class="feature-list">
+              <li>施工・販売可</li>
+              <li class="key">エリア優先権（※確認中）</li>
+              <li>マーケティング資料提供</li>
+              <li>Bronze の全特典</li>
+            </ul>
+          </div>
+        </div>
+        <div class="tier-card gold-t">
+          <div class="tc-header">
+            <div class="tc-name">Gold</div>
+            <div class="tc-initial">初期費用 <strong>¥1,000,000</strong></div>
+          </div>
+          <div class="tc-body">
+            <div class="share-row"><span class="share-label">CRUX 取り分</span><span class="share-value">40%</span></div>
+            <div class="share-row"><span class="share-label">代理店 取り分</span><span class="share-value highlight">60%</span></div>
+            <ul class="feature-list">
+              <li>施工・販売可</li>
+              <li class="key">エリア優先権（※確認中）</li>
+              <li class="key">案件の優先紹介（Aトラック案件）</li>
+              <li class="key">下部卸設定権</li>
+              <li>専属サポート担当</li>
+              <li>Silver の全特典</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:11.5px;color:var(--text-mid);">※エリア優先権の詳細はキーストーン社との協議後に確定予定。損益分岐点：CRUX取り分37%（¥5,500/㎡・120㎡案件）</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 — 収益シミュ -->
+  <div class="slide" id="slide-6">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">収益シミュレーション</div>
+      <div class="slide-num">06 / 09</div>
+    </div>
+    <div class="slide-body" style="background:var(--off-white);padding:28px 48px;gap:12px;">
+      <div class="section-heading">代理店 収益シミュレーション</div>
+      <div class="sim-note">前提：施工面積120㎡ / 1案件。材料原価¥2,000/㎡、人件費¥350/㎡</div>
+      <table class="sim-table">
+        <thead>
+          <tr>
+            <th>施工単価</th>
+            <th>売上（120㎡）</th>
+            <th>代理店コスト</th>
+            <th>Bronze（50%）<br>代理店利益</th>
+            <th>Silver（55%）<br>代理店利益</th>
+            <th>Gold（60%）<br>代理店利益</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>¥5,500/㎡（最低）</td>
+            <td>¥660,000</td>
+            <td>¥279,000</td>
+            <td class="highlight-cell">¥51,000</td>
+            <td class="highlight-cell">¥84,000</td>
+            <td class="highlight-cell">¥117,000</td>
+          </tr>
+          <tr>
+            <td>¥6,500/㎡</td>
+            <td>¥780,000</td>
+            <td>¥279,000</td>
+            <td class="highlight-cell">¥111,000</td>
+            <td class="highlight-cell">¥150,000</td>
+            <td class="highlight-cell">¥189,000</td>
+          </tr>
+          <tr>
+            <td>¥7,500/㎡</td>
+            <td>¥900,000</td>
+            <td>¥279,000</td>
+            <td class="highlight-cell">¥171,000</td>
+            <td class="highlight-cell">¥216,000</td>
+            <td class="highlight-cell">¥261,000</td>
+          </tr>
+          <tr>
+            <td>¥8,000/㎡</td>
+            <td>¥960,000</td>
+            <td>¥279,000</td>
+            <td class="highlight-cell">¥201,000</td>
+            <td class="highlight-cell">¥249,000</td>
+            <td class="highlight-cell">¥297,000</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="sim-footer">
+        <div>
+          <div class="sf-label">月3案件・¥6,500/㎡・Silverの場合</div>
+        </div>
+        <div>
+          <span style="opacity:0.7;font-size:12px;">代理店の月間利益　</span>
+          <span class="sf-value">¥450,000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7 — 認定フロー -->
+  <div class="slide" id="slide-7">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">認定フロー</div>
+      <div class="slide-num">07 / 09</div>
+    </div>
+    <div class="slide-body" style="background:var(--off-white);padding:32px 48px;gap:16px;">
+      <div class="section-heading">7ステップ 認定フロー</div>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="fs-num">STEP 1</div>
+          <div class="fs-title">初接触</div>
+          <div class="fs-def">初回MTG・関心度確認。ティア概要を説明。</div>
+          <div class="fs-trigger">→「詳細を聞きたい」</div>
+        </div>
+        <div class="flow-step">
+          <div class="fs-num">STEP 2</div>
+          <div class="fs-title">提案中</div>
+          <div class="fs-def">シェアモデル詳細・収益試算を提示。推奨ティアを提案。</div>
+          <div class="fs-trigger">→「契約条件を確認したい」</div>
+        </div>
+        <div class="flow-step">
+          <div class="fs-num">STEP 3</div>
+          <div class="fs-title">スキーム提示</div>
+          <div class="fs-def">契約書ドラフト・液剤供給フロー・施工報告ルールを説明。</div>
+          <div class="fs-trigger">→「交渉・確認点がある」</div>
+        </div>
+        <div class="flow-step">
+          <div class="fs-num">STEP 4</div>
+          <div class="fs-title">交渉中</div>
+          <div class="fs-def">ティア選択・条件交渉。エリア優先権の範囲を合意。</div>
+          <div class="fs-trigger">→「契約にサインする」</div>
+        </div>
+        <div class="flow-step">
+          <div class="fs-num">STEP 5</div>
+          <div class="fs-title">FIX直前</div>
+          <div class="fs-def">最終契約書作成・研修スケジュール確定。</div>
+          <div class="fs-trigger">→ 署名完了</div>
+        </div>
+        <div class="flow-step highlight-step">
+          <div class="fs-num">STEP 6</div>
+          <div class="fs-title">認定研修</div>
+          <div class="fs-def">キーストーン社による施工研修・認定審査。</div>
+          <div class="fs-trigger">→ 認定書発行</div>
+        </div>
+        <div class="flow-step highlight-step">
+          <div class="fs-num">STEP 7</div>
+          <div class="fs-title">認定完了</div>
+          <div class="fs-def">初回案件を伴走サポート。以降、継続的な案件獲得へ。</div>
+          <div class="fs-trigger">→ ティアアップ検討</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-mid);">研修費：¥200,000（全ティア共通） ／ 認定研修はキーストーン社が実施</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8 — 独占性 -->
+  <div class="slide" id="slide-8">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">独占性について</div>
+      <div class="slide-num">08 / 09</div>
+    </div>
+    <div class="slide-body" style="background:var(--off-white);padding:32px 52px;gap:20px;">
+      <div class="section-heading">「独占性」の正しい理解</div>
+      <div class="comparison-grid">
+        <div class="comparison-card wrong">
+          <div class="cch">❌ 誤解：「エリア独占」</div>
+          <div class="ccb">「このエリアは私だけが施工できる」という地域独占権は、現時点では制度化されていません（キーストーン社との協議中）。この言葉を使うと契約トラブルの火種になります。</div>
+        </div>
+        <div class="comparison-card right">
+          <div class="cch">✅ 正確：「事実ベースの独占性」</div>
+          <div class="ccb">プロトケアXOPはCRUXを通じてしか国内で入手できません。あなたがその地域で認定を受ければ、その地域でXOPを施工できる唯一の業者になります。これは事実です。</div>
+        </div>
+      </div>
+      <div class="message-box">
+        <div class="mb-label">CRUX PROMISE</div>
+        <div class="mb-text">
+          「<span class="accent">XOP製品はCRUXを通じてしか国内で入手できない。</span><br>
+          あなたの地域でXOPを施工できるのは、あなただけにする。」
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9 — Next Steps -->
+  <div class="slide" id="slide-9">
+    <div class="slide-header">
+      <div class="logo">Protecare / CRUX</div>
+      <div class="slide-title-bar">Next Steps</div>
+      <div class="slide-num">09 / 09</div>
+    </div>
+    <div class="slide-body">
+      <div class="ns-title">今日から始められること<span class="accent">。</span></div>
+      <div class="ns-steps">
+        <div class="ns-step">
+          <div class="ns-num">STEP 01</div>
+          <div class="ns-text">ご希望ティアをお知らせください</div>
+          <div class="ns-sub">Bronze（¥200K）/ Silver（¥500K）/ Gold（¥1,000K）— まず話し合いから</div>
+        </div>
+        <div class="ns-step">
+          <div class="ns-num">STEP 02</div>
+          <div class="ns-text">収益シミュレーションを一緒に試算します</div>
+          <div class="ns-sub">御社の施工規模・エリアに合わせた具体的な利益試算を提示します</div>
+        </div>
+        <div class="ns-step">
+          <div class="ns-num">STEP 03</div>
+          <div class="ns-text">キーストーン社の認定研修を受講</div>
+          <div class="ns-sub">研修後すぐに施工開始可能。初回案件はCRUXがフルサポート</div>
+        </div>
+      </div>
+      <div class="cta-box">
+        <div class="cta-label">Contact</div>
+        <div class="cta-text">まずはお気軽にご連絡ください　｜　株式会社CRUX　吉岡・宮脇</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Nav -->
+<nav class="nav" id="nav">
+  <button id="btn-prev" onclick="changeSlide(-1)" disabled>&#8249;</button>
+  <div class="progress-dots" id="dots"></div>
+  <button id="btn-next" onclick="changeSlide(1)">&#8250;</button>
+</nav>
+
+<script>
+  const TOTAL = 9;
+  let current = 1;
+  const dotsContainer = document.getElementById('dots');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+
+  for (let i = 1; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(d);
+  }
+
+  function goTo(n) {
+    document.getElementById('slide-' + current).classList.remove('active');
+    dotsContainer.children[current - 1].classList.remove('active');
+    current = Math.max(1, Math.min(TOTAL, n));
+    document.getElementById('slide-' + current).classList.add('active');
+    dotsContainer.children[current - 1].classList.add('active');
+    btnPrev.disabled = current === 1;
+    btnNext.disabled = current === TOTAL;
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   changeSlide(-1);
+  });
+</script>
+</body>
+</html>

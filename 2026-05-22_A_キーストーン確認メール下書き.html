@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>キーストーン社 確認事項メール下書き</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --gold: #c9a84c;
+    --red: #c00000;
+    --green: #2c4a1e;
+    --green-mid: #3d8a30;
+    --off-white: #f4f6fb;
+    --border: #d0d8e8;
+    --text: #1a1a1a;
+    --muted: #555;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: #eef4ec;
+    color: var(--text);
+    padding: 32px 20px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 28px 36px;
+    border-radius: 12px;
+    margin-bottom: 28px;
+    border-bottom: 4px solid var(--gold);
+  }
+  .page-header .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .page-header h1 { font-size: 20px; font-weight: 800; }
+  .page-header .meta { font-size: 12px; opacity: 0.6; margin-top: 8px; }
+
+  /* 使い方ガイド */
+  .guide-box {
+    background: #fff9e6;
+    border: 1.5px solid #f0c040;
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: #4a3900;
+    line-height: 1.8;
+  }
+  .guide-box strong { color: #7a5c00; }
+
+  /* メール本体 */
+  .email-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  .email-meta {
+    background: var(--off-white);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .email-meta-row {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+  }
+  .email-meta-label {
+    font-weight: 700;
+    color: var(--muted);
+    width: 60px;
+    flex-shrink: 0;
+  }
+  .email-meta-value { color: var(--text); }
+  .email-meta-value.subject {
+    font-weight: 800;
+    color: var(--navy);
+    font-size: 15px;
+  }
+
+  .email-body {
+    padding: 32px 36px;
+    font-size: 14px;
+    line-height: 2;
+    color: var(--text);
+  }
+
+  .email-body p { margin-bottom: 1.6em; }
+  .email-body p:last-child { margin-bottom: 0; }
+
+  /* 確認項目ブロック */
+  .confirm-block {
+    background: var(--off-white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .confirm-block-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--navy);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--gold);
+    letter-spacing: 1px;
+  }
+  .confirm-item {
+    display: flex;
+    gap: 14px;
+    padding: 8px 0;
+    border-bottom: 1px dashed #d0d8e8;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .confirm-item:last-child { border-bottom: none; }
+  .confirm-num {
+    background: var(--navy);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 800;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .confirm-text { flex: 1; }
+  .confirm-text .q { font-weight: 700; color: var(--navy); }
+  .confirm-text .context { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* 署名 */
+  .signature {
+    border-top: 1px solid var(--border);
+    padding: 20px 36px;
+    background: var(--off-white);
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+
+  /* 注記 */
+  .note-box {
+    background: #fff0f0;
+    border: 1.5px solid #e88;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 24px;
+    font-size: 12.5px;
+    color: #7a1a1a;
+    line-height: 1.8;
+  }
+  .note-box strong { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="eyebrow">Output A — キーストーン社 確認メール</div>
+  <h1>統合確認事項メール下書き</h1>
+  <div class="meta">送付者：吉岡　／　宛先：キーストーン社　／　今週中に送付</div>
+</div>
+
+<div class="guide-box">
+  <strong>【使い方】</strong><br>
+  宮脇さんがこの下書きを吉岡社長に共有 → 吉岡社長が内容を確認・加筆 → キーストーン社担当者へ送付。<br>
+  <strong>ポイント：「6月13日までに」という回答期限を必ず明示すること。期限なき依頼は回答なき依頼になる。</strong>
+</div>
+
+<div class="email-card">
+
+  <!-- メタ情報 -->
+  <div class="email-meta">
+    <div class="email-meta-row">
+      <div class="email-meta-label">宛先</div>
+      <div class="email-meta-value">株式会社キーストーン　○○様</div>
+    </div>
+    <div class="email-meta-row">
+      <div class="email-meta-label">差出人</div>
+      <div class="email-meta-value">吉岡（CRUX）</div>
+    </div>
+    <div class="email-meta-row">
+      <div class="email-meta-label">件名</div>
+      <div class="email-meta-value subject">【確認事項】国内代理店展開および海外販売準備に関するご確認のお願い</div>
+    </div>
+  </div>
+
+  <!-- 本文 -->
+  <div class="email-body">
+
+    <p>○○様</p>
+
+    <p>
+      お世話になっております。CRUXの吉岡です。<br>
+      いつも大変お世話になりありがとうございます。
+    </p>
+
+    <p>
+      現在、弊社では国内における代理店ネットワークの構築、および海外への製品展開（ハワイ・ドバイ・韓国・シンガポール等）を本格的に推進しており、その準備を進めるにあたり、いくつか確認させていただきたい事項がございます。
+    </p>
+
+    <p>
+      お忙しいところ恐れ入りますが、<strong>6月13日（土）まで</strong>にご回答いただけますと大変助かります。<br>
+      各項目、分かる範囲でのご回答で構いません。
+    </p>
+
+    <div class="confirm-block">
+      <div class="confirm-block-title">■ 国内代理店展開に関するご確認（1項目）</div>
+
+      <div class="confirm-item">
+        <div class="confirm-num">1</div>
+        <div class="confirm-text">
+          <div class="q">代理店へのエリア優先権（または地域独占権）の付与は可能でしょうか？</div>
+          <div class="context">
+            弊社では現在、施工業者・代理店向けのシェアモデルを設計しております。上位ティア（シルバー・ゴールド）の代理店に対して、特定エリアでの優先的な施工権を付与したいと考えておりますが、キーストーン社のポリシーとして問題がないかをご確認させてください。可能な場合、その条件・範囲についてもご教示いただけますと幸いです。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-block">
+      <div class="confirm-block-title">■ 海外販売準備に関するご確認（5項目）</div>
+
+      <div class="confirm-item">
+        <div class="confirm-num">2</div>
+        <div class="confirm-text">
+          <div class="q">プロトケアXOP の日本語版SDS（安全データシート）は作成されていますでしょうか？</div>
+          <div class="context">海外向け英語版SDSを作成するにあたり、日本語版をベースに翻訳・加工する予定です。</div>
+        </div>
+      </div>
+
+      <div class="confirm-item">
+        <div class="confirm-num">3</div>
+        <div class="confirm-text">
+          <div class="q">プロトケアXOP に含まれる全成分のCAS番号をご共有いただけますでしょうか？</div>
+          <div class="context">輸出先国の化学品規制確認（ドバイ・米国ハワイ）に必要となります。</div>
+        </div>
+      </div>
+
+      <div class="confirm-item">
+        <div class="confirm-num">4</div>
+        <div class="confirm-text">
+          <div class="q">VOC（揮発性有機化合物）含有量はどの程度でしょうか？</div>
+          <div class="context">UAE・米国への輸出許可申請に必要な情報です。</div>
+        </div>
+      </div>
+
+      <div class="confirm-item">
+        <div class="confirm-num">5</div>
+        <div class="confirm-text">
+          <div class="q">推奨される保管条件・輸送条件をお教えください。</div>
+          <div class="context">温度管理の要否、保管時の注意事項、航空輸送の可否などをご確認させてください。</div>
+        </div>
+      </div>
+
+      <div class="confirm-item">
+        <div class="confirm-num">6</div>
+        <div class="confirm-text">
+          <div class="q">販売可能な容器サイズの種類と、製品の使用期限（賞味期限）はどのくらいでしょうか？</div>
+          <div class="context">在庫計画および輸出ロットの設計に必要です。</div>
+        </div>
+      </div>
+    </div>
+
+    <p>
+      以上、6点についてご確認いただけますようお願い申し上げます。<br>
+      不明な点がございましたら、いつでもご連絡ください。<br>
+      今後とも何卒よろしくお願いいたします。
+    </p>
+
+  </div>
+
+  <!-- 署名 -->
+  <div class="signature">
+    ────────────────────────────<br>
+    株式会社CRUX<br>
+    代表取締役　吉岡 ○○<br>
+    TEL：XXX-XXXX-XXXX<br>
+    MAIL：yoshioka@crux.co.jp<br>
+    ────────────────────────────
+  </div>
+
+</div>
+
+<!-- 注記 -->
+<div class="note-box">
+  <strong>【宮脇メモ】</strong><br>
+  ・回答期限「6月13日」は、ドバイ展示会（9/27〜）への書類準備に最低3ヶ月必要なことから逆算した設定です。<br>
+  ・件名は「確認」を前面に出し、ビジネス拡大の文脈を入れることでキーストーン社に脅威を感じさせない書き方にしています。<br>
+  ・エリア優先権（項目1）の書き方は「CRUXが独自に設定する」ではなく「キーストーン社のポリシーとして問題ないか」という確認スタンスにしています（怖がりに見えるトップへの配慮）。
+</div>
+
+</body>
+</html>

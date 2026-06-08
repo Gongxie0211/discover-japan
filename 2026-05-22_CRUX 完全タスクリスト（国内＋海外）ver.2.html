@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRUX 完全タスクリスト（国内＋海外）ver.2</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-light: #253562;
+    --gold: #c9a84c;
+    --gold-light: #e2c170;
+    --red: #c00000;
+    --orange: #d4880a;
+    --yellow: #7a5c00;
+    --green: #2c4a1e;
+    --green-mid: #3d8a30;
+    --blue: #1a4a7a;
+    --off-white: #f4f6fb;
+    --border: #c8dcc4;
+    --text: #1a1a1a;
+    --muted: #555;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Helvetica Neue', sans-serif;
+    background: #eef4ec;
+    color: var(--text);
+    padding: 32px 20px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── ヘッダー ── */
+  .page-header {
+    background: var(--navy);
+    color: #fff;
+    padding: 32px 40px 28px;
+    border-radius: 12px;
+    margin-bottom: 32px;
+    border-bottom: 4px solid var(--gold);
+  }
+  .page-header .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .page-header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .page-header .meta {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-top: 10px;
+  }
+
+  /* ── 起点ボックス ── */
+  .origin-box {
+    background: #fff0f0;
+    border: 2px solid var(--red);
+    border-radius: 10px;
+    padding: 20px 28px;
+    margin-bottom: 28px;
+  }
+  .origin-box .ob-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--red);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+  .origin-box .ob-body {
+    font-size: 13px;
+    line-height: 1.9;
+    color: #4a0000;
+  }
+  .origin-box .ob-body ul {
+    list-style: none;
+    margin: 6px 0 0 12px;
+  }
+  .origin-box .ob-body ul li::before {
+    content: '└ ';
+    color: var(--red);
+    font-weight: 700;
+  }
+  .origin-box .ob-note {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--red);
+    background: #fff;
+    border: 1px solid #e88;
+    border-radius: 6px;
+    padding: 8px 14px;
+  }
+
+  /* ── セクション ── */
+  .phase-section {
+    margin-bottom: 36px;
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .phase-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-red    { background: var(--red); }
+  .dot-orange { background: #e67e00; }
+  .dot-yellow { background: #d4a017; }
+  .dot-green  { background: #2e7d32; }
+  .dot-blue   { background: #1a4a7a; }
+
+  .phase-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--navy);
+  }
+  .phase-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  /* ── テーブル ── */
+  .task-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .task-table thead tr {
+    background: var(--navy);
+    color: #fff;
+  }
+  .task-table thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .task-table tbody tr:nth-child(odd)  { background: #fff; }
+  .task-table tbody tr:nth-child(even) { background: #f6faf5; }
+  .task-table tbody tr:hover { background: #dde8db; }
+  .task-table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e0ead e;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .task-table tbody tr:last-child td { border-bottom: none; }
+  .task-table td:first-child { font-weight: 700; color: #555; font-size: 12px; }
+
+  .task-name { font-weight: 700; color: var(--navy); }
+  .task-note { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+  /* ステータスバッジ */
+  .badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge-red    { background: #fff0f0; border: 1px solid #e88; color: var(--red); }
+  .badge-orange { background: #fff3e0; border: 1px solid #ffcc80; color: #e65100; }
+  .badge-yellow { background: #fffce6; border: 1px solid #f0c040; color: var(--yellow); }
+  .badge-green  { background: #e8f5e9; border: 1px solid #a5d6a7; color: #2e7d32; }
+  .badge-purple { background: #ede7f6; border: 1px solid #b39ddb; color: #4527a0; }
+
+  /* サブテーブルのラベル */
+  .sub-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green);
+    margin: 16px 0 8px 4px;
+    padding-left: 10px;
+    border-left: 3px solid var(--green-mid);
+    letter-spacing: 1px;
+  }
+
+  /* ── 社長確認テーブル ── */
+  .president-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    font-size: 13px;
+  }
+  .president-table thead tr { background: var(--red); }
+  .president-table thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #fff;
+  }
+  .president-table tbody tr:nth-child(odd)  { background: #fff; }
+  .president-table tbody tr:nth-child(even) { background: #fff5f5; }
+  .president-table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #fde;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .president-table tbody tr:last-child td { border-bottom: none; }
+
+  .pri-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .pri-max  { background: var(--red); color: #fff; }
+  .pri-high { background: #e65100; color: #fff; }
+  .pri-mid  { background: #d4a017; color: #fff; }
+
+  /* ── サマリーグリッド ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .summary-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .summary-card .sc-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .summary-card .sc-num {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--navy);
+    line-height: 1;
+  }
+  .summary-card .sc-sub {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  @media (max-width: 700px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ページヘッダー -->
+<div class="page-header">
+  <div class="eyebrow">CRUX / プロトケア事業</div>
+  <h1>完全タスクリスト（国内＋海外） ver.2</h1>
+  <div class="meta">基準日：2026-05-22　／　作成：宮脇</div>
+</div>
+
+<!-- 起点ボックス -->
+<div class="origin-box">
+  <div class="ob-title">⚠ 全タスクの起点：キーストーン社への統合確認書（今週中送付）</div>
+  <div class="ob-body">
+    宮脇が下書き → 吉岡が送付。国内・海外の確認事項を1通にまとめる。回答期限「<strong>6月13日</strong>」と明示。
+    <ul>
+      <li>【国内】エリア優先権（Silver/Gold）の可否・条件</li>
+      <li>【海外】SDS日本語版の有無</li>
+      <li>【海外】全成分CAS番号</li>
+      <li>【海外】VOC含有量</li>
+      <li>【海外】保管・輸送条件（温度・容器）</li>
+      <li>【海外】容器サイズ・賞味期限</li>
+    </ul>
+    <div class="ob-note">この確認が届かない限り、国内B-trackの差別化も海外書類準備も全部止まる</div>
+  </div>
+</div>
+
+<!-- ───────────────────────────────── -->
+<!-- 🔴 今すぐ〜5/30 -->
+<!-- ───────────────────────────────── -->
+<div class="phase-section">
+  <div class="phase-header">
+    <div class="phase-dot dot-red"></div>
+    <div class="phase-title">今すぐ〜5/30</div>
+    <div class="phase-subtitle">残り8日</div>
+  </div>
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th style="width:4%;">#</th>
+        <th style="width:36%;">タスク</th>
+        <th style="width:18%;">担当</th>
+        <th style="width:14%;">状態</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>
+          <div class="task-name">キーストーンへの統合確認書を送付</div>
+          <div class="task-note">国内＋海外6項目を1通に。回答期限6/13明示</div>
+        </td>
+        <td>宮脇→吉岡</td>
+        <td><span class="badge badge-red">未着手</span></td>
+        <td>全体の起点。最優先</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>
+          <div class="task-name">価格・最小ロット・支払い条件の確定</div>
+          <div class="task-note">海外原液販売の見積書・B-track収益試算の両方が止まっている</div>
+        </td>
+        <td>吉岡＋宮脇</td>
+        <td><span class="badge badge-red">未確定</span></td>
+        <td>今週中に決定</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>
+          <div class="task-name">5/30 加藤先生打合せのアジェンダ確認</div>
+          <div class="task-note">ハワイ展開の今後を話し合う重要会議</div>
+        </td>
+        <td>→吉岡に確認</td>
+        <td><span class="badge badge-purple">社長確認要</span></td>
+        <td>5/28までに共有を</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────────── -->
+<!-- 🟠 〜6/10 -->
+<!-- ───────────────────────────────── -->
+<div class="phase-section">
+  <div class="phase-header">
+    <div class="phase-dot dot-orange"></div>
+    <div class="phase-title">〜6/10</div>
+    <div class="phase-subtitle">残り19日</div>
+  </div>
+
+  <div class="sub-label">国内</div>
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th style="width:4%;">#</th>
+        <th style="width:36%;">タスク</th>
+        <th style="width:18%;">担当</th>
+        <th style="width:14%;">状態</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>4</td>
+        <td>
+          <div class="task-name">営業説明会資料（B-track・FC加盟希望者向け）</div>
+          <div class="task-note">シェアモデル前提。3層ティア・収益試算・7ステップ認定フロー含む</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-red">未作成</span></td>
+        <td>6/10 締切</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>
+          <div class="task-name">収益シミュレーション資料</div>
+          <div class="task-note">面積別・ティア別・単価別の試算表（¥5,500〜¥8,000/㎡ × Bronze/Silver/Gold）</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-red">未作成</span></td>
+        <td>営業説明会の核心</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>
+          <div class="task-name">Panasonic営業説明会の目的・期待値確認</div>
+          <div class="task-note">確認前に資料の切り口が決まらない</div>
+        </td>
+        <td>→吉岡に確認</td>
+        <td><span class="badge badge-purple">社長確認要</span></td>
+        <td>5/28までに</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sub-label">海外</div>
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th style="width:4%;">#</th>
+        <th style="width:36%;">タスク</th>
+        <th style="width:18%;">担当</th>
+        <th style="width:14%;">状態</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>7</td>
+        <td>
+          <div class="task-name">英語版TDS（技術仕様書）ドラフト作成</div>
+          <div class="task-note">70%完成可。キーストーン回答前でも着手できる</div>
+        </td>
+        <td>宮脇＋AI</td>
+        <td><span class="badge badge-orange">着手可</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>
+          <div class="task-name">英語版見積書フォーマット作成</div>
+          <div class="task-note">価格確定後に数字を入れる前提で枠だけ先に作る</div>
+        </td>
+        <td>宮脇＋AI</td>
+        <td><span class="badge badge-orange">着手可</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────────── -->
+<!-- 🟡 〜6/27 -->
+<!-- ───────────────────────────────── -->
+<div class="phase-section">
+  <div class="phase-header">
+    <div class="phase-dot dot-yellow"></div>
+    <div class="phase-title">〜6/27</div>
+    <div class="phase-subtitle">残り36日</div>
+  </div>
+
+  <div class="sub-label">国内</div>
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th style="width:4%;">#</th>
+        <th style="width:36%;">タスク</th>
+        <th style="width:18%;">担当</th>
+        <th style="width:14%;">状態</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>9</td>
+        <td><div class="task-name">施工説明会資料</div></td>
+        <td>宮脇</td>
+        <td><span class="badge badge-red">未作成</span></td>
+        <td>6/27 締切</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>
+          <div class="task-name">シェアモデル契約書ドラフト</div>
+          <div class="task-note">分配率・最低単価・液剤供給フロー・過少申告対策条項を含む</div>
+        </td>
+        <td>宮脇＋顧問弁護士</td>
+        <td><span class="badge badge-red">未作成</span></td>
+        <td>弁護士確認推奨</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>
+          <div class="task-name">既存3社へのBトラック新フロー提案</div>
+          <div class="task-note">シェアモデルへの合意取り付け</div>
+        </td>
+        <td>吉岡（宮脇がデック準備）</td>
+        <td><span class="badge badge-orange">準備中</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>
+          <div class="task-name">HP進捗確認（Keystone・CLUX・KICHI）</div>
+        </td>
+        <td>北庄司担当／宮脇チェック</td>
+        <td><span class="badge badge-yellow">確認中</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td><div class="task-name">保証書（印刷）準備</div></td>
+        <td>宮脇</td>
+        <td><span class="badge badge-green">急がない</span></td>
+        <td>6月末目安</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sub-label">海外・施工</div>
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th style="width:4%;">#</th>
+        <th style="width:36%;">タスク</th>
+        <th style="width:18%;">担当</th>
+        <th style="width:14%;">状態</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>14</td>
+        <td>
+          <div class="task-name">NDA英語版テンプレート作成</div>
+          <div class="task-note">原液を渡す前に必須。バイヤーと話す前に締結が鉄則</div>
+        </td>
+        <td>宮脇＋AI→弁護士レビュー</td>
+        <td><span class="badge badge-red">未作成</span></td>
+        <td>特許なし＝NDAが唯一の護城河</td>
+      </tr>
+      <tr>
+        <td>15</td>
+        <td>
+          <div class="task-name">韓国TEST施工準備（7月実施）</div>
+          <div class="task-note">RYU先生設計建物</div>
+        </td>
+        <td>吉岡・小林</td>
+        <td><span class="badge badge-orange">準備要</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>16</td>
+        <td>
+          <div class="task-name">シンガポール施工対応</div>
+        </td>
+        <td>伊豆</td>
+        <td><span class="badge badge-orange">準備要</span></td>
+        <td>6月予定</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────────── -->
+<!-- 🟢 〜8月末（ドバイ）-->
+<!-- ───────────────────────────────── -->
+<div class="phase-section">
+  <div class="phase-header">
+    <div class="phase-dot dot-green"></div>
+    <div class="phase-title">〜8月末（ドバイ展示会 9/27〜29 直前）</div>
+    <div class="phase-subtitle">Go/No-Go判断：〜6月末（→社長決定）</div>
+  </div>
+
+  <div style="background:#fff3e0;border:1.5px solid #ffcc80;border-radius:8px;padding:12px 18px;margin-bottom:14px;font-size:13px;color:#6d3a00;">
+    <strong>⚠ 注意：</strong>9月展示会への準備に最低3ヶ月必要。6月末にGo/No-Go判断が下りないと準備時間が消滅する。
+  </div>
+
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th style="width:4%;">#</th>
+        <th style="width:36%;">準備物</th>
+        <th style="width:18%;">担当</th>
+        <th style="width:14%;">状態</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>17</td>
+        <td>
+          <div class="task-name">ドバイ Go/No-Go決定＋予算承認</div>
+        </td>
+        <td>→吉岡決定</td>
+        <td><span class="badge badge-purple">社長決定要</span></td>
+        <td>6月末期限</td>
+      </tr>
+      <tr>
+        <td>18</td>
+        <td>
+          <div class="task-name">英語版SDS完成</div>
+          <div class="task-note">UAE化学品輸入に必要。キーストーン回答が起点</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-yellow">キーストーン待ち</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>19</td>
+        <td>
+          <div class="task-name">英語版TDS最終版（#7を完成）</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-yellow">キーストーン待ち</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>20</td>
+        <td>
+          <div class="task-name">NDA英語版（弁護士確認済み）（#14を完成）</div>
+        </td>
+        <td>宮脇＋弁護士</td>
+        <td><span class="badge badge-red">未作成</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>21</td>
+        <td>
+          <div class="task-name">UAE輸出規制確認（フッ素系溶剤・化学品）</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-red">未確認</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>22</td>
+        <td>
+          <div class="task-name">英語版営業資料（KICHI名義・XOP＋FC両製品）</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-red">未作成</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>23</td>
+        <td>
+          <div class="task-name">展示用サンプル・デモ材の手配</div>
+        </td>
+        <td>吉岡</td>
+        <td><span class="badge badge-red">未手配</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>24</td>
+        <td>
+          <div class="task-name">物流・送金ルート確定</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-red">未整備</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>25</td>
+        <td>
+          <div class="task-name">航空券・ホテル手配（吉岡・宮脇）</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-red">未手配</span></td>
+        <td>Go確定後すぐ</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────────── -->
+<!-- 🔵 通年 -->
+<!-- ───────────────────────────────── -->
+<div class="phase-section">
+  <div class="phase-header">
+    <div class="phase-dot dot-blue"></div>
+    <div class="phase-title">通年・継続</div>
+  </div>
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th style="width:4%;">#</th>
+        <th style="width:36%;">タスク</th>
+        <th style="width:18%;">担当</th>
+        <th style="width:14%;">状態</th>
+        <th>備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>26</td>
+        <td><div class="task-name">ついで営業の記録・営業リストフォロー</div></td>
+        <td>吉岡</td>
+        <td><span class="badge badge-green">継続中</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>27</td>
+        <td>
+          <div class="task-name">ティアアップ条件設計</div>
+          <div class="task-note">Bronze→Silver→Gold の昇格要件を定義</div>
+        </td>
+        <td>宮脇</td>
+        <td><span class="badge badge-yellow">キーストーン確認後</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>28</td>
+        <td>
+          <div class="task-name">フェーズA→B移行条件定義</div>
+          <div class="task-note">「認定業者10社 OR 2027年4月」等を定義</div>
+        </td>
+        <td>宮脇＋吉岡</td>
+        <td><span class="badge badge-green">来期検討</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>29</td>
+        <td>
+          <div class="task-name">営業マン採用活動（7月に求人出す）</div>
+          <div class="task-note">採用に3〜6ヶ月かかる。今年中に1名が目標</div>
+        </td>
+        <td>吉岡決定・宮脇実務</td>
+        <td><span class="badge badge-orange">要開始</span></td>
+        <td>人材像の定義を社長に確認</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────────── -->
+<!-- 社長への確認・決定依頼 -->
+<!-- ───────────────────────────────── -->
+<div class="phase-section">
+  <div class="phase-header">
+    <div class="phase-dot dot-red"></div>
+    <div class="phase-title">社長（吉岡）への確認・決定依頼 一覧</div>
+  </div>
+  <table class="president-table">
+    <thead>
+      <tr>
+        <th style="width:12%;">優先度</th>
+        <th style="width:50%;">内容</th>
+        <th>期限</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="pri-badge pri-max">最高</span></td>
+        <td>キーストーン確認書（宮脇の下書き）を今週中に送付してください</td>
+        <td>今週</td>
+      </tr>
+      <tr>
+        <td><span class="pri-badge pri-max">最高</span></td>
+        <td>価格・最小ロット・支払い条件を今週中に決定してください</td>
+        <td>今週</td>
+      </tr>
+      <tr>
+        <td><span class="pri-badge pri-high">高</span></td>
+        <td>5/30 加藤先生打合せのアジェンダを共有してください</td>
+        <td>5/28まで</td>
+      </tr>
+      <tr>
+        <td><span class="pri-badge pri-high">高</span></td>
+        <td>Panasonic営業説明会の目的と期待値を教えてください（6/10資料作成前に）</td>
+        <td>5/28まで</td>
+      </tr>
+      <tr>
+        <td><span class="pri-badge pri-high">高</span></td>
+        <td>ドバイ展示会のGo/No-Goと予算を6月末までに決定してください（準備に3ヶ月必要）</td>
+        <td>6月末</td>
+      </tr>
+      <tr>
+        <td><span class="pri-badge pri-mid">中</span></td>
+        <td>キーストーン社トップとの定期対話の場を作ってください（エリア優先権・NDA等、宮脇レベルでは決まらない交渉が複数ある）</td>
+        <td>できるだけ早急に</td>
+      </tr>
+      <tr>
+        <td><span class="pri-badge pri-mid">中</span></td>
+        <td>営業マン採用の人材像を定義してください（7月求人スタートが必要）</td>
+        <td>6月末</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ───────────────────────────────── -->
+<!-- サマリー -->
+<!-- ───────────────────────────────── -->
+<div class="phase-section">
+  <div class="phase-header">
+    <div class="phase-dot dot-blue"></div>
+    <div class="phase-title">タスク件数サマリー</div>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="sc-label">総タスク数</div>
+      <div class="sc-num">29</div>
+      <div class="sc-sub">件</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">宮脇が主担当</div>
+      <div class="sc-num" style="color:#1a4a7a;">18</div>
+      <div class="sc-sub">件</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">吉岡が主担当</div>
+      <div class="sc-num" style="color:#2e7d32;">5</div>
+      <div class="sc-sub">件</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">社長決定待ち</div>
+      <div class="sc-num" style="color:#c00000;">6</div>
+      <div class="sc-sub">件</div>
+    </div>
+    <div class="summary-card">
+      <div class="sc-label">キーストーン待ち</div>
+      <div class="sc-num" style="color:#d4a017;">3</div>
+      <div class="sc-sub">件（回答後に動く）</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

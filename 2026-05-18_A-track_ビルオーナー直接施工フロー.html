@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aトラック：ビルオーナー直接施工フロー</title>
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --accent:  #2BAACC;
+    --warn:    #C00000;
+    --step-bg: #f5f8fb;
+    --border:  #d0dce8;
+    --tag-a:   #C00000;
+    --tag-b:   #d4880a;
+    --tag-c:   #2e7d32;
+    --text:    #1a1a1a;
+    --muted:   #555;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: #eef2f7;
+    color: var(--text);
+    padding: 32px 16px 64px;
+  }
+
+  /* ── ヘッダー ── */
+  .page-header {
+    background: var(--primary);
+    color: #fff;
+    padding: 32px 40px 28px;
+    border-radius: 10px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: .04em; }
+  .page-header .track-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: .06em;
+    margin-top: 8px;
+    display: inline-block;
+  }
+  .page-header .meta { font-size: 12px; opacity: .75; text-align: right; }
+
+  /* ── フロー概要バー ── */
+  .flow-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 36px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .flow-node {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-right: none;
+    padding: 10px 6px;
+    font-size: 11px;
+    position: relative;
+  }
+  .flow-node:first-child { border-radius: 8px 0 0 8px; }
+  .flow-node:last-child  { border-right: 1.5px solid var(--border); border-radius: 0 8px 8px 0; }
+  .flow-node .sn {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .flow-node .ph { font-weight: 700; font-size: 12px; color: var(--primary); }
+  .flow-node::after {
+    content: '›';
+    position: absolute;
+    right: -9px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--border);
+    z-index: 1;
+  }
+  .flow-node:last-child::after { display: none; }
+
+  /* ── ステップカード ── */
+  .step-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  }
+  .step-header {
+    background: var(--primary);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .step-num {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .step-title { font-size: 16px; font-weight: 700; }
+  .step-def   { font-size: 11px; opacity: .75; margin-left: auto; white-space: nowrap; }
+
+  .step-body  { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .section {
+    padding: 20px 24px;
+    border-right: 1px solid var(--border);
+  }
+  .section:last-child  { border-right: none; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1.5px solid var(--border);
+  }
+
+  /* アクションリスト */
+  .action-list { list-style: none; }
+  .action-list li {
+    padding: 5px 0 5px 14px;
+    position: relative;
+    font-size: 13px;
+    line-height: 1.6;
+    border-bottom: 1px dashed #e8eef4;
+  }
+  .action-list li:last-child { border-bottom: none; }
+  .action-list li::before {
+    content: '▶';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 9px;
+    top: 8px;
+  }
+
+  /* 書類テーブル */
+  .doc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .doc-table th {
+    background: var(--step-bg);
+    padding: 6px 10px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .doc-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #eef2f7;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .doc-table tr:last-child td { border-bottom: none; }
+  .key-doc { color: var(--warn); font-weight: 700; }
+
+  /* フッターバー（完了条件・トリガー） */
+  .step-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1.5px solid var(--border);
+  }
+  .footer-cell {
+    padding: 12px 24px;
+    font-size: 12.5px;
+    border-right: 1px solid var(--border);
+    background: var(--step-bg);
+  }
+  .footer-cell:last-child { border-right: none; }
+  .footer-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: var(--muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .footer-value { font-size: 13px; line-height: 1.5; }
+
+  /* 重要書類まとめ */
+  .summary-box {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-top: 36px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  }
+  .summary-box h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .summary-item {
+    background: var(--step-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .summary-item .si-step {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: .06em;
+    margin-bottom: 4px;
+  }
+  .summary-item .si-docs { font-size: 12.5px; line-height: 1.6; color: var(--warn); font-weight: 600; }
+
+  /* 優先度 */
+  .priority-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .pr-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--step-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12.5px;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-a { background: var(--tag-a); }
+  .dot-b { background: var(--tag-b); }
+  .dot-c { background: var(--tag-c); }
+
+  @media (max-width: 700px) {
+    .step-body, .step-footer { grid-template-columns: 1fr; }
+    .section { border-right: none; border-bottom: 1px solid var(--border); }
+    .footer-cell { border-right: none; border-bottom: 1px solid var(--border); }
+    .step-header { flex-wrap: wrap; }
+    .step-def { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ページヘッダー -->
+<div class="page-header">
+  <div>
+    <div class="track-badge">A TRACK</div>
+    <h1>ビルオーナー直接施工フロー</h1>
+    <div style="font-size:13px;opacity:.8;margin-top:6px;">XOP 営業ワークフロー ステップ別 アクション・書類まとめ</div>
+  </div>
+  <div class="meta">更新日：2026/04/06<br>担当：吉岡営業チーム</div>
+</div>
+
+<!-- フロー概要バー -->
+<div class="flow-bar">
+  <div class="flow-node"><div class="sn">STEP 1</div><div class="ph">①初接触</div></div>
+  <div class="flow-node"><div class="sn">STEP 2</div><div class="ph">②提案中</div></div>
+  <div class="flow-node"><div class="sn">STEP 3</div><div class="ph">③見積提出</div></div>
+  <div class="flow-node"><div class="sn">STEP 4</div><div class="ph">④交渉中</div></div>
+  <div class="flow-node"><div class="sn">STEP 5</div><div class="ph">⑤FIX直前</div></div>
+  <div class="flow-node"><div class="sn">STEP 6</div><div class="ph">⑥施工中</div></div>
+  <div class="flow-node"><div class="sn">STEP 7</div><div class="ph">⑦完了</div></div>
+</div>
+
+<!-- STEP 1 -->
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-num">STEP 1</span>
+    <span class="step-title">①初接触</span>
+    <span class="step-def">フェーズ定義：初回挨拶・紹介のみ</span>
+  </div>
+  <div class="step-body">
+    <div class="section">
+      <div class="section-title">必要なアクション</div>
+      <ul class="action-list">
+        <li>挨拶・ヒアリング</li>
+        <li>建物情報・オーナーのペイン（困りごと）を把握</li>
+        <li>XOPの概要を伝える</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">用意すべき書類・資料</div>
+      <table class="doc-table">
+        <thead><tr><th>書類・資料名</th><th>内容・用途</th></tr></thead>
+        <tbody>
+          <tr><td>会社案内・パンフレット</td><td>XOP＆キーストン社の紹介</td></tr>
+          <tr><td>XOP製品カタログ</td><td>技術概要、施工イメージ</td></tr>
+          <tr><td>施工事例写真集</td><td>類似物件の実績</td></tr>
+          <tr><td>名刺</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="step-footer">
+    <div class="footer-cell">
+      <div class="footer-label">完了条件</div>
+      <div class="footer-value">面談/電話完了。ニーズ有無を確認。</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">次ステップへのトリガー</div>
+      <div class="footer-value">「詳しい説明を聞きたい」「資料送って」など前向きな反応</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-num">STEP 2</span>
+    <span class="step-title">②提案中</span>
+    <span class="step-def">フェーズ定義：提案・資料送付済</span>
+  </div>
+  <div class="step-body">
+    <div class="section">
+      <div class="section-title">必要なアクション</div>
+      <ul class="action-list">
+        <li>XOP詳細説明（技術優位性・耐久性・競合比較）</li>
+        <li>ROIを試算して提示</li>
+        <li>施工事例を見せる</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">用意すべき書類・資料</div>
+      <table class="doc-table">
+        <thead><tr><th>書類・資料名</th><th>内容・用途</th></tr></thead>
+        <tbody>
+          <tr><td class="key-doc">★ XOP提案書</td><td>技術優位性・耐久性・競合比較をまとめた資料</td></tr>
+          <tr><td class="key-doc">★ ROI試算シート</td><td>塗装コスト削減・耐用年数比較の試算</td></tr>
+          <tr><td>施工事例集</td><td>具体的な現場写真・評価コメント</td></tr>
+          <tr><td>製品サンプル</td><td>可能であれば現物</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="step-footer">
+    <div class="footer-cell">
+      <div class="footer-label">完了条件</div>
+      <div class="footer-value">提案資料を送付 / 説明完了。</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">次ステップへのトリガー</div>
+      <div class="footer-value">「見積を出してほしい」</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-num">STEP 3</span>
+    <span class="step-title">③見積提出</span>
+    <span class="step-def">フェーズ定義：見積書を提出済</span>
+  </div>
+  <div class="step-body">
+    <div class="section">
+      <div class="section-title">必要なアクション</div>
+      <ul class="action-list">
+        <li>現地調査（面積・素材・難易度確認）</li>
+        <li>見積書を作成し提出（施工費・材料費・工期）</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">用意すべき書類・資料</div>
+      <table class="doc-table">
+        <thead><tr><th>書類・資料名</th><th>内容・用途</th></tr></thead>
+        <tbody>
+          <tr><td>現地調査シート</td><td>面積・素材・状態のメモ記録</td></tr>
+          <tr><td class="key-doc">★ 見積書</td><td>施工費・材料費・工期を明記</td></tr>
+          <tr><td>面積計測メモ / 写真</td><td>根拠資料として添付</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="step-footer">
+    <div class="footer-cell">
+      <div class="footer-label">完了条件</div>
+      <div class="footer-value">見積書送付完了。</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">次ステップへのトリガー</div>
+      <div class="footer-value">「内容確認した」「金額の話をしたい」</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-num">STEP 4</span>
+    <span class="step-title">④交渉中</span>
+    <span class="step-def">フェーズ定義：条件・価格交渉中</span>
+  </div>
+  <div class="step-body">
+    <div class="section">
+      <div class="section-title">必要なアクション</div>
+      <ul class="action-list">
+        <li>価格・工期・条件交渉</li>
+        <li>追加要望（アフターサポート等）への対応</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">用意すべき書類・資料</div>
+      <table class="doc-table">
+        <thead><tr><th>書類・資料名</th><th>内容・用途</th></tr></thead>
+        <tbody>
+          <tr><td class="key-doc">★ 修正見積書</td><td>交渉内容を反映した改訂版</td></tr>
+          <tr><td>アフターサポート説明資料</td><td>保証内容・メンテナンス体制</td></tr>
+          <tr><td>交渉メモ / 議事録</td><td>合意事項の記録</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="step-footer">
+    <div class="footer-cell">
+      <div class="footer-label">完了条件</div>
+      <div class="footer-value">合意方針が見えてきた。</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">次ステップへのトリガー</div>
+      <div class="footer-value">「OK出た」「契約書を準備して」</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-num">STEP 5</span>
+    <span class="step-title">⑤FIX直前</span>
+    <span class="step-def">フェーズ定義：合意間近・最終確認中</span>
+  </div>
+  <div class="step-body">
+    <div class="section">
+      <div class="section-title">必要なアクション</div>
+      <ul class="action-list">
+        <li>契約書を準備・送付</li>
+        <li>工期・職人手配の確定</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">用意すべき書類・資料</div>
+      <table class="doc-table">
+        <thead><tr><th>書類・資料名</th><th>内容・用途</th></tr></thead>
+        <tbody>
+          <tr><td class="key-doc">★ 契約書（2部）</td><td>双方署名・押印用</td></tr>
+          <tr><td class="key-doc">★ 工程スケジュール表</td><td>着工日・完了予定日・工程詳細</td></tr>
+          <tr><td>職人手配確認書</td><td>人数・日程確認</td></tr>
+          <tr><td>施工前チェックリスト</td><td>現場準備確認</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="step-footer">
+    <div class="footer-cell">
+      <div class="footer-label">完了条件</div>
+      <div class="footer-value">契約書に双方署名。</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">次ステップへのトリガー</div>
+      <div class="footer-value">署名完了</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-num">STEP 6</span>
+    <span class="step-title">⑥施工中</span>
+    <span class="step-def">フェーズ定義：受注確定・施工進行中</span>
+  </div>
+  <div class="step-body">
+    <div class="section">
+      <div class="section-title">必要なアクション</div>
+      <ul class="action-list">
+        <li>施工管理</li>
+        <li>キーストン社製品の使用</li>
+        <li>品質写真の撮影</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">用意すべき書類・資料</div>
+      <table class="doc-table">
+        <thead><tr><th>書類・資料名</th><th>内容・用途</th></tr></thead>
+        <tbody>
+          <tr><td>施工管理チェックリスト</td><td>工程・品質確認項目</td></tr>
+          <tr><td class="key-doc">★ 製品使用確認書</td><td>キーストン社製品の使用記録</td></tr>
+          <tr><td>品質写真台帳</td><td>施工中・施工後の記録写真</td></tr>
+          <tr><td>施工日報</td><td>日次進捗メモ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="step-footer">
+    <div class="footer-cell">
+      <div class="footer-label">完了条件</div>
+      <div class="footer-value">施工完了・検査OK。</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">次ステップへのトリガー</div>
+      <div class="footer-value">検査合格</div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 7 -->
+<div class="step-card">
+  <div class="step-header">
+    <span class="step-num">STEP 7</span>
+    <span class="step-title">⑦完了</span>
+    <span class="step-def">フェーズ定義：施工完了・入金済</span>
+  </div>
+  <div class="step-body">
+    <div class="section">
+      <div class="section-title">必要なアクション</div>
+      <ul class="action-list">
+        <li>完了報告書の提出</li>
+        <li>写真・保証書の送付</li>
+        <li>紹介依頼・次案件のヒアリング</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-title">用意すべき書類・資料</div>
+      <table class="doc-table">
+        <thead><tr><th>書類・資料名</th><th>内容・用途</th></tr></thead>
+        <tbody>
+          <tr><td class="key-doc">★ 完了報告書</td><td>工事内容・使用材料・完了日まとめ</td></tr>
+          <tr><td class="key-doc">★ 品質保証書</td><td>キーストン社保証内容・保証期間</td></tr>
+          <tr><td>施工完了写真集</td><td>Before/After 含む記録写真</td></tr>
+          <tr><td class="key-doc">★ 請求書</td><td>最終金額・振込先</td></tr>
+          <tr><td>紹介依頼書 / ヒアリングシート</td><td>次案件・紹介先の掘り起こし</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="step-footer">
+    <div class="footer-cell">
+      <div class="footer-label">完了条件</div>
+      <div class="footer-value">顧客満足確認。</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-label">次ステップへのトリガー</div>
+      <div class="footer-value">次案件紹介または終了</div>
+    </div>
+  </div>
+</div>
+
+<!-- 重要書類まとめ -->
+<div class="summary-box">
+  <h2>★ 重要書類一覧（見落とし禁止）</h2>
+  <div class="summary-grid">
+    <div class="summary-item">
+      <div class="si-step">STEP 2</div>
+      <div class="si-docs">XOP提案書、ROI試算シート</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-step">STEP 3</div>
+      <div class="si-docs">見積書</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-step">STEP 4</div>
+      <div class="si-docs">修正見積書</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-step">STEP 5</div>
+      <div class="si-docs">契約書（2部）、工程スケジュール表</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-step">STEP 6</div>
+      <div class="si-docs">製品使用確認書</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-step">STEP 7</div>
+      <div class="si-docs">完了報告書、品質保証書、請求書</div>
+    </div>
+  </div>
+
+  <h2 style="margin-top:28px;">優先度ルール（両トラック共通）</h2>
+  <div class="priority-row">
+    <div class="pr-badge"><div class="dot dot-a"></div><strong>A（赤）</strong> — 今週中に必ずアクション</div>
+    <div class="pr-badge"><div class="dot dot-b"></div><strong>B（黄）</strong> — 今月中に対応</div>
+    <div class="pr-badge"><div class="dot dot-c"></div><strong>C（緑）</strong> — 長期フォロー・休眠</div>
+  </div>
+</div>
+
+</body>
+</html>

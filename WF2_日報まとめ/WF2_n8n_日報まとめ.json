@@ -1,0 +1,516 @@
+{
+  "name": "WF2_日報まとめ_v2",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "id": "node-schedule",
+      "name": "⏰ Schedule(19:00)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "node-tg-trigger",
+      "name": "📨 Telegram(/まとめ)",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        200,
+        500
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM_ADMIN",
+          "name": "XopAdin_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "cmd-check",
+              "leftValue": "={{ $json.message?.text || '' }}",
+              "rightValue": "^/まとめ",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-filter-cmd",
+      "name": "🔍 /まとめ のみ通過",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        420,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "FILL_ME_GAS_ENDPOINT",
+        "options": {
+          "timeout": 30000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          }
+        }
+      },
+      "id": "node-get-inbox",
+      "name": "📥 INBOX取得 (GAS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// INBOX ファイルを username ごとにグループ化し、メンバー情報を付与\n\nconst result = $input.first().json;\nif (!result.success || !result.files || result.files.length === 0) {\n  // 空の場合: 空配列を返す → SplitInBatches が output[1]（done）を即発火\n  return [];\n}\n\n// username → 日本語名 マッピング\nconst MEMBER_MAP = {\n  miyawakiMM : { name: '宮脇', chatId: 'FILL_ME_CHAT_ID_miyawakiMM' },\n  yoshioka   : { name: '吉岡', chatId: 'FILL_ME_CHAT_ID_yoshioka'   },\n  kobayashi  : { name: '小林', chatId: 'FILL_ME_CHAT_ID_kobayashi'  },\n  takada     : { name: '高田', chatId: 'FILL_ME_CHAT_ID_takada'     },\n  kitashoji  : { name: '北庄司', chatId: 'FILL_ME_CHAT_ID_kitashoji' }\n};\n\n// username ごとにファイルをグループ化\nconst groups = {};\nfor (const file of result.files) {\n  const u = file.username;\n  if (!groups[u]) groups[u] = [];\n  groups[u].push(file);\n}\n\n// メンバーごとの処理アイテムを生成\nconst items = [];\nfor (const [username, files] of Object.entries(groups)) {\n  // prefix マッチ（yoshioka123 → yoshioka）\n  let memberInfo = MEMBER_MAP[username];\n  if (!memberInfo) {\n    for (const [key, val] of Object.entries(MEMBER_MAP)) {\n      if (username.startsWith(key)) { memberInfo = val; break; }\n    }\n  }\n  if (!memberInfo) memberInfo = { name: username, chatId: '' };\n\n  // 複数ファイルを時刻順に結合（YAMLフロントマターを除く）\n  const combined = files\n    .sort((a, b) => a.name.localeCompare(b.name))\n    .map(f => f.content.replace(/^---[\\s\\S]*?---\\s*/m, '').trim())\n    .join('\\n\\n---\\n\\n');\n\n  items.push({\n    username,\n    memberName   : memberInfo.name,\n    chatId       : memberInfo.chatId,\n    fileCount    : files.length,\n    date         : result.date,\n    combinedMemos: combined\n  });\n}\n\nreturn items;"
+      },
+      "id": "node-group",
+      "name": "👥 username グループ化",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "node-split",
+      "name": "🔁 メンバーごとに分割",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// SplitInBatches は $() で参照できないため、ここで現在アイテムを保持する\n// 後続ノードから $('📎 ループ現在アイテム').first().json で参照可能\nreturn $input.first().json;",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-loop-item",
+      "name": "📎 ループ現在アイテム",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1215,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "FILL_ME_GAS_ENDPOINT",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "action",     "value": "getPendingTasks" },
+            { "name": "memberName", "value": "={{ $json.memberName }}" }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "redirect": { "redirect": { "followRedirects": true, "maxRedirects": 5 } }
+        }
+      },
+      "id": "node-get-pending",
+      "name": "📥 前日タスク取得 (GAS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [ 1380, 380 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 前日タスク + 本日メモ を合成して Gemini へ渡すメッセージを作る\nconst pendingResult = $input.first().json;\nconst meta          = $('📎 ループ現在アイテム').first().json;\n\nconst pendingTasks = (pendingResult.content || '').trim();\nconst hasPending   = pendingTasks.length > 0;\n\nlet userMessage = '';\nif (hasPending) {\n  userMessage += `【前日未完了タスク】\\n${pendingTasks}\\n\\n`;\n}\nuserMessage += `【本日の音声メモ】\\n${meta.combinedMemos}`;\n\nreturn {\n  ...meta,\n  userMessage,\n  hasPending\n};",
+        "mode": "runOnceForAllItems"
+      },
+      "id": "node-merge-input",
+      "name": "🔀 メモ+タスク合成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 1560, 380 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-goog-api-key",
+              "value": "={{ $credentials.httpHeaderAuth.value }}"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"system_instruction\": {\n    \"parts\": [{\"text\": \"あなたは日報生成AIです。複数の音声メモから一日の業務日報を生成します。\\n\\n【日報フォーマット】\\n# {date} [[{memberName}]] 日報\\n\\n## タグ\\n（音声メモに登場した顧客名・案件名・主要トピックを5〜8個のハッシュタグ。重要度の高いものから並べる）\\n例: #キーストーン #XOP #Aトラック #入札案件\\n\\n## 新規用語候補\\n（音声メモに登場した固有名詞・会社名・人名・製品名・案件名のうち、一般的でないと判断したものを列挙。辞書登録の候補として。なければ「なし」と書く）\\n- 用語名（種別: 会社名 / 人名 / 製品名 / 案件名）\\n\\n## 前日からの継続タスク\\n（前日タスクが提供された場合のみ記載。完了・継続・要確認を判定する）\\n- [x] 完了したタスク\\n- [ ] 未完了・継続タスク ← 要フォロー\\n\\n## 本日の活動\\n- （箇条書き）\\n\\n## 特記事項・気づき\\n- （あれば）\\n\\n## 本日発生タスク・アクション\\n- [ ] （今日新たに発生したタスク・アクションアイテム。なければ省略）\\n\\n## 明日の予定\\n- （言及があれば）\\n\\n【ルール】\\n- 重複する内容は1つにまとめる\\n- 事実のみを記載し、推測は書かない\\n- 人名・会社名・数字は正確に保持\\n- タグは5〜8個、重要なキーワードを優先\\n- 新規用語候補: 辞書にない可能性がある固有名詞のみ（XOP・クラックス・プロテケアなど既知のものは除外）\\n- 前日タスクがない場合は『前日からの継続タスク』セクションを省略\\n- 言及がないセクションは省略してよい\"}]\n  },\n  \"contents\": [{\n    \"role\": \"user\",\n    \"parts\": [{\"text\": {{ JSON.stringify('以下は' + $json.memberName + 'さんの' + $json.date + 'の音声メモです。日報にまとめてください。\\n\\n' + $json.userMessage) }}}]\n  }],\n  \"generationConfig\": {\n    \"maxOutputTokens\": 3000,\n    \"temperature\": 0.3\n  }\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "node-gemini",
+      "name": "🤖 Gemini 日報生成",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        380
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FILL_ME_GEMINI",
+          "name": "Gemini API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gemini レスポンスから日報テキストを取り出し、メタを引き継ぐ\nconst gemini = $input.first().json;\nconst meta   = $('📎 ループ現在アイテム').first().json;\n\nconst nippoText = gemini.candidates?.[0]?.content?.parts?.[0]?.text || '(日報生成失敗)';\n\nreturn {\n  username   : meta.username,\n  memberName : meta.memberName,\n  chatId     : meta.chatId,\n  date       : meta.date,\n  fileCount  : meta.fileCount,\n  nippoText\n};"
+      },
+      "id": "node-parse-nippo",
+      "name": "📋 日報テキスト整理",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "FILL_ME_GAS_ENDPOINT",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'saveWiki', memberName: $json.memberName, date: $json.date, content: $json.nippoText }) }}",
+        "options": {
+          "timeout": 30000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          }
+        }
+      },
+      "id": "node-save-wiki",
+      "name": "💾 Wiki保存 (GAS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 生成済み日報からタスクを抽出して pending_tasks.md 用コンテンツを作成\nconst item = $input.first().json;\nconst text = item.nippoText || '';\n\nconst pendingLines = [];\n\n// 前日継続タスクの未完了分\nconst contMatch = text.match(/## 前日からの継続タスク[\\s\\S]*?(?=\\n## |\\n# |$)/);\nif (contMatch) {\n  for (const line of contMatch[0].split('\\n')) {\n    if (/^- \\[ \\]/.test(line.trim())) pendingLines.push(line.trim());\n  }\n}\n\n// 本日発生タスク\nconst newMatch = text.match(/## 本日発生タスク・アクション[\\s\\S]*?(?=\\n## |\\n# |$)/);\nif (newMatch) {\n  for (const line of newMatch[0].split('\\n')) {\n    if (/^- \\[ \\]/.test(line.trim())) pendingLines.push(line.trim());\n  }\n}\n\nreturn {\n  ...item,\n  pendingTasksContent: pendingLines.join('\\n')\n};"
+      },
+      "id": "node-extract-tasks",
+      "name": "✂️ タスク抽出",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 2080, 380 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "FILL_ME_GAS_ENDPOINT",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "content-type", "value": "application/json" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'savePendingTasks', memberName: $json.memberName, content: $json.pendingTasksContent }) }}",
+        "options": {
+          "timeout": 15000,
+          "redirect": { "redirect": { "followRedirects": true, "maxRedirects": 5 } }
+        }
+      },
+      "id": "node-save-pending",
+      "name": "📤 pending_tasks保存 (GAS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [ 2260, 380 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 本人への返信テキストを生成（ループの最後に実行）\nconst meta       = $('📋 日報テキスト整理').first().json;\nconst wikiResult = $('💾 Wiki保存 (GAS)').first().json;\n\nconst saved = wikiResult.success\n  ? `📄 \\`${wikiResult.path}\\``\n  : `⚠️ 保存失敗: ${wikiResult.error}`;\n\nreturn {\n  chatId     : meta.chatId,\n  memberName : meta.memberName,\n  date       : meta.date,\n  nippoText  : meta.nippoText,\n  fileCount  : meta.fileCount,\n  savedPath  : wikiResult.path || '',\n  replyText  : `📝 *${meta.date} 日報*\\n${saved}\\n\\n${meta.nippoText}`\n};"
+      },
+      "id": "node-build-dm",
+      "name": "✉️ DM テキスト生成",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [ 2440, 380 ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.replyText }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "node-dm-member",
+      "name": "📤 本人にDM",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2200,
+        380
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 全メンバーの日報をまとめて宮脇さん向けサマリーを作成\n// SplitInBatches の output[1]（done）から呼ばれる\n// $('✉️ DM テキスト生成').all() で全ループ分のデータを集約\n\nlet allItems;\ntry {\n  allItems = $('✉️ DM テキスト生成').all();\n} catch(e) {\n  allItems = [];\n}\n\nif (allItems.length === 0) {\n  return {\n    chatId: 'FILL_ME_CHAT_ID_miyawakiMM',\n    text  : '📭 本日の日報はありませんでした。'\n  };\n}\n\nconst date = allItems[0].json.date || '';\nlet summary = `📊 *${date} 全員日報サマリー*\\n`;\nsummary += `提出: ${allItems.length}名\\n\\n`;\n\nfor (const item of allItems) {\n  const d = item.json;\n  summary += `━━━━━━━━━━\\n`;\n  summary += `👤 *${d.memberName}*（${d.fileCount}件の音声メモ）\\n`;\n  summary += `📄 \\`${d.savedPath}\\`\\n\\n`;\n  const preview = (d.nippoText || '').length > 300\n    ? (d.nippoText || '').substring(0, 300) + '...'\n    : (d.nippoText || '');\n  summary += preview + '\\n\\n';\n}\n\nreturn {\n  chatId: 'FILL_ME_CHAT_ID_miyawakiMM',\n  text  : summary\n};"
+      },
+      "id": "node-build-summary",
+      "name": "📊 サマリー生成（宮脇用）",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "node-send-miyawaki",
+      "name": "📤 宮脇に全員分送信",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        560
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME_TELEGRAM",
+          "name": "XopGp_bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "⏰ Schedule(19:00)": {
+      "main": [
+        [
+          {
+            "node": "📥 INBOX取得 (GAS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📨 Telegram(/まとめ)": {
+      "main": [
+        [
+          {
+            "node": "🔍 /まとめ のみ通過",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 /まとめ のみ通過": {
+      "main": [
+        [
+          {
+            "node": "📥 INBOX取得 (GAS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 INBOX取得 (GAS)": {
+      "main": [
+        [
+          {
+            "node": "👥 username グループ化",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "👥 username グループ化": {
+      "main": [
+        [
+          {
+            "node": "🔁 メンバーごとに分割",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔁 メンバーごとに分割": {
+      "main": [
+        [
+          {
+            "node": "📊 サマリー生成（宮脇用）",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📎 ループ現在アイテム",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📎 ループ現在アイテム": {
+      "main": [[{ "node": "📥 前日タスク取得 (GAS)", "type": "main", "index": 0 }]]
+    },
+    "📥 前日タスク取得 (GAS)": {
+      "main": [[{ "node": "🔀 メモ+タスク合成", "type": "main", "index": 0 }]]
+    },
+    "🔀 メモ+タスク合成": {
+      "main": [[{ "node": "🤖 Gemini 日報生成", "type": "main", "index": 0 }]]
+    },
+    "🤖 Gemini 日報生成": {
+      "main": [
+        [
+          {
+            "node": "📋 日報テキスト整理",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 日報テキスト整理": {
+      "main": [
+        [
+          {
+            "node": "💾 Wiki保存 (GAS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Wiki保存 (GAS)": {
+      "main": [[{ "node": "✂️ タスク抽出", "type": "main", "index": 0 }]]
+    },
+    "✂️ タスク抽出": {
+      "main": [[{ "node": "📤 pending_tasks保存 (GAS)", "type": "main", "index": 0 }]]
+    },
+    "📤 pending_tasks保存 (GAS)": {
+      "main": [[{ "node": "✉️ DM テキスト生成", "type": "main", "index": 0 }]]
+    },
+    "✉️ DM テキスト生成": {
+      "main": [
+        [
+          {
+            "node": "📤 本人にDM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📤 本人にDM": {
+      "main": [
+        [
+          {
+            "node": "🔁 メンバーごとに分割",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 サマリー生成（宮脇用）": {
+      "main": [
+        [
+          {
+            "node": "📤 宮脇に全員分送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "tags": [
+    "crux",
+    "nippo",
+    "wiki",
+    "gemini",
+    "v2"
+  ]
+}

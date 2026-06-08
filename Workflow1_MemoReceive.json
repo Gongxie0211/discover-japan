@@ -1,0 +1,363 @@
+{
+  "name": "WF1 - Memo Receive & Transcribe v2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "node_trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_CRED_ID",
+          "name": "Telegram - WorkBot"
+        }
+      },
+      "webhookId": "wf1-memo-v2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond_cmd",
+              "leftValue": "={{ $json.message.text || '' }}",
+              "rightValue": "^(修正|削除|上書き)",
+              "operator": { "type": "string", "operation": "regex" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_command",
+      "name": "IF Command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [420, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond_voice",
+              "leftValue": "={{ $json.message.voice ? 'yes' : 'no' }}",
+              "rightValue": "yes",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_voice",
+      "name": "IF Voice",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [640, 500]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}"
+      },
+      "id": "node_getfile",
+      "name": "Telegram Get Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [860, 420],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_CRED_ID",
+          "name": "Telegram - WorkBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=REPLACE_GEMINI_API_KEY",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [\n      { \"text\": \"以下の音声を日本語で文字起こししてください。話し言葉のままで構いません。固有名詞（人名・会社名）は文脈から推定して表記してください。出力はテキスト本文のみ。\" },\n      { \"inline_data\": { \"mime_type\": \"audio/ogg\", \"data\": \"{{ $binary.data.data }}\" } }\n    ]\n  }]\n}",
+        "options": {}
+      },
+      "id": "node_gemini_transcribe",
+      "name": "Gemini Transcribe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1080, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 音声メモ: トリガーデータと文字起こし結果を統合\nconst msg = $('Telegram Trigger').first().json.message;\nconst geminiResp = $input.first().json;\n\nlet transcribed = '';\ntry {\n  transcribed = geminiResp.candidates[0].content.parts[0].text.trim();\n} catch (e) {\n  transcribed = '[文字起こし失敗]';\n}\n\nreturn [{\n  json: {\n    chat_id: msg.chat.id,\n    message_id: msg.message_id,\n    member_name: msg.from.first_name || msg.from.username || 'unknown',\n    raw_text: transcribed,\n    source_type: 'voice'\n  }\n}];"
+      },
+      "id": "node_prepare_voice",
+      "name": "Prepare Voice Memo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 420]
+    },
+    {
+      "parameters": {
+        "jsCode": "// テキストメモ\nconst msg = $json.message;\nreturn [{\n  json: {\n    chat_id: msg.chat.id,\n    message_id: msg.message_id,\n    member_name: msg.from.first_name || msg.from.username || 'unknown',\n    raw_text: msg.text,\n    source_type: 'text'\n  }\n}];"
+      },
+      "id": "node_prepare_text",
+      "name": "Prepare Text Memo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=REPLACE_GEMINI_API_KEY",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [{\n    \"parts\": [{\n      \"text\": \"以下の業務メモから、カテゴリ・顧客名・案件名・タグを推定してJSONで出力してください。JSON以外の文字は一切出力しないこと。\\n\\n【メモ】\\n{{ $json.raw_text }}\\n\\n【出力JSON】\\n{\\\"category\\\":\\\"会議|客先訪問|社内|雑感|懸念|タグなし のいずれか\\\",\\\"mentioned_customer\\\":\\\"顧客名または空文字\\\",\\\"mentioned_project\\\":\\\"案件名または空文字\\\",\\\"tags\\\":[\\\"タグ\\\"],\\\"confidence\\\":\\\"high|medium|low\\\"}\"\n    }]\n  }],\n  \"generationConfig\": {\n    \"responseMimeType\": \"application/json\"\n  }\n}",
+        "options": {}
+      },
+      "id": "node_gemini_classify",
+      "name": "Gemini Classify",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1520, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gemini分類結果をパースしてNocoDB保存用データを構築\nconst memo = $('Prepare Voice Memo').first()?.json || $('Prepare Text Memo').first()?.json;\nconst geminiResp = $input.first().json;\n\nlet classify = { category: 'タグなし', mentioned_customer: '', mentioned_project: '', tags: [], confidence: 'low' };\ntry {\n  const text = geminiResp.candidates[0].content.parts[0].text;\n  const cleaned = text.replace(/```json|```/g, '').trim();\n  classify = JSON.parse(cleaned);\n} catch (e) {\n  // パース失敗時はデフォルト値\n}\n\nreturn [{\n  json: {\n    created_at: new Date().toISOString(),\n    member_name: memo.member_name,\n    telegram_chat_id: memo.chat_id,\n    telegram_message_id: memo.message_id,\n    raw_text: memo.raw_text,\n    original_transcription: memo.raw_text,\n    source_type: memo.source_type,\n    category: classify.category || 'タグなし',\n    mentioned_customer: classify.mentioned_customer || '',\n    mentioned_project: classify.mentioned_project || '',\n    tags: Array.isArray(classify.tags) ? classify.tags.join(',') : '',\n    confidence: classify.confidence || 'low',\n    edited: false,\n    deleted: false,\n    processed: false\n  }\n}];"
+      },
+      "id": "node_build_record",
+      "name": "Build NocoDB Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1740, 500]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "REPLACE_VOICEMEMOS_TABLE_ID",
+        "dataToSend": "autoMapInputData"
+      },
+      "id": "node_noco_create",
+      "name": "NocoDB Create VoiceMemo",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [1960, 500],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// フィードバックメッセージ作成\nconst rec = $('Build NocoDB Record').first().json;\nconst nocoResp = $input.first().json;\nconst memoId = nocoResp.memo_id || nocoResp.Id || nocoResp.id || '?';\n\nconst time = new Date(rec.created_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Tokyo' });\nconst mark = rec.confidence === 'low' ? '?' : '';\nconst preview = rec.raw_text.length > 200 ? rec.raw_text.substring(0, 200) + '...' : rec.raw_text;\n\nconst tags = [];\nif (rec.category) tags.push(`カテゴリ: ${rec.category}${mark}`);\nif (rec.mentioned_customer) tags.push(`顧客: ${rec.mentioned_customer}`);\nif (rec.mentioned_project) tags.push(`案件: ${rec.mentioned_project}`);\nif (rec.tags) tags.push(`タグ: ${rec.tags}`);\n\nconst label = rec.source_type === 'voice' ? '文字起こし結果' : '本文';\nconst message = `📝 メモを保存しました (${time}) [ID:${memoId}]\\n\\n▼ ${label}\\n${preview}\\n\\n▼ 推定\\n${tags.join(' / ') || '(タグなし)'}\\n\\n修正: 「修正: 内容」\\n削除: 「削除 ${memoId}」`;\n\nreturn [{ json: { chat_id: rec.telegram_chat_id, message } }];"
+      },
+      "id": "node_build_feedback",
+      "name": "Build Feedback Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2180, 500]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": { "appendAttribution": false }
+      },
+      "id": "node_send_feedback",
+      "name": "Telegram Send Feedback",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2400, 500],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_CRED_ID",
+          "name": "Telegram - WorkBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// コマンドパーサー（修正/削除/上書き）\nconst text = $json.message.text;\nconst chatId = $json.message.chat.id;\n\nlet command = null;\nlet target_memo_id = null;\nlet payload = null;\n\nconst delMatch = text.match(/^削除\\s+(\\d+)/);\nconst editMatch = text.match(/^修正(?:\\s+(\\d+))?[:：]\\s*(.+)/s);\nconst overwriteMatch = text.match(/^上書き(?:\\s+(\\d+))?[:：]\\s*(.+)/s);\n\nif (delMatch) {\n  command = 'delete';\n  target_memo_id = parseInt(delMatch[1]);\n} else if (overwriteMatch) {\n  command = 'overwrite';\n  target_memo_id = overwriteMatch[1] ? parseInt(overwriteMatch[1]) : null;\n  payload = overwriteMatch[2];\n} else if (editMatch) {\n  command = 'edit';\n  target_memo_id = editMatch[1] ? parseInt(editMatch[1]) : null;\n  payload = editMatch[2];\n}\n\nreturn [{ json: { command, target_memo_id, payload, chat_id: chatId } }];"
+      },
+      "id": "node_parse_cmd",
+      "name": "Parse Command",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 200]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "REPLACE_VOICEMEMOS_TABLE_ID",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {
+          "filter": [
+            {
+              "fieldName": "telegram_chat_id",
+              "operator": "eq",
+              "value": "={{ $json.chat_id }}"
+            }
+          ]
+        },
+        "sort": {
+          "property": [
+            { "field": "created_at", "direction": "desc" }
+          ]
+        }
+      },
+      "id": "node_noco_fetch",
+      "name": "NocoDB Fetch Latest Memo",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [860, 200],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// コマンド処理: 更新内容を構築\nconst cmd = $('Parse Command').first().json;\nconst target = $input.first().json;\nconst memoId = cmd.target_memo_id || target.memo_id || target.Id || target.id;\n\nlet update = {};\nlet feedback = '';\n\nif (cmd.command === 'delete') {\n  update = { deleted: true };\n  feedback = `🗑 メモ ID:${memoId} を削除しました`;\n} else if (cmd.command === 'overwrite') {\n  update = { raw_text: cmd.payload, edited: true, edited_at: new Date().toISOString() };\n  feedback = `✅ メモ ID:${memoId} を上書きしました\\n\\n${cmd.payload}`;\n} else if (cmd.command === 'edit') {\n  const newText = (target.raw_text || '') + '\\n[修正] ' + cmd.payload;\n  update = { raw_text: newText, edited: true, edited_at: new Date().toISOString() };\n  feedback = `✏️ メモ ID:${memoId} に修正を追記\\n\\n${newText}`;\n}\n\nreturn [{ json: { memo_id: memoId, update, chat_id: cmd.chat_id, feedback } }];"
+      },
+      "id": "node_build_update",
+      "name": "Build Update Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1080, 200]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "REPLACE_VOICEMEMOS_TABLE_ID",
+        "id": "={{ $json.memo_id }}",
+        "dataToSend": "defineBelow",
+        "fieldsUi": {
+          "fieldValues": "={{ Object.entries($json.update).map(([k,v]) => ({ fieldName: k, fieldValue: v })) }}"
+        }
+      },
+      "id": "node_noco_update",
+      "name": "NocoDB Update Memo",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [1300, 200],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.feedback }}",
+        "additionalFields": { "appendAttribution": false }
+      },
+      "id": "node_cmd_reply",
+      "name": "Telegram Command Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1520, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_CRED_ID",
+          "name": "Telegram - WorkBot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [{ "node": "IF Command", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Command": {
+      "main": [
+        [{ "node": "Parse Command", "type": "main", "index": 0 }],
+        [{ "node": "IF Voice", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Voice": {
+      "main": [
+        [{ "node": "Telegram Get Voice File", "type": "main", "index": 0 }],
+        [{ "node": "Prepare Text Memo", "type": "main", "index": 0 }]
+      ]
+    },
+    "Telegram Get Voice File": {
+      "main": [[{ "node": "Gemini Transcribe", "type": "main", "index": 0 }]]
+    },
+    "Gemini Transcribe": {
+      "main": [[{ "node": "Prepare Voice Memo", "type": "main", "index": 0 }]]
+    },
+    "Prepare Voice Memo": {
+      "main": [[{ "node": "Gemini Classify", "type": "main", "index": 0 }]]
+    },
+    "Prepare Text Memo": {
+      "main": [[{ "node": "Gemini Classify", "type": "main", "index": 0 }]]
+    },
+    "Gemini Classify": {
+      "main": [[{ "node": "Build NocoDB Record", "type": "main", "index": 0 }]]
+    },
+    "Build NocoDB Record": {
+      "main": [[{ "node": "NocoDB Create VoiceMemo", "type": "main", "index": 0 }]]
+    },
+    "NocoDB Create VoiceMemo": {
+      "main": [[{ "node": "Build Feedback Message", "type": "main", "index": 0 }]]
+    },
+    "Build Feedback Message": {
+      "main": [[{ "node": "Telegram Send Feedback", "type": "main", "index": 0 }]]
+    },
+    "Parse Command": {
+      "main": [[{ "node": "NocoDB Fetch Latest Memo", "type": "main", "index": 0 }]]
+    },
+    "NocoDB Fetch Latest Memo": {
+      "main": [[{ "node": "Build Update Payload", "type": "main", "index": 0 }]]
+    },
+    "Build Update Payload": {
+      "main": [[{ "node": "NocoDB Update Memo", "type": "main", "index": 0 }]]
+    },
+    "NocoDB Update Memo": {
+      "main": [[{ "node": "Telegram Command Reply", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

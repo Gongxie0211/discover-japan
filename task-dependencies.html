@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>タスク依存関係マップ | 2026-06-07</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    padding: 24px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: #1a1a2e;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 28px;
+  }
+
+  /* ===== BLOCKER ALERT ===== */
+  .blocker-alert {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+  }
+  .blocker-alert h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #856404;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .blocker-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .blocker-card {
+    background: #fff;
+    border: 1px solid #ffc107;
+    border-left: 4px solid #dc3545;
+    border-radius: 6px;
+    padding: 10px 14px;
+    min-width: 220px;
+    flex: 1;
+  }
+  .blocker-card .tid {
+    font-size: 11px;
+    font-weight: 700;
+    color: #dc3545;
+    margin-bottom: 3px;
+  }
+  .blocker-card .tname {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .blocker-card .blocks {
+    font-size: 11px;
+    color: #666;
+  }
+  .blocker-card .blocks span {
+    background: #f8d7da;
+    color: #721c24;
+    border-radius: 3px;
+    padding: 1px 5px;
+    margin-right: 3px;
+    font-weight: 600;
+  }
+
+  /* ===== LEGEND ===== */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+    align-items: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .dot-done    { background: #28a745; }
+  .dot-inprog  { background: #007bff; }
+  .dot-waiting { background: #fd7e14; }
+  .dot-block   { background: #dc3545; border: 2px solid #921515; }
+
+  /* ===== SECTION ===== */
+  .section {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .section-header {
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-header.overseas { background: #1a3a5c; }
+  .section-header.domestic { background: #2d5a1b; }
+  .section-header.dealer   { background: #4a1a5c; }
+  .section-header.build    { background: #5c3a1a; }
+  .section-header.military { background: #3a3a3a; }
+  .section-count {
+    font-size: 12px;
+    opacity: 0.8;
+    font-weight: 400;
+  }
+  .section-body {
+    padding: 20px;
+  }
+
+  /* ===== CHAIN VIEW ===== */
+  .chain {
+    margin-bottom: 20px;
+  }
+  .chain-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .chain-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 8px;
+  }
+  .task-node {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 120px;
+    max-width: 170px;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .task-node .t-id {
+    font-size: 10px;
+    opacity: 0.85;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .task-node .t-name {
+    font-size: 11px;
+    line-height: 1.3;
+    display: block;
+  }
+  .task-node .t-owner {
+    font-size: 10px;
+    opacity: 0.75;
+    display: block;
+    margin-top: 2px;
+  }
+  .task-node.done {
+    background: #d4edda;
+    border: 2px solid #28a745;
+    color: #155724;
+  }
+  .task-node.inprog {
+    background: #cce5ff;
+    border: 2px solid #007bff;
+    color: #004085;
+  }
+  .task-node.waiting {
+    background: #fff3cd;
+    border: 2px solid #fd7e14;
+    color: #7d4e00;
+  }
+  .task-node.notstart {
+    background: #f8d7da;
+    border: 2px solid #dc3545;
+    color: #721c24;
+  }
+  .task-node.blocker-node {
+    background: #dc3545;
+    border: 3px solid #921515;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(220,53,69,0.25);
+  }
+  .arrow {
+    font-size: 20px;
+    color: #999;
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+  .arrow.blocked {
+    color: #dc3545;
+  }
+  .multi-branch {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* parallel tasks */
+  .task-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* condition badge */
+  .condition {
+    font-size: 10px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: #856404;
+    margin: 0 4px;
+    flex-shrink: 0;
+    max-width: 130px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* note */
+  .chain-note {
+    font-size: 11px;
+    color: #666;
+    background: #f8f9fa;
+    border-left: 3px solid #6c757d;
+    padding: 6px 10px;
+    border-radius: 0 4px 4px 0;
+    margin-top: 6px;
+  }
+  .chain-note.warn {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+    color: #856404;
+  }
+  .chain-note.danger {
+    background: #f8d7da;
+    border-left-color: #dc3545;
+    color: #721c24;
+  }
+
+  /* stage table for templates */
+  .stage-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .stage-table th {
+    background: #f0f2f5;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 700;
+    border-bottom: 2px solid #dee2e6;
+  }
+  .stage-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f2f5;
+    vertical-align: top;
+  }
+  .stage-table tr:hover td { background: #fafafa; }
+  .stage-num {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .stage-arrow-col {
+    text-align: center;
+    color: #28a745;
+    font-size: 18px;
+    vertical-align: middle;
+  }
+  .tag {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 2px;
+  }
+  .tag-done    { background: #d4edda; color: #155724; }
+  .tag-wait    { background: #fff3cd; color: #856404; }
+  .tag-notstart{ background: #f8d7da; color: #721c24; }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #f0f2f5;
+    margin: 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>🔗 タスク依存関係マップ</h1>
+<p class="subtitle">2026-06-07 ／ 期限超過76件 ／ ①が決まらないと②が決まらない依存チェーン</p>
+
+<!-- ========== LEGEND ========== -->
+<div class="legend">
+  <strong style="font-size:12px;color:#666;">凡例：</strong>
+  <div class="legend-item"><div class="legend-dot dot-done"></div>完了</div>
+  <div class="legend-item"><div class="legend-dot dot-inprog"></div>進行中</div>
+  <div class="legend-item"><div class="legend-dot dot-waiting"></div>着手待ち（前提あり）</div>
+  <div class="legend-item"><div class="legend-dot dot-block"></div>ブロッカー（これが止まると後続が全滅）</div>
+  <div class="legend-item" style="margin-left:12px;">→ 通常の依存</div>
+  <div class="legend-item" style="color:#dc3545;">→ ブロックされている</div>
+</div>
+
+<!-- ========== CRITICAL BLOCKERS ========== -->
+<div class="blocker-alert">
+  <h2>⚠️ 最優先ブロッカー — これを解決しないと連鎖的に止まる</h2>
+  <div class="blocker-list">
+    <div class="blocker-card">
+      <div class="tid">🔴 T-003</div>
+      <div class="tname">国際法務弁護士の選定・着手金支払い</div>
+      <div class="blocks">後続がブロック：<span>T-007</span><span>NDA V4</span></div>
+    </div>
+    <div class="blocker-card">
+      <div class="tid">🔴 T-038</div>
+      <div class="tname">国際商標弁理士の選定・契約</div>
+      <div class="blocks">後続がブロック：<span>T-041</span></div>
+    </div>
+    <div class="blocker-card">
+      <div class="tid">🟡 T-007 内の未確定項目</div>
+      <div class="tname">MOQ数量・契約期間・遅延利息率の社内確定</div>
+      <div class="blocks">弁護士送付前に必須：<span>T-007レビュー開始</span></div>
+    </div>
+    <div class="blocker-card">
+      <div class="tid">🔴 T-107</div>
+      <div class="tname">契約スキーム説明資料（進行中）</div>
+      <div class="blocks">完成待ち：<span>T-109</span><span>T-110</span><span>→以降7件</span></div>
+    </div>
+    <div class="blocker-card">
+      <div class="tid">🟡 T-078</div>
+      <div class="tname">国内方針決め（進行中）</div>
+      <div class="blocks">方針確定待ち：<span>国内テンプレ全19件</span></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== 1. XOP海外 ========== -->
+<div class="section">
+  <div class="section-header overseas">
+    <span>🌏 XOP海外原液販売プロジェクト</span>
+    <span class="section-count">11件</span>
+  </div>
+  <div class="section-body">
+
+    <!-- 法務・契約チェーン -->
+    <div class="chain">
+      <div class="chain-title">⛓ チェーン① 法務・契約</div>
+      <div class="chain-row">
+        <div class="task-node done">
+          <span class="t-id">T-002</span>
+          <span class="t-name">価格・MOQ<br>社内確定</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+        <span class="arrow">→</span>
+        <div class="task-node waiting">
+          <span class="t-id">MOQ未確定</span>
+          <span class="t-name">数量・契約期間<br>遅延利息率<br>社内決定が必要</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart" style="background:#dc3545;border-color:#921515;color:#fff;box-shadow:0 0 0 3px rgba(220,53,69,0.25);">
+          <span class="t-id">T-007</span>
+          <span class="t-name">契約書<br>弁護士レビュー<br>・完成</span>
+          <span class="t-owner">弁護士</span>
+        </div>
+      </div>
+      <div class="chain-row" style="margin-top:6px;">
+        <div class="task-node done">
+          <span class="t-id">T-006 ✅</span>
+          <span class="t-name">英語版ドラフト<br>V2完成</span>
+          <span class="t-owner">宮脇＋AI</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div style="font-size:11px;color:#666;padding:0 6px;align-self:center;">T-007へ</div>
+      </div>
+      <div class="chain-row" style="margin-top:6px;">
+        <div class="task-node blocker-node">
+          <span class="t-id">⛔ T-003</span>
+          <span class="t-name">弁護士<br>選定・着手金</span>
+          <span class="t-owner">宮脇 ／ 未着手</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div style="font-size:11px;color:#dc3545;padding:0 6px;align-self:center;font-weight:600;">T-007の弁護士送付が不可</div>
+      </div>
+      <div class="chain-note danger">
+        ⚡ T-003（弁護士選定）が最大ボトルネック。T-006ドラフトは完成済み、価格もT-002で確定済みにもかかわらず、弁護士が決まっていないためT-007に着手できない。同時にNDA V4の送付もブロックされている。
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 商標チェーン -->
+    <div class="chain">
+      <div class="chain-title">⛓ チェーン② 商標・意匠</div>
+      <div class="chain-row">
+        <div class="task-node blocker-node">
+          <span class="t-id">⛔ T-038</span>
+          <span class="t-name">国際商標<br>弁理士選定・契約</span>
+          <span class="t-owner">宮脇 ／ 未着手</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-041</span>
+          <span class="t-name">日本での<br>商標出願<br>(KICHI基礎)</span>
+          <span class="t-owner">弁理士</span>
+        </div>
+      </div>
+      <div class="chain-note warn">T-038が解決すれば T-041 はマドリッド出願の起点（1/2/19/35/37類）として即着手できる。</div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 独立タスク -->
+    <div class="chain">
+      <div class="chain-title">⛓ チェーン③ ブランド・ドキュメント（比較的独立）</div>
+      <div class="chain-row">
+        <div class="task-node notstart">
+          <span class="t-id">T-039</span>
+          <span class="t-name">ドメイン・SNS<br>アカウント先押さえ</span>
+          <span class="t-owner">北庄司</span>
+        </div>
+        <span class="arrow" style="color:#28a745;">→</span>
+        <div style="font-size:11px;color:#666;padding:0 6px;align-self:center;">独立して着手可</div>
+      </div>
+      <div class="chain-row" style="margin-top:8px;">
+        <div class="task-node notstart">
+          <span class="t-id">T-040</span>
+          <span class="t-name">ロゴ著作権<br>譲渡契約の整備</span>
+          <span class="t-owner">宮脇</span>
+        </div>
+        <span class="arrow" style="color:#28a745;">→</span>
+        <div style="font-size:11px;color:#666;padding:0 6px;align-self:center;">独立して着手可</div>
+      </div>
+      <div class="chain-row" style="margin-top:8px;">
+        <div class="task-node done">
+          <span class="t-id">T-008 ✅</span>
+          <span class="t-name">英語版TDS<br>ドラフト</span>
+        </div>
+        <span class="arrow">→</span>
+        <div class="task-node done">
+          <span class="t-id">T-009 ✅</span>
+          <span class="t-name">英語版<br>見積書フォーマット</span>
+        </div>
+        <span class="arrow">→</span>
+        <div class="task-node done">
+          <span class="t-id">T-011 ✅</span>
+          <span class="t-name">英語版SDS<br>完成</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ========== 2. XOP国内代理店 ========== -->
+<div class="section">
+  <div class="section-header dealer">
+    <span>🏪 XOP国内代理店プロジェクト</span>
+    <span class="section-count">21件 ／ 最長依存チェーン</span>
+  </div>
+  <div class="section-body">
+
+    <div class="chain">
+      <div class="chain-title">⛓ チェーンA 契約・スキーム確定 → 代理店契約締結</div>
+      <div class="chain-row" style="flex-wrap:wrap;gap:4px;">
+        <div class="task-node done">
+          <span class="t-id">T-104 ✅</span>
+          <span class="t-name">代理店スキーム<br>明確化</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+        <span class="arrow">→</span>
+        <div class="task-node inprog">
+          <span class="t-id">▶ T-107</span>
+          <span class="t-name">契約スキーム<br>説明資料</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-109</span>
+          <span class="t-name">代理店契約書<br>ドラフト</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-112</span>
+          <span class="t-name">修正契約書<br>ドラフト</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-116</span>
+          <span class="t-name">最終契約書<br>（2部）</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-118</span>
+          <span class="t-name">キーストン社<br>連携書類</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+      </div>
+      <div class="chain-note danger">
+        T-107（進行中）の完成待ちで T-109以降5件が全停止。T-107は社長承認後に代理店説明書類へ転記する必要あり。
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="chain">
+      <div class="chain-title">⛓ チェーンB 認定制度の整備（最長：8ステップ連鎖）</div>
+      <div class="chain-row" style="flex-wrap:wrap;gap:4px;">
+        <div class="task-node done">
+          <span class="t-id">T-111 ✅</span>
+          <span class="t-name">研修費用・<br>認定条件一覧</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+        <span class="arrow">+</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-109</span>
+          <span class="t-name">代理店契約書<br>ドラフト</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-117</span>
+          <span class="t-name">研修<br>スケジュール表</span>
+          <span class="t-owner">吉岡＋宮脇</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-119</span>
+          <span class="t-name">研修受講票<br>参加確認書</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-120</span>
+          <span class="t-name">認定審査<br>申請書</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-122</span>
+          <span class="t-name">XOP<br>認定書</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-123</span>
+          <span class="t-name">業者登録<br>完了書</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-124</span>
+          <span class="t-name">初回案件<br>サポートシート</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-125</span>
+          <span class="t-name">フォローアップ<br>計画書</span>
+        </div>
+      </div>
+      <div class="chain-note danger">
+        ⚡ T-109（代理店契約書ドラフト）が開始されるまで、この8件は全て手がつけられない。T-107→T-109の解除が最優先。
+      </div>
+      <!-- T-121 branch -->
+      <div class="chain-row" style="margin-top:10px;">
+        <div style="width:14px;"></div>
+        <span style="font-size:11px;color:#666;padding-right:8px;">T-117から分岐：</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-117</span>
+          <span class="t-name">研修<br>スケジュール</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-121</span>
+          <span class="t-name">試験対策<br>資料</span>
+        </div>
+        <span class="arrow">→</span>
+        <div style="font-size:11px;color:#666;padding:0 6px;align-self:center;">→ T-120 認定審査に合流</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="chain">
+      <div class="chain-title">⛓ チェーンC 提案資料（T-104確定済みで着手可能）</div>
+      <div class="chain-row">
+        <div class="task-node done">
+          <span class="t-id">T-104 ✅</span>
+          <span class="t-name">スキーム<br>明確化</span>
+        </div>
+        <span class="arrow" style="color:#28a745;">→</span>
+        <div class="task-group">
+          <div class="task-node notstart">
+            <span class="t-id">T-106</span>
+            <span class="t-name">★ 代理店提案書</span>
+          </div>
+          <div class="task-node notstart" style="margin-top:4px;">
+            <span class="t-id">T-110</span>
+            <span class="t-name">★ 資材単価表</span>
+          </div>
+        </div>
+        <span class="arrow" style="color:#28a745;">→</span>
+        <div style="font-size:11px;color:#28a745;padding:0 6px;align-self:center;font-weight:600;">今すぐ着手可</div>
+      </div>
+      <div class="chain-note" style="background:#d4edda;border-left-color:#28a745;color:#155724;">
+        ✅ T-104・T-111・T-114がすべて完了済みのため、T-106・T-110は今すぐ作成に入れる。
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ========== 3. XOP国内販売テンプレート ========== -->
+<div class="section">
+  <div class="section-header domestic">
+    <span>🏠 XOP国内販売プロジェクト — テンプレート体系（段階依存）</span>
+    <span class="section-count">27件</span>
+  </div>
+  <div class="section-body">
+
+    <div class="chain">
+      <div class="chain-title">⛓ 営業プロセス段階別 依存構造</div>
+      <div class="chain-note warn" style="margin-bottom:14px;">
+        T-078（国内方針決め・進行中）の方針確定が前提。6/10営業説明会（Output B）の内容が固まればテンプレ作成に着手できる。
+      </div>
+      <table class="stage-table">
+        <thead>
+          <tr>
+            <th>段階</th>
+            <th></th>
+            <th>タスク</th>
+            <th>状況</th>
+            <th>依存</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="stage-num">① 初接触</td>
+            <td class="stage-arrow-col">↓</td>
+            <td>T-079 会社案内・パンフレット<br>T-080 XOP製品カタログ<br>T-081 施工事例写真集</td>
+            <td><span class="tag tag-notstart">未着手</span></td>
+            <td>T-078方針確定後<br>今すぐ着手可能</td>
+          </tr>
+          <tr>
+            <td class="stage-num">② 提案中</td>
+            <td class="stage-arrow-col">↓</td>
+            <td>T-082 ☆ XOP提案書<br>T-083 ☆ ROI試算シート<br>T-084 製品サンプル</td>
+            <td><span class="tag tag-notstart">未着手</span></td>
+            <td>①の資料＋T-104価格情報あり</td>
+          </tr>
+          <tr>
+            <td class="stage-num">③ 見積提出</td>
+            <td class="stage-arrow-col">↓</td>
+            <td>T-085 現地調査シート<br>T-086 ☆ 見積書テンプレート<br>T-087 面積計算メモ・写真</td>
+            <td><span class="tag tag-notstart">未着手</span></td>
+            <td>②提案資料あって初めて使える</td>
+          </tr>
+          <tr>
+            <td class="stage-num">④ 交渉中</td>
+            <td class="stage-arrow-col">↓</td>
+            <td>T-088 ☆ 修正見積もり書<br>T-089 アフターサポート説明<br>T-090 交渉メモ・議事録</td>
+            <td><span class="tag tag-notstart">未着手</span></td>
+            <td>③見積を元に交渉</td>
+          </tr>
+          <tr>
+            <td class="stage-num">⑤ Fix直前</td>
+            <td class="stage-arrow-col">↓</td>
+            <td>T-091 ☆ 契約書テンプレート<br>T-092 ☆ 工程スケジュール表<br>T-093 職人手配確認書<br>T-094 施工前チェックリスト</td>
+            <td><span class="tag tag-notstart">未着手</span></td>
+            <td>④合意事項を反映</td>
+          </tr>
+          <tr>
+            <td class="stage-num">⑥ 施工中</td>
+            <td class="stage-arrow-col">↓</td>
+            <td>T-095 施工管理チェックリスト<br>T-096 ☆ 製品使用確認書<br>T-097 品質写真台帳<br>T-098 施工日報</td>
+            <td><span class="tag tag-notstart">未着手</span></td>
+            <td>⑤契約後に使用</td>
+          </tr>
+          <tr>
+            <td class="stage-num">⑦ 完了</td>
+            <td class="stage-arrow-col">—</td>
+            <td>T-099 完了報告書<br>T-100 品質保証書<br>T-101 施工完了写真集<br>T-102 ☆ 請求書テンプレート<br>T-103 紹介依頼書・ヒアリング</td>
+            <td><span class="tag tag-notstart">未着手</span></td>
+            <td>⑥施工完了後</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="chain-note" style="margin-top:12px;background:#d4edda;border-left-color:#28a745;color:#155724;">
+        ✅ テンプレートは実際には段階をまたいで並行作成可能。まず①②のドキュメントから着手し、③以降は順次整備で問題なし。T-104・T-078の確定情報で①②は今すぐ作れる。
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div class="chain-title">独立して動ける営業タスク</div>
+      <div class="chain-row" style="flex-wrap:wrap;gap:8px;margin-top:8px;">
+        <div class="task-node inprog">
+          <span class="t-id">T-078</span>
+          <span class="t-name">国内方針決め</span>
+          <span class="t-owner">吉岡＋宮脇 進行中</span>
+        </div>
+        <div class="task-node notstart">
+          <span class="t-id">T-062</span>
+          <span class="t-name">高田・T-Frex<br>3月FIX確認</span>
+          <span class="t-owner">吉岡</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ========== 4. 建築・建設 ========== -->
+<div class="section">
+  <div class="section-header build">
+    <span>🏗 建築・建設プロジェクト</span>
+    <span class="section-count">4件</span>
+  </div>
+  <div class="section-body">
+    <div class="chain">
+      <div class="chain-title">⛓ 許認可 → 営業</div>
+      <div class="chain-row">
+        <div class="task-node notstart">
+          <span class="t-id">T-056</span>
+          <span class="t-name">建設業許可<br>保有確認・更新</span>
+          <span class="t-owner">宮脇</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div style="font-size:11px;color:#666;padding:0 6px;align-self:center;">受注活動の前提条件</div>
+      </div>
+      <div class="chain-row" style="margin-top:10px;flex-wrap:wrap;gap:8px;">
+        <div class="task-node inprog"><span class="t-id">T-072</span><span class="t-name">金吉・店舗建築<br>クローズ・着工合意</span><span class="t-owner">吉岡 進行中</span></div>
+        <div class="task-node inprog"><span class="t-id">T-071</span><span class="t-name">中村・都立大<br>借主日程確定</span><span class="t-owner">吉岡 進行中</span></div>
+        <div class="task-node done"><span class="t-id">T-073 ✅</span><span class="t-name">稲澤・えん<br>見積フォロー</span></div>
+      </div>
+      <div class="chain-note">T-056は独立して今すぐ着手可能。建設業許可の有無は他案件にも波及する可能性がある。</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== 5. 海軍・防衛 ========== -->
+<div class="section">
+  <div class="section-header military">
+    <span>🛡 海軍・防衛関連プロジェクト</span>
+    <span class="section-count">5件</span>
+  </div>
+  <div class="section-body">
+    <div class="chain">
+      <div class="chain-title">⛓ 基盤整備 → 運用ルール → 営業</div>
+      <div class="chain-row">
+        <div class="task-node notstart">
+          <span class="t-id">T-048</span>
+          <span class="t-name">基盤整備<br>要件洗い出し</span>
+          <span class="t-owner">宮脇＋吉岡</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div class="task-node notstart">
+          <span class="t-id">T-049</span>
+          <span class="t-name">セキュリティ・<br>機密保持<br>運用ルール策定</span>
+          <span class="t-owner">宮脇＋吉岡</span>
+        </div>
+        <span class="arrow blocked">→</span>
+        <div style="font-size:11px;color:#666;padding:0 6px;align-self:center;">NocoDB等クラウドツール<br>の使用可否が確定</div>
+      </div>
+      <div class="chain-note warn">
+        T-049（機密保持ルール）が確定するまで、NocoDB等クラウドツールへの機密情報登録可否が不明のまま。プロジェクト全体の情報管理方針に影響する。
+      </div>
+      <div class="chain-row" style="margin-top:12px;flex-wrap:wrap;gap:8px;">
+        <div class="task-node inprog"><span class="t-id">T-063</span><span class="t-name">湯澤技監・<br>横須賀FIX連絡</span><span class="t-owner">吉岡 進行中</span></div>
+        <div class="task-node inprog"><span class="t-id">T-074</span><span class="t-name">都倉・厚木基地<br>訪問資料準備</span><span class="t-owner">吉岡＋宮脇 進行中</span></div>
+        <div class="task-node done"><span class="t-id">T-064 ✅</span><span class="t-name">川津・エフテク<br>入金確認</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== SUMMARY TABLE ========== -->
+<div class="section">
+  <div class="section-header" style="background:#343a40;">
+    <span>📊 ブロッカー解除ロードマップ（優先順）</span>
+  </div>
+  <div class="section-body">
+    <table class="stage-table">
+      <thead>
+        <tr>
+          <th>優先</th>
+          <th>解除すべきブロッカー</th>
+          <th>解除後に動き出すタスク</th>
+          <th>担当</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background:#fff0f0;">
+          <td><strong>🔴 最優先</strong></td>
+          <td>T-003 弁護士選定・着手金支払い</td>
+          <td>T-007（契約書レビュー）・NDA V4</td>
+          <td>宮脇</td>
+        </tr>
+        <tr style="background:#fff0f0;">
+          <td><strong>🔴 最優先</strong></td>
+          <td>T-107 契約スキーム説明資料（完成急ぎ）</td>
+          <td>T-109→T-112→T-116→T-118<br>T-117→T-119→T-120→T-122→T-123→T-124→T-125（11件解放）</td>
+          <td>吉岡＋宮脇</td>
+        </tr>
+        <tr style="background:#fff8e0;">
+          <td><strong>🟡 高優先</strong></td>
+          <td>T-038 弁理士選定・契約</td>
+          <td>T-041（商標出願）</td>
+          <td>宮脇</td>
+        </tr>
+        <tr style="background:#fff8e0;">
+          <td><strong>🟡 高優先</strong></td>
+          <td>MOQ数量・契約期間・遅延利息率の社内決定</td>
+          <td>T-007（弁護士送付可能に）</td>
+          <td>吉岡＋宮脇</td>
+        </tr>
+        <tr style="background:#f0fff0;">
+          <td><strong>🟢 今すぐ可</strong></td>
+          <td>（ブロッカーなし）</td>
+          <td>T-039・T-040・T-056・T-048<br>T-106・T-110（T-104情報活用）<br>T-079〜T-083（T-078情報活用）</td>
+          <td>各担当</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p style="text-align:center;color:#999;font-size:11px;margin-top:20px;margin-bottom:8px;">
+  Generated 2026-06-07 ／ 期限超過タスク状況確認レポートより自動生成
+</p>
+
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default' });
+</script>
+</body>
+</html>

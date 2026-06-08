@@ -1,0 +1,433 @@
+{
+  "name": "WF11 - 日報まとめ v1",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 19 * * 1-6" }]
+        }
+      },
+      "id": "wf11_schedule",
+      "name": "Schedule 19:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 600]
+    },
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "wf11_tg_trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 400],
+      "webhookId": "wf11-nippou-v1",
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_ADMIN_CRED_ID",
+          "name": "Telegram - AdminBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [{
+            "id": "cond_matome",
+            "leftValue": "={{ $json.message?.text || '' }}",
+            "rightValue": "^/まとめ",
+            "operator": { "type": "string", "operation": "regex" }
+          }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf11_if_matome",
+      "name": "IF /まとめ Command",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [420, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst jst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Tokyo' }));\nconst yyyy = jst.getFullYear();\nconst mm   = String(jst.getMonth() + 1).padStart(2, '0');\nconst dd   = String(jst.getDate()).padStart(2, '0');\nreturn [{ json: { date: `${yyyy}-${mm}-${dd}` } }];"
+      },
+      "id": "wf11_date",
+      "name": "Get Today (JST)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [640, 500]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://script.google.com/macros/s/AKfycbw0aKC6GgZtCaAr_hwkm05TDO83i3wXCU6VfMJh1trtnC8dnilhs9N4Ria4HATthl6Osg/exec?action=listInbox&date={{ $json.date }}",
+        "options": { "redirect": { "redirect": { "followRedirects": true, "maxRedirects": 5 } } }
+      },
+      "id": "wf11_gas_list",
+      "name": "GAS: List INBOX",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 500]
+    },
+    {
+      "parameters": {
+        "jsCode": "const date = $('Get Today (JST)').first().json.date;\nconst data = $input.first().json;\n\nif (!data.success || !data.files || data.files.length === 0) {\n  return [{ json: { isEmpty: true, date, groups: [], submitters: [] } }];\n}\n\nconst MEMBER_MAP = {\n  miyawakiMM: { name: '宮脇', nocoId: 2 },\n  yoshioka:   { name: '吉岡', nocoId: 3 },\n  kobayashi:  { name: '小林', nocoId: 5 },\n  takada:     { name: '高田', nocoId: 6 },\n  kitashoji:  { name: '北庄司', nocoId: 4 },\n};\n\nfunction resolveMember(username) {\n  if (MEMBER_MAP[username]) return { username, ...MEMBER_MAP[username] };\n  for (const [k, v] of Object.entries(MEMBER_MAP)) {\n    if (username.toLowerCase().startsWith(k.toLowerCase())) return { username, ...v };\n  }\n  return { username, name: username, nocoId: null };\n}\n\nconst groupsMap = {};\nfor (const f of data.files) {\n  if (!groupsMap[f.username]) groupsMap[f.username] = { member: resolveMember(f.username), files: [] };\n  groupsMap[f.username].files.push(f);\n}\n\nconst groups = Object.values(groupsMap);\nconst submitters = groups.map(g => g.member.username);\nreturn [{ json: { isEmpty: false, date, groups, submitters } }];"
+      },
+      "id": "wf11_parse",
+      "name": "Parse & Group",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1080, 500]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [{
+            "id": "cond_empty",
+            "leftValue": "={{ $json.isEmpty }}",
+            "rightValue": true,
+            "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+          }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "wf11_if_empty",
+      "name": "IF No Submissions",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1300, 500]
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_MIYAWAKI_CHAT_ID",
+        "text": "=📭 {{ $json.date }} の音声メモ提出はありませんでした。",
+        "additionalFields": { "appendAttribution": false }
+      },
+      "id": "wf11_tg_nosub",
+      "name": "Telegram: No Submissions",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1520, 300],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_ADMIN_CRED_ID",
+          "name": "Telegram - AdminBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "REPLACE_MEMBERS_TABLE_ID",
+        "returnAll": true,
+        "filters": {
+          "filter": [{ "fieldName": "active", "operator": "eq", "value": "true" }]
+        }
+      },
+      "id": "wf11_noco_members",
+      "name": "NocoDB: Get Members",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [1520, 600],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const groupData = $('Parse & Group').first().json;\nconst members   = $input.all().map(i => i.json);\n\nconst chatIdByName = {};\nfor (const m of members) {\n  const name = m.氏名 || m.name;\n  const chatId = m.telegram_chat_id;\n  if (name && chatId) chatIdByName[name] = String(chatId);\n}\n\nreturn groupData.groups.map(group => ({\n  json: {\n    date:         groupData.date,\n    username:     group.member.username,\n    memberName:   group.member.name,\n    nocoId:       group.member.nocoId,\n    chatId:       chatIdByName[group.member.name] || null,\n    fileCount:    group.files.length,\n    filesContent: group.files\n      .map(f => `【${f.time}】\\n${f.content}`)\n      .join('\\n\\n---\\n\\n'),\n  }\n}));"
+      },
+      "id": "wf11_enrich",
+      "name": "Enrich Groups",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1740, 600]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://script.google.com/macros/s/AKfycbw0aKC6GgZtCaAr_hwkm05TDO83i3wXCU6VfMJh1trtnC8dnilhs9N4Ria4HATthl6Osg/exec?action=getPendingTasks&username={{ $json.username }}",
+        "options": { "redirect": { "redirect": { "followRedirects": true, "maxRedirects": 5 } } }
+      },
+      "id": "wf11_gas_get_pending",
+      "name": "GAS: Get Pending Tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1960, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "const group = $('Enrich Groups').item.json;\nconst pendingRes = $input.first().json;\n\nlet pendingTasksText = '';\nlet hasPendingTasks = false;\nif (pendingRes.success && pendingRes.hasTasks && pendingRes.tasks && pendingRes.tasks.length > 0) {\n  hasPendingTasks = true;\n  pendingTasksText = pendingRes.tasks.map(t => `- [ ] ${t}`).join('\\n');\n}\n\nconst pendingSection = hasPendingTasks\n  ? `\\n【前日未完了タスク】\\n${pendingTasksText}\\n\\n【本日の音声メモ】\\n`\n  : '\\n';\n\nconst geminiPrompt = `あなたは CRUX 合同会社の業務日報作成アシスタントです。\\n\\n以下の音声メモを構造化された業務日報 Markdown にまとめてください。\\n\\n日付: ${group.date}\\nメンバー: ${group.memberName}\\n${pendingSection}${group.filesContent}\\n\\n# 出力フォーマット\\n\\n# ${group.date} [[${group.memberName}]] 日報\\n\\n## タグ\\n#タグ1 #タグ2 （5〜8個、本日の主要キーワード）\\n\\n## 前日からの継続タスク\\n（前日未完了タスク入力がある場合のみ。なければセクションごと省略）\\n- [x] 完了タスク → 完了（時刻）\\n- [ ] 未完了タスク → 継続\\n\\n## 本日の活動\\n\\n### 午前\\n（時系列で記述。固有名詞は [[]] でリンク化）\\n\\n### 午後\\n（同上）\\n\\n## 顧客・案件への対応\\n- [[顧客名]] ～\\n- 該当なし\\n\\n## 本日発生タスク・アクション\\n- [ ] 今日新たに発生したアクション（前日タスクはここに含めない）\\n- 該当なし\\n\\n## 懸念事項・要相談\\n- ～\\n- 該当なし\\n\\n## 明日の予定\\n- ～\\n- 該当なし\\n\\n# ルール\\n1. 補わない — メモにないことは追加しない\\n2. 内容がないセクションは「該当なし」と明記しセクション自体は残す\\n3. 前日からの継続タスクは入力がある場合のみ出力\\n4. 時系列（時刻順）を維持\\n5. フィラー（えーと・あの・まあ・えっと）を削除し書き言葉に整える\\n6. 固有名詞（顧客名・案件名・人名・サービス名）は [[]] でリンク化\\n7. 出力は Markdown 本文のみ（前置き・コードブロック不要）`;\n\nreturn [{\n  json: {\n    date: group.date,\n    username: group.username,\n    memberName: group.memberName,\n    chatId: group.chatId,\n    fileCount: group.fileCount,\n    hasPendingTasks,\n    pendingTasksText,\n    geminiPrompt,\n  }\n}];"
+      },
+      "id": "wf11_merge_pending",
+      "name": "Code: Merge Pending Tasks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2180, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=REPLACE_GEMINI_API_KEY",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Content-Type", "value": "application/json" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.geminiPrompt }] }] }) }}",
+        "options": {}
+      },
+      "id": "wf11_gemini",
+      "name": "Gemini: Generate Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2400, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "const group = $('Code: Merge Pending Tasks').item.json;\nconst geminiRes = $input.first().json;\n\nlet reportText = '[日報生成失敗]';\ntry {\n  reportText = geminiRes.candidates[0].content.parts[0].text.trim();\n} catch (e) {\n  reportText = `[日報生成失敗: ${e.message}]`;\n}\n\n// 「本日発生タスク・アクション」セクションの - [ ] 行を抽出して次回の pending_tasks に\nconst pendingTasks = (reportText.match(/^- \\[ \\] .+/gm) || [])\n  .map(t => t.replace(/^- \\[ \\] /, '').trim())\n  .filter(t => t.length > 0 && t !== '該当なし');\n\nreturn [{ json: {\n  date:         group.date,\n  username:     group.username,\n  memberName:   group.memberName,\n  chatId:       group.chatId,\n  fileCount:    group.fileCount,\n  reportText,\n  pendingTasks,\n} }];"
+      },
+      "id": "wf11_extract",
+      "name": "Extract Report Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2620, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://script.google.com/macros/s/AKfycbw0aKC6GgZtCaAr_hwkm05TDO83i3wXCU6VfMJh1trtnC8dnilhs9N4Ria4HATthl6Osg/exec",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Content-Type", "value": "application/json" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'savePendingTasks', username: $json.username, date: $json.date, tasks: $json.pendingTasks }) }}",
+        "options": { "redirect": { "redirect": { "followRedirects": true, "maxRedirects": 5 } } }
+      },
+      "id": "wf11_gas_save_pending",
+      "name": "GAS: Save Pending Tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2840, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://script.google.com/macros/s/AKfycbw0aKC6GgZtCaAr_hwkm05TDO83i3wXCU6VfMJh1trtnC8dnilhs9N4Ria4HATthl6Osg/exec",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Content-Type", "value": "application/json" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'saveReport', username: $('Extract Report Text').item.json.username, date: $('Extract Report Text').item.json.date, content: $('Extract Report Text').item.json.reportText }) }}",
+        "options": { "redirect": { "redirect": { "followRedirects": true, "maxRedirects": 5 } } }
+      },
+      "id": "wf11_gas_save",
+      "name": "GAS: Save Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3060, 600]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Extract Report Text').item.json.chatId }}",
+        "text": "=📋 {{ $('Extract Report Text').item.json.memberName }}さん、本日の日報ができました（{{ $('Extract Report Text').item.json.date }}）。\n\n{{ $('Extract Report Text').item.json.reportText }}",
+        "additionalFields": { "appendAttribution": false },
+        "onError": "continueRegularOutput"
+      },
+      "id": "wf11_tg_dm",
+      "name": "Telegram: DM to Member",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [3280, 600],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_XOPGP_CRED_ID",
+          "name": "Telegram - XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const reports = $('Extract Report Text').all();\nif (!reports || reports.length === 0) {\n  return [{ json: { date: '?', submitters: [], message: '日報集計結果なし', memberCount: 0 } }];\n}\n\nconst date       = reports[0].json.date;\nconst submitters = reports.map(r => r.json.username);\nconst memberCount = reports.length;\n\nconst summaries = reports.map(r => {\n  const preview = r.json.reportText.length > 350\n    ? r.json.reportText.slice(0, 350) + '...'\n    : r.json.reportText;\n  return `👤 ${r.json.memberName}（音声${r.json.fileCount}件）\\n${preview}`;\n}).join('\\n\\n─────────────────\\n\\n');\n\nconst message = `📊 ${date} 日報まとめ完了\\n提出: ${memberCount}名（${submitters.join('・')}）\\n\\n${summaries}`;\n\nreturn [{ json: { date, submitters, message, memberCount } }];"
+      },
+      "id": "wf11_aggregate",
+      "name": "Aggregate All Reports",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3500, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://script.google.com/macros/s/AKfycbw0aKC6GgZtCaAr_hwkm05TDO83i3wXCU6VfMJh1trtnC8dnilhs9N4Ria4HATthl6Osg/exec",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [{ "name": "Content-Type", "value": "application/json" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'updateHeatmap', date: $json.date, submitters: $json.submitters }) }}",
+        "options": { "redirect": { "redirect": { "followRedirects": true, "maxRedirects": 5 } } }
+      },
+      "id": "wf11_gas_heatmap",
+      "name": "GAS: Update Heatmap",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3720, 600]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "mfkc7q3k9fbfaeg",
+        "returnAll": true,
+        "filters": {
+          "filter": [{ "fieldName": "processed", "operator": "eq", "value": "false" }]
+        }
+      },
+      "id": "wf11_noco_get_memos",
+      "name": "NocoDB: Get Unprocessed Memos",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [3720, 800],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "workspaceId": "REPLACE_WORKSPACE_ID",
+        "projectId": "REPLACE_BASE_ID",
+        "table": "mfkc7q3k9fbfaeg",
+        "id": "={{ $json.Id }}",
+        "dataToSend": "defineBelow",
+        "fieldsUi": {
+          "fieldValues": [{ "fieldName": "processed", "fieldValue": true }]
+        }
+      },
+      "id": "wf11_noco_update",
+      "name": "NocoDB: Mark Processed",
+      "type": "n8n-nodes-base.nocoDb",
+      "typeVersion": 3,
+      "position": [3940, 800],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "REPLACE_NOCODB_CRED_ID",
+          "name": "NocoDB - anotherstory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_MIYAWAKI_CHAT_ID",
+        "text": "={{ $('Aggregate All Reports').first().json.message }}",
+        "additionalFields": { "appendAttribution": false }
+      },
+      "id": "wf11_tg_miyawaki",
+      "name": "Telegram: Summary to 宮脇",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [3940, 600],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_ADMIN_CRED_ID",
+          "name": "Telegram - AdminBot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule 19:00": {
+      "main": [[{ "node": "Get Today (JST)", "type": "main", "index": 0 }]]
+    },
+    "Telegram Trigger": {
+      "main": [[{ "node": "IF /まとめ Command", "type": "main", "index": 0 }]]
+    },
+    "IF /まとめ Command": {
+      "main": [
+        [{ "node": "Get Today (JST)", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Get Today (JST)": {
+      "main": [[{ "node": "GAS: List INBOX", "type": "main", "index": 0 }]]
+    },
+    "GAS: List INBOX": {
+      "main": [[{ "node": "Parse & Group", "type": "main", "index": 0 }]]
+    },
+    "Parse & Group": {
+      "main": [[{ "node": "IF No Submissions", "type": "main", "index": 0 }]]
+    },
+    "IF No Submissions": {
+      "main": [
+        [{ "node": "Telegram: No Submissions", "type": "main", "index": 0 }],
+        [{ "node": "NocoDB: Get Members", "type": "main", "index": 0 }]
+      ]
+    },
+    "NocoDB: Get Members": {
+      "main": [[{ "node": "Enrich Groups", "type": "main", "index": 0 }]]
+    },
+    "Enrich Groups": {
+      "main": [[{ "node": "GAS: Get Pending Tasks", "type": "main", "index": 0 }]]
+    },
+    "GAS: Get Pending Tasks": {
+      "main": [[{ "node": "Code: Merge Pending Tasks", "type": "main", "index": 0 }]]
+    },
+    "Code: Merge Pending Tasks": {
+      "main": [[{ "node": "Gemini: Generate Report", "type": "main", "index": 0 }]]
+    },
+    "Gemini: Generate Report": {
+      "main": [[{ "node": "Extract Report Text", "type": "main", "index": 0 }]]
+    },
+    "Extract Report Text": {
+      "main": [[{ "node": "GAS: Save Pending Tasks", "type": "main", "index": 0 }]]
+    },
+    "GAS: Save Pending Tasks": {
+      "main": [[{ "node": "GAS: Save Report", "type": "main", "index": 0 }]]
+    },
+    "GAS: Save Report": {
+      "main": [[{ "node": "Telegram: DM to Member", "type": "main", "index": 0 }]]
+    },
+    "Telegram: DM to Member": {
+      "main": [[{ "node": "Aggregate All Reports", "type": "main", "index": 0 }]]
+    },
+    "Aggregate All Reports": {
+      "main": [
+        [
+          { "node": "GAS: Update Heatmap",           "type": "main", "index": 0 },
+          { "node": "NocoDB: Get Unprocessed Memos",  "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "GAS: Update Heatmap": {
+      "main": [[{ "node": "Telegram: Summary to 宮脇", "type": "main", "index": 0 }]]
+    },
+    "NocoDB: Get Unprocessed Memos": {
+      "main": [[{ "node": "NocoDB: Mark Processed", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

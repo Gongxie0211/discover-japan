@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRUX | Building Asset Protection. Japanese Precision.</title>
+<meta name="description" content="海外の不動産資産を持つ日本人オーナーのための、建築資産保護専門会社。日本初の浸透型フッ素系コーティング「XOP」を中心に、資産の長期保全を支援します。">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@300;400;500&family=Noto+Sans+JP:wght@300;400&family=Noto+Serif+JP:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --crux-black:#0A0A0A; --crux-navy:#1C2B3A; --crux-gold:#C9A84C; --crux-offwhite:#F5F3EF;
+  --crux-gray:#8C8C8C; --crux-gold-light:#DFC27D; --crux-gold-dark:#9A7B2E; --crux-navy-light:#2D4560;
+  --font-h-en:'Cormorant Garamond','Georgia',serif;
+  --font-b-en:'Inter','Helvetica Neue',sans-serif;
+  --font-h-ja:'游明朝','Yu Mincho','Noto Serif JP',serif;
+  --font-b-ja:'Noto Sans JP','Hiragino Kaku Gothic ProN',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--crux-black); color:var(--crux-offwhite);
+  font-family:var(--font-b-ja); font-weight:300; line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+
+[data-lang]{display:none}
+body.lang-ja [data-lang="ja"]{display:block}
+body.lang-en [data-lang="en"]{display:block}
+body.lang-ja span[data-lang="ja"],body.lang-ja a[data-lang="ja"],body.lang-ja li[data-lang="ja"]{display:inline}
+body.lang-en span[data-lang="en"],body.lang-en a[data-lang="en"],body.lang-en li[data-lang="en"]{display:inline}
+body.lang-en{font-family:var(--font-b-en)}
+
+header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(10,10,10,.85);backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(201,168,76,.15);
+}
+.nav-wrap{max-width:1200px;margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between}
+.brand{font-family:var(--font-h-en);font-weight:700;font-size:26px;letter-spacing:.18em;color:var(--crux-gold)}
+.nav-links{display:flex;gap:30px;align-items:center}
+.nav-links a{font-family:var(--font-b-en);font-size:13px;letter-spacing:.08em;color:var(--crux-offwhite);transition:color .3s}
+.nav-links a:hover{color:var(--crux-gold)}
+.lang-switch{display:flex;gap:6px;align-items:center;font-family:var(--font-b-en);font-size:12px;margin-left:10px}
+.lang-switch button{background:none;border:1px solid rgba(140,140,140,.4);color:var(--crux-gray);padding:5px 10px;cursor:pointer;font-family:var(--font-b-en);font-size:11px;letter-spacing:.05em;transition:all .3s}
+.lang-switch button.active{border-color:var(--crux-gold);color:var(--crux-gold)}
+.menu-btn{display:none;background:none;border:none;color:var(--crux-gold);font-size:24px;cursor:pointer}
+
+section{padding:120px 28px}
+.inner{max-width:1100px;margin:0 auto}
+.label{font-family:var(--font-b-en);font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--crux-gold);margin-bottom:22px}
+h1{font-family:var(--font-h-en);font-weight:600;font-size:clamp(38px,6vw,64px);line-height:1.15;letter-spacing:.02em}
+body.lang-ja h1{font-family:var(--font-h-ja);font-weight:500;letter-spacing:.01em}
+h2{font-family:var(--font-h-en);font-weight:600;font-size:clamp(28px,4vw,40px);line-height:1.25;margin-bottom:28px;letter-spacing:.02em}
+body.lang-ja h2{font-family:var(--font-h-ja);font-weight:500}
+h3{font-family:var(--font-b-en);font-weight:500;font-size:21px;margin-bottom:14px}
+body.lang-ja h3{font-family:var(--font-b-ja)}
+p{font-size:16px;color:#d8d6d0;margin-bottom:18px;max-width:62ch}
+.sub{font-size:18px;color:#c9c7c1;margin:26px 0 40px;max-width:60ch;line-height:1.85}
+
+.btn{display:inline-block;font-family:var(--font-b-en);font-size:13px;letter-spacing:.1em;padding:15px 30px;border:1px solid var(--crux-gold);color:var(--crux-gold);background:transparent;transition:all .35s;cursor:pointer}
+.btn:hover{background:var(--crux-gold);color:var(--crux-black)}
+.btn-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px}
+
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  background:linear-gradient(rgba(10,10,10,.55),rgba(10,10,10,.78)),url('images/1-1.png') center/cover no-repeat;
+  padding-top:90px;
+}
+.hero .inner{width:100%}
+
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:34px;margin-top:50px}
+.card{padding:34px;border:1px solid rgba(201,168,76,.18);background:linear-gradient(160deg,rgba(28,43,58,.35),rgba(10,10,10,.2))}
+.card .icon{font-family:var(--font-b-en);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--crux-gold);margin-bottom:16px}
+.card h3{color:var(--crux-offwhite);font-size:18px}
+.card p{font-size:14.5px;margin-bottom:0}
+
+.navy{background:linear-gradient(180deg,var(--crux-navy),var(--crux-black))}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;border-top:1px solid rgba(201,168,76,.2);border-bottom:1px solid rgba(201,168,76,.2);padding:50px 0}
+.stat .num{font-family:var(--font-h-en);font-weight:700;font-size:42px;color:var(--crux-gold)}
+.stat .cap{font-family:var(--font-b-en);font-size:12px;letter-spacing:.08em;color:var(--crux-gray);margin-top:8px}
+
+table{width:100%;border-collapse:collapse;margin-top:30px;font-size:15px}
+th,td{padding:16px 18px;text-align:left;border-bottom:1px solid rgba(140,140,140,.2)}
+th{font-family:var(--font-b-en);color:var(--crux-gold);font-weight:500;letter-spacing:.05em;font-size:13px}
+td{color:#d2d0ca}
+td:last-child,th:last-child{color:var(--crux-offwhite)}
+
+.imgblock{margin:40px 0;border:1px solid rgba(201,168,76,.2)}
+.imgblock img{width:100%;height:380px;object-fit:cover}
+.ba-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:40px}
+.ba-grid figure{border:1px solid rgba(201,168,76,.2)}
+.ba-grid img{width:100%;height:300px;object-fit:cover}
+.ba-grid figcaption{font-family:var(--font-b-en);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--crux-gold);padding:12px 16px;background:var(--crux-black)}
+
+.case{border:1px solid rgba(201,168,76,.2);margin-bottom:40px;overflow:hidden}
+.case img{width:100%;height:320px;object-fit:cover}
+.case-body{padding:34px}
+.case .tag{font-family:var(--font-b-en);font-size:12px;letter-spacing:.18em;color:var(--crux-gold);margin-bottom:16px}
+.case .ptype{font-size:14px;color:var(--crux-gray);margin-bottom:20px}
+.case h4{font-family:var(--font-b-en);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--crux-gold);margin:18px 0 6px}
+body.lang-ja .case h4{font-family:var(--font-b-ja)}
+
+.light{background:var(--crux-offwhite);color:var(--crux-black)}
+.light h1,.light h2{color:var(--crux-black)}
+.light p{color:#3a3a3a}
+.light .label{color:var(--crux-gold-dark)}
+.form{max-width:620px;margin-top:40px}
+.form .row{margin-bottom:22px}
+.form label{display:block;font-family:var(--font-b-en);font-size:12px;letter-spacing:.08em;color:var(--crux-gray);margin-bottom:8px;text-transform:uppercase}
+body.lang-ja .form label{font-family:var(--font-b-ja);text-transform:none;letter-spacing:.02em}
+.form input,.form select,.form textarea{width:100%;padding:13px 15px;border:1px solid #cfcdc7;background:#fff;font-family:inherit;font-size:15px;color:var(--crux-black)}
+.form textarea{min-height:120px;resize:vertical}
+.form .check{display:flex;align-items:center;gap:10px}
+.form .check input{width:auto}
+.btn-dark{border-color:var(--crux-black);color:var(--crux-black)}
+.btn-dark:hover{background:var(--crux-black);color:var(--crux-offwhite)}
+.contact-info{margin-top:46px;padding-top:30px;border-top:1px solid #d4d2cc;font-size:14px;color:#3a3a3a;line-height:2}
+.contact-info span{color:var(--crux-gold-dark);font-family:var(--font-b-en);letter-spacing:.05em;margin-right:10px}
+
+.about-hero{
+  min-height:80vh;display:flex;align-items:center;
+  background:linear-gradient(rgba(10,10,10,.6),rgba(10,10,10,.8)),url('images/5-2.png') center/cover no-repeat;
+}
+
+footer{background:var(--crux-black);border-top:1px solid rgba(201,168,76,.2);padding:60px 28px 40px;text-align:center}
+footer .brand{display:block;margin-bottom:16px}
+.foot-tag{font-family:var(--font-h-en);font-size:18px;color:var(--crux-offwhite);margin-bottom:24px;letter-spacing:.04em}
+body.lang-ja .foot-tag{font-family:var(--font-h-ja)}
+.foot-links{display:flex;gap:24px;justify-content:center;font-family:var(--font-b-en);font-size:12px;color:var(--crux-gray);margin-bottom:20px}
+.foot-links a:hover{color:var(--crux-gold)}
+.copyright{font-family:var(--font-b-en);font-size:11px;color:var(--crux-gray);letter-spacing:.05em}
+
+ul.feat{list-style:none;margin-top:24px}
+ul.feat li{padding:12px 0 12px 28px;position:relative;border-bottom:1px solid rgba(140,140,140,.15);font-size:15px;color:#d2d0ca;max-width:70ch}
+ul.feat li:before{content:"✦";position:absolute;left:0;color:var(--crux-gold)}
+
+@media(max-width:860px){
+  .nav-links{position:fixed;top:0;right:-100%;height:100vh;width:75%;background:var(--crux-black);flex-direction:column;justify-content:center;gap:34px;transition:right .4s;border-left:1px solid rgba(201,168,76,.2)}
+  .nav-links.open{right:0}
+  .menu-btn{display:block;z-index:101}
+  .grid-3{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .ba-grid{grid-template-columns:1fr}
+  section{padding:80px 22px}
+  th,td{padding:12px 10px;font-size:13.5px}
+}
+</style>
+</head>
+
+<body class="lang-ja">
+
+<!-- HEADER -->
+<header>
+  <div class="nav-wrap">
+    <a href="#home" class="brand">CRUX</a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#home"><span data-lang="ja">ホーム</span><span data-lang="en">Home</span></a>
+      <a href="#technology"><span data-lang="ja">技術・製品</span><span data-lang="en">Technology</span></a>
+      <a href="#cases"><span data-lang="ja">事例</span><span data-lang="en">Cases</span></a>
+      <a href="#about"><span data-lang="ja">CRUXについて</span><span data-lang="en">About</span></a>
+      <a href="#contact"><span data-lang="ja">お問い合わせ</span><span data-lang="en">Contact</span></a>
+      <div class="lang-switch">
+        <button id="btnJa" class="active" onclick="setLang('ja')">JP</button>
+        <button id="btnEn" onclick="setLang('en')">EN</button>
+      </div>
+    </nav>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="inner">
+    <div data-lang="ja">
+      <h1>あなたの建築資産を、<br>日本の技術で守る。</h1>
+      <p class="sub">海外に持つ不動産は、あなたの資産の一部です。劣化は静かに、しかし確実に進みます。CRUXは、建築資産保護の専門家として、オーナーが本当に必要な判断軸を提供します。</p>
+      <div class="btn-row">
+        <a href="#technology" class="btn">技術について知る</a>
+        <a href="#contact" class="btn">無料相談を予約する</a>
+      </div>
+    </div>
+    <div data-lang="en">
+      <h1>Building Asset Protection.<br>Japanese Precision.</h1>
+      <p class="sub">Your properties abroad are more than real estate. They are assets that demand the same discipline as any other investment. Deterioration is silent — until it becomes expensive. CRUX gives you the clarity to act before that happens.</p>
+      <div class="btn-row">
+        <a href="#technology" class="btn">Explore Our Technology</a>
+        <a href="#contact" class="btn">Book a Free Consultation</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="navy">
+  <div class="inner">
+    <div data-lang="ja">
+      <div class="label">あなたの建物に、いま何が起きているか</div>
+      <h2>建物の劣化は、資産の損失である。</h2>
+      <p>外壁のひび割れ、塗装の剥落、コンクリートへの水の浸入。それは「見た目の問題」ではありません。</p>
+      <p>放置すれば構造体そのものが傷み、修繕コストは何十倍にも膨らみます。海外の物件であれば、オーナー自身が現場を確認できる機会は限られています。</p>
+      <p>CRUXは、そのリスクをオーナーの代わりに見極め、正しい保護手段を選び、確実に施工します。</p>
+    </div>
+    <div data-lang="en">
+      <div class="label">What's Happening to Your Building Right Now</div>
+      <h2>Building deterioration is asset erosion.</h2>
+      <p>Cracks in exterior walls. Paint failure. Water infiltrating concrete. These are not cosmetic issues.</p>
+      <p>Left unaddressed, structural damage compounds — and remediation costs multiply accordingly. When your property is abroad, you rarely have the luxury of seeing it firsthand.</p>
+      <p>CRUX acts as your eyes on the ground, your technical advisor, and your implementation partner — ensuring the right protection is applied, correctly, the first time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY CRUX -->
+<section>
+  <div class="inner">
+    <div data-lang="ja">
+      <div class="label">CRUXが選ばれる理由</div>
+      <h2>施工業者でも代理店でもない。<br>建築資産保護の専門家です。</h2>
+      <div class="grid-3">
+        <div class="card"><div class="icon">資産家の視点</div><h3>建物を「物件」ではなく「資産」として扱います。</h3><p>CRUXはオーナーの財務的判断を支える参謀として機能します。工事の提案ではなく、資産保護の戦略を提供します。</p></div>
+        <div class="card"><div class="icon">日本品質の技術</div><h3>日本国内で実証された技術を、海外の現場に届けます。</h3><p>主力ソリューションであるXOPは、日本初の浸透型フッ素系外壁保護コーティング。実績を持つキーストーン社との連携のもと、海外展開を推進しています。</p></div>
+        <div class="card"><div class="icon">確かな判断軸</div><h3>何をすべきか、何をすべきでないかを、正直に伝えます。</h3><p>CRUXは販売のために動きません。オーナーにとって最善の判断を、専門知識と現場経験をもとに提示します。</p></div>
+      </div>
+    </div>
+    <div data-lang="en">
+      <div class="label">Why Property Owners Choose CRUX</div>
+      <h2>We are not a contractor. Not a distributor.<br>We are your Building Asset Protection Partner.</h2>
+      <div class="grid-3">
+        <div class="card"><div class="icon">Asset-Owner Perspective</div><h3>We think in assets, not square meters.</h3><p>CRUX functions as a strategic advisor to property owners. We don't pitch projects. We recommend what protects your asset — and what doesn't.</p></div>
+        <div class="card"><div class="icon">Japanese Engineering</div><h3>Proven technology, delivered precisely.</h3><p>Our flagship solution, XOP, is Japan's first penetrating fluorine-based exterior protection coating — engineered by Keystone Co., Ltd. and brought to market through CRUX.</p></div>
+        <div class="card"><div class="icon">Honest Guidance</div><h3>We tell you what needs to be done. And what doesn't.</h3><p>CRUX doesn't sell for the sake of selling. Our value is in judgment — backed by technical expertise and real-world application experience.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section style="padding-top:0">
+  <div class="inner">
+    <div class="stats">
+      <div class="stat"><div class="num">[XX]+</div><div class="cap"><span data-lang="ja">施工・コンサル実績</span><span data-lang="en">Projects Completed</span></div></div>
+      <div class="stat"><div class="num">[XX]</div><div class="cap"><span data-lang="ja">対応国</span><span data-lang="en">Countries Served</span></div></div>
+      <div class="stat"><div class="num">[XX]</div><div class="cap"><span data-lang="ja">専門知識の年数</span><span data-lang="en">Years of Expertise</span></div></div>
+      <div class="stat"><div class="num">[XX]%</div><div class="cap"><span data-lang="ja">再依頼率</span><span data-lang="en">Client Retention</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNOLOGY -->
+<section class="navy" id="technology">
+  <div class="inner">
+    <div data-lang="ja">
+      <div class="label">CRUXの主力ソリューション</div>
+      <h2>XOP — 日本初、浸透型フッ素系外壁保護コーティング</h2>
+      <p>XOPは、株式会社キーストーンが開発・製造する、日本初の浸透型フッ素系外壁保護コーティングです。</p>
+      <p>表面に膜を作る従来の塗料とは根本的に異なります。XOPはコンクリートや石材の内部に浸透し、素材の分子レベルで結合することで、劣化の根本原因である「水と汚染物質の侵入」を防ぎます。</p>
+      <div class="imgblock"><img src="images/2-1.png" alt="XOP 浸透のマクロ"></div>
+      <ul class="feat">
+        <li>表面に膜を作らないため、素材の質感・透湿性を維持</li>
+        <li>フッ素系ポリマーの高い耐候性・耐薬品性</li>
+        <li>施工後の維持管理コストを大幅に削減</li>
+        <li>コンクリート・石材・タイルなど幅広い素材に対応</li>
+        <li>紫外線・酸性雨・塩害に対して長期間有効</li>
+      </ul>
+    </div>
+    <div data-lang="en">
+      <div class="label">CRUX's Primary Solution</div>
+      <h2>XOP — Japan's First Penetrating Fluorine-Based Coating</h2>
+      <p>XOP is developed and manufactured by Keystone Co., Ltd. — Japan's pioneering penetrating fluorine-based coating engineered for architectural surfaces.</p>
+      <p>Unlike conventional surface coatings that form a film on top of the substrate, XOP penetrates deep into concrete, stone, and masonry — bonding at the molecular level to block the two primary causes of deterioration: water infiltration and contaminant ingress.</p>
+      <div class="imgblock"><img src="images/2-1.png" alt="XOP penetration macro"></div>
+      <ul class="feat">
+        <li>No surface film — substrate texture and breathability are fully preserved</li>
+        <li>Fluorine polymer chemistry delivers superior weather and chemical resistance</li>
+        <li>Dramatically reduces long-term maintenance expenditure</li>
+        <li>Compatible with concrete, stone, tile, and a wide range of masonry surfaces</li>
+        <li>Long-term protection against UV radiation, acid rain, and salt damage</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE/AFTER + COMPARISON -->
+<section>
+  <div class="inner">
+    <div data-lang="ja">
+      <h2>施工前後の比較</h2>
+      <div class="ba-grid">
+        <figure><img src="images/2-2.png" alt="施工前"><figcaption>Before — 施工前</figcaption></figure>
+        <figure><img src="images/2-3.png" alt="施工後"><figcaption>After — 施工後</figcaption></figure>
+      </div>
+      <h3 style="margin-top:50px">XOP vs. 一般的な外壁コーティング</h3>
+      <table>
+        <tr><th>比較項目</th><th>一般的な塗料</th><th>XOP（浸透型）</th></tr>
+        <tr><td>保護の仕組み</td><td>表面に膜を形成</td><td>素材内部に浸透・結合</td></tr>
+        <tr><td>素材への影響</td><td>透湿性・質感が変化する場合あり</td><td>素材本来の状態を維持</td></tr>
+        <tr><td>耐久性</td><td>5〜10年（環境による）</td><td>長期間（環境による）</td></tr>
+        <tr><td>劣化時の症状</td><td>剥落・クラック・変色</td><td>徐々に効果が低減</td></tr>
+        <tr><td>維持管理</td><td>定期的な塗り直しが必要</td><td>維持管理コストが低い</td></tr>
+        <tr><td>適用範囲</td><td>製品により限定的</td><td>コンクリート・石材・タイル等</td></tr>
+      </table>
+    </div>
+    <div data-lang="en">
+      <h2>Before & After</h2>
+      <div class="ba-grid">
+        <figure><img src="images/2-2.png" alt="Before"><figcaption>Before</figcaption></figure>
+        <figure><img src="images/2-3.png" alt="After"><figcaption>After</figcaption></figure>
+      </div>
+      <h3 style="margin-top:50px">XOP vs. Conventional Exterior Coatings</h3>
+      <table>
+        <tr><th>Comparison</th><th>Conventional</th><th>XOP (Penetrating)</th></tr>
+        <tr><td>Protection Method</td><td>Forms surface film</td><td>Penetrates and bonds internally</td></tr>
+        <tr><td>Effect on Substrate</td><td>May alter texture/breathability</td><td>Preserves original material state</td></tr>
+        <tr><td>Durability</td><td>5–10 years (environment-dependent)</td><td>Extended lifespan</td></tr>
+        <tr><td>Deterioration Pattern</td><td>Peeling, cracking, discoloration</td><td>Gradual reduction in efficacy</td></tr>
+        <tr><td>Maintenance</td><td>Regular reapplication required</td><td>Low ongoing maintenance cost</td></tr>
+        <tr><td>Substrate Compatibility</td><td>Varies by product</td><td>Concrete, stone, tile, masonry</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- CASES -->
+<section class="navy" id="cases">
+  <div class="inner">
+    <div data-lang="ja">
+      <div class="label">実績</div>
+      <h2>実績は、言葉より正直です。</h2>
+      <p class="sub">CRUXが関わった建築資産保護の事例を、オーナーのプライバシーに配慮した形でご紹介します。</p>
+
+      <div class="case">
+        <img src="images/3-1.png" alt="ドバイ事例">
+        <div class="case-body">
+          <div class="tag">🇦🇪 UAE・ドバイ</div>
+          <div class="ptype">物件種別: 高級ヴィラ（個人所有）</div>
+          <h4>課題</h4><p>強烈な紫外線・砂嵐・海塩混じりの大気により、外壁コンクリートおよびタイル目地の劣化が数年で顕在化。オーナーは日本在住のため現地確認が年1〜2回に限られていた。</p>
+          <h4>CRUXの対応</h4><p>現地パートナーと連携した診断 → 劣化優先度マッピング → XOP施工 → 施工後の写真・レポートをオーナーに提供。</p>
+          <h4>結果</h4><p>定期レポーティングにより、オーナーは現地不在でも物件状態を把握。追加の大規模修繕は不要となった。</p>
+        </div>
+      </div>
+
+      <div class="case">
+        <img src="images/3-2.png" alt="ハワイ事例">
+        <div class="case-body">
+          <div class="tag">🇺🇸 USA・ハワイ</div>
+          <div class="ptype">物件種別: 投資用コンドミニアム（複数棟）</div>
+          <h4>課題</h4><p>塩害・多湿・紫外線という過酷な海洋性気候にさらされた外壁。「定期的な再塗装が必要」との報告が繰り返され、コストが累積していた。</p>
+          <h4>CRUXの対応</h4><p>XOPの浸透保護による抜本的処置を提案 → 一般塗料との長期コスト比較を提示 → 施工 → 維持管理計画の策定。</p>
+          <h4>結果</h4><p>再塗装サイクルの延長により維持費を大幅削減。削減分を他の資産投資に充当できた。</p>
+        </div>
+      </div>
+
+      <div class="case">
+        <img src="images/3-3.png" alt="韓国事例">
+        <div class="case-body">
+          <div class="tag">🇰🇷 韓国・ソウル</div>
+          <div class="ptype">物件種別: 商業オフィスビル</div>
+          <h4>課題</h4><p>厳しい冬の寒暖差と都市部の大気汚染による外壁の経年劣化。資産価値の維持を重視するオーナーから、長期的な保護策が求められた。</p>
+          <h4>CRUXの対応</h4><p>建物診断 → 劣化箇所の特定 → XOPによる保護施工 → 長期メンテナンス計画の提示。</p>
+          <h4>結果</h4><p>外壁の保護により資産価値を維持。オーナーと継続的なアドバイザリー関係を構築。</p>
+        </div>
+      </div>
+
+      <p style="margin-top:40px"><em>CRUXはスタートアップです。しかし、携わる専門家の経験はスタートアップではありません。事例の数ではなく、判断の質でお選びください。</em></p>
+    </div>
+
+    <div data-lang="en">
+      <div class="label">Our Work</div>
+      <h2>Our work speaks for itself.</h2>
+      <p class="sub">Select building asset protection projects CRUX has delivered — each presented with the owner's privacy in mind.</p>
+
+      <div class="case">
+        <img src="images/3-1.png" alt="Dubai case">
+        <div class="case-body">
+          <div class="tag">UAE — Dubai</div>
+          <div class="ptype">Property Type: Private Luxury Villa</div>
+          <h4>Challenge</h4><p>Severe UV exposure, sandstorms, and salt-laden air had accelerated deterioration of exterior concrete and tile grouting within a few years. The owner, based in Japan, could inspect only once or twice annually.</p>
+          <h4>CRUX Approach</h4><p>Coordinated on-site diagnostic with local partner → Deterioration priority mapping → XOP application → Post-application photography and full written report.</p>
+          <h4>Outcome</h4><p>Regular remote reporting gave the owner ongoing visibility. No major structural remediation required.</p>
+        </div>
+      </div>
+
+      <div class="case">
+        <img src="images/3-2.png" alt="Hawaii case">
+        <div class="case-body">
+          <div class="tag">USA — Hawaii</div>
+          <div class="ptype">Property Type: Investment Condominium Complex</div>
+          <h4>Challenge</h4><p>Recurring repainting costs driven by Hawaii's harsh marine climate — salt, humidity, and UV. Management recommended repeated repainting with no long-term solution.</p>
+          <h4>CRUX Approach</h4><p>Proposed penetrating XOP protection → Presented 10-year cost comparison vs. repainting → Applied XOP across all exterior surfaces → Developed maintenance protocol.</p>
+          <h4>Outcome</h4><p>Extended repainting cycles dramatically reduced expenditure. Capital was reallocated to further investment.</p>
+        </div>
+      </div>
+
+      <div class="case">
+        <img src="images/3-3.png" alt="Korea case">
+        <div class="case-body">
+          <div class="tag">South Korea — Seoul</div>
+          <div class="ptype">Property Type: Commercial Office Building</div>
+          <h4>Challenge</h4><p>Facade aging driven by harsh winter temperature swings and urban air pollution. The owner, prioritizing asset value retention, sought a long-term protection strategy.</p>
+          <h4>CRUX Approach</h4><p>Building diagnosis → Identification of deterioration zones → XOP protective application → Long-term maintenance plan.</p>
+          <h4>Outcome</h4><p>Facade protection preserved asset value. CRUX established an ongoing advisory relationship with the owner.</p>
+        </div>
+      </div>
+
+      <p style="margin-top:40px"><em>CRUX is a young company. The expertise behind it is not. Evaluate us on the quality of our thinking, not the volume of our portfolio.</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT HERO -->
+<section class="about-hero" id="about">
+  <div class="inner">
+    <div data-lang="ja">
+      <h1>南十字星は、<br>迷わない者の道しるべです。</h1>
+      <p class="sub">航海者が南十字星を見上げるように、資産オーナーが頼れる確かな判断軸がある。CRUXはその存在を目指しています。</p>
+    </div>
+    <div data-lang="en">
+      <h1>The Southern Cross<br>doesn't move. That's the point.</h1>
+      <p class="sub">For centuries, navigators fixed their course by Crux. Unwavering. Precise. Reliable. That is the standard we hold ourselves to for every asset owner we serve.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT BODY -->
+<section>
+  <div class="inner">
+    <div data-lang="ja">
+      <div class="label">なぜ「CRUX」なのか</div>
+      <h2>道しるべは、いつも同じ場所にある。</h2>
+      <p>南十字星（Crux）は、南半球の夜空で最も小さく、しかし最も確実な星座です。嵐の夜も、霧の夜も、その場所は変わらない。だから航海者たちは、それを信じて進むことができた。</p>
+      <p>海外に不動産資産を持つオーナーにとって、現地の状況は常に不確かです。何が起きているかわからない、誰を信じればいいかわからない。そんな状況の中で、CRUXは動じない判断軸として機能します。</p>
+      <p>技術の話をする前に、まずオーナーの立場に立つ。販売のための言葉ではなく、資産を守るための言葉を選ぶ。CRUXが提供するのは、その誠実さです。</p>
+
+      <h3 style="margin-top:60px">代表について</h3>
+      <p style="margin-top:10px"><strong style="color:var(--crux-offwhite);font-size:18px">吉岡 正彦</strong><br><span style="color:var(--crux-gray);font-size:14px">代表社員 / クラックス合同会社</span></p>
+      <p style="margin-top:18px">建築資産の保護という分野に長年携わってきた経験を起点に、海外に資産を持つ日本人オーナーが直面する課題——技術・言語・距離の壁——を解決することを使命とし、CRUXを設立しました。</p>
+      <p style="font-style:italic;color:var(--crux-gold-light)">「施工業者でも代理店でもなく、オーナーの参謀として動く会社にしたかった。」</p>
+
+      <h3 style="margin-top:60px">会社概要</h3>
+      <table>
+        <tr><td>社名</td><td>クラックス合同会社</td></tr>
+        <tr><td>英語社名</td><td>CRUX LLC</td></tr>
+        <tr><td>代表社員</td><td>吉岡 正彦</td></tr>
+        <tr><td>所在地</td><td>〒124-0006　東京都葛飾区堀切8丁目24番12号</td></tr>
+        <tr><td>連絡先</td><td>TEL: 03-6662-5105　/　FAX: 03-6662-4314</td></tr>
+        <tr><td>事業内容</td><td>建築資産保護コーティングの施工・販売・海外独占販売</td></tr>
+        <tr><td>主力製品</td><td>XOP（浸透型フッ素系外壁保護コーティング）/ キーストーン社製造</td></tr>
+        <tr><td>対応エリア</td><td>ハワイ・ドバイ・韓国・モロッコ 他</td></tr>
+      </table>
+    </div>
+    <div data-lang="en">
+      <div class="label">Why CRUX</div>
+      <h2>True north doesn't negotiate.</h2>
+      <p>The Southern Cross — Crux — is the smallest constellation in the night sky. But for navigators of the southern hemisphere, it has been the most trusted fixed point for centuries. On stormy nights. On foggy nights. It doesn't move. So they could.</p>
+      <p>For Japanese asset owners with properties abroad, uncertainty is the default condition. What's happening to the building? Who do you trust for an honest assessment? When is the right time to act?</p>
+      <p>CRUX exists to answer those questions without agenda. Before we talk technology, we listen. Before we recommend, we assess. The language we speak is not sales — it is stewardship.</p>
+
+      <h3 style="margin-top:60px">Representative</h3>
+      <p style="margin-top:10px"><strong style="color:var(--crux-offwhite);font-size:18px">Masahiko Yoshioka</strong><br><span style="color:var(--crux-gray);font-size:14px">Representative Member / CRUX LLC</span></p>
+      <p style="margin-top:18px">Drawing on years of experience in the field of building asset protection, Masahiko Yoshioka founded CRUX with a clear mission: to solve the challenges Japanese owners face with overseas properties — the barriers of technology, language, and distance.</p>
+      <p style="font-style:italic;color:var(--crux-gold-light)">"I didn't want to build another contractor or distributor. I wanted to build the company I would have wanted as a property owner myself."</p>
+
+      <h3 style="margin-top:60px">Company Information</h3>
+      <table>
+        <tr><td>Company Name (JP)</td><td>クラックス合同会社</td></tr>
+        <tr><td>Company Name (EN)</td><td>CRUX LLC</td></tr>
+        <tr><td>Representative</td><td>Masahiko Yoshioka</td></tr>
+        <tr><td>Headquarters</td><td>8-24-12 Horikiri, Katsushika-ku, Tokyo 124-0006, Japan</td></tr>
+        <tr><td>Contact</td><td>TEL: +81-3-6662-5105　/　FAX: +81-3-6662-4314</td></tr>
+        <tr><td>Business</td><td>Application, sales, and exclusive international distribution of architectural protection coatings</td></tr>
+        <tr><td>Primary Solution</td><td>XOP — Penetrating Fluorine Coating (by Keystone Co., Ltd.)</td></tr>
+        <tr><td>Service Areas</td><td>Hawaii, Dubai, South Korea, Morocco, and beyond</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="light" id="contact">
+  <div class="inner">
+    <div data-lang="ja">
+      <div class="label">お問い合わせ</div>
+      <h1>まず、話しましょう。</h1>
+      <p class="sub">CRUXへの相談は、全て無料です。初回は30分程度のビデオ通話またはメールから。物件の詳細がなくても構いません。「気になっている」だけで十分です。<br><br>CRUXは、急かしません。あなたのペースで課題を話してください。<br>対応言語: 日本語・英語</p>
+      <form class="form" onsubmit="return submitForm(event)">
+        <div class="row"><label>お名前 *</label><input required></div>
+        <div class="row"><label>メールアドレス *</label><input type="email" required></div>
+        <div class="row"><label>物件の所在地（国・都市）</label><input></div>
+        <div class="row"><label>物件の種類</label><select><option>住宅</option><option>商業施設</option><option>その他</option></select></div>
+        <div class="row"><label>お問い合わせの内容</label><textarea></textarea></div>
+        <div class="row"><label>希望の連絡方法</label><select><option>メール</option><option>ビデオ通話</option><option>どちらでも</option></select></div>
+        <div class="row check"><input type="checkbox" required id="pp-ja"><label for="pp-ja" style="margin:0;text-transform:none">個人情報の取り扱いに同意します *</label></div>
+        <button type="submit" class="btn btn-dark">送信する</button>
+      </form>
+      <div class="contact-info">
+        <div><span>TEL</span>03-6662-5105　　<span>FAX</span>03-6662-4314</div>
+        <div><span>住所</span>〒124-0006　東京都葛飾区堀切8丁目24番12号</div>
+        <div><span>会社</span>クラックス合同会社（CRUX LLC）</div>
+      </div>
+    </div>
+    <div data-lang="en">
+      <div class="label">Contact</div>
+      <h1>Let's talk.</h1>
+      <p class="sub">All initial consultations with CRUX are complimentary. A 30-minute video call or an email exchange — whichever you prefer. You don't need all the details ready. A question is enough to start.<br><br>CRUX doesn't rush the conversation. Take your time.<br>Languages: Japanese and English</p>
+      <form class="form" onsubmit="return submitForm(event)">
+        <div class="row"><label>Your Name *</label><input required></div>
+        <div class="row"><label>Email Address *</label><input type="email" required></div>
+        <div class="row"><label>Property Location (Country / City)</label><input></div>
+        <div class="row"><label>Property Type</label><select><option>Residential</option><option>Commercial</option><option>Other</option></select></div>
+        <div class="row"><label>What would you like to discuss?</label><textarea></textarea></div>
+        <div class="row"><label>Preferred Contact Method</label><select><option>Email</option><option>Video Call</option><option>No Preference</option></select></div>
+        <div class="row check"><input type="checkbox" required id="pp-en"><label for="pp-en" style="margin:0;text-transform:none">I agree to CRUX's privacy policy *</label></div>
+        <button type="submit" class="btn btn-dark">Send Message</button>
+      </form>
+      <div class="contact-info">
+        <div><span>TEL</span>+81-3-6662-5105　　<span>FAX</span>+81-3-6662-4314</div>
+        <div><span>ADDRESS</span>8-24-12 Horikiri, Katsushika-ku, Tokyo 124-0006, Japan</div>
+        <div><span>COMPANY</span>CRUX LLC（クラックス合同会社）</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="brand">CRUX</span>
+  <div class="foot-tag">
+    <span data-lang="ja">あなたの建築資産を、日本の技術で守る。</span>
+    <span data-lang="en">Building Asset Protection. Japanese Precision.</span>
+  </div>
+  <div class="foot-links">
+    <a href="#"><span data-lang="ja">プライバシーポリシー</span><span data-lang="en">Privacy Policy</span></a>
+    <a href="#about"><span data-lang="ja">会社概要</span><span data-lang="en">About CRUX</span></a>
+  </div>
+  <div class="copyright">© 2026 CRUX LLC / クラックス合同会社. All rights reserved.</div>
+</footer>
+
+<script>
+function setLang(lang){
+  document.body.classList.remove('lang-ja','lang-en');
+  document.body.classList.add('lang-'+lang);
+  document.documentElement.lang=lang;
+  document.getElementById('btnJa').classList.toggle('active',lang==='ja');
+  document.getElementById('btnEn').classList.toggle('active',lang==='en');
+  localStorage.setItem('crux-lang',lang);
+}
+function toggleMenu(){document.getElementById('navLinks').classList.toggle('open')}
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open')));
+function submitForm(e){e.preventDefault();const ja=document.body.classList.contains('lang-ja');alert(ja?'ご連絡ありがとうございます。メッセージを受け取りました。1〜2営業日以内にご返信します。':'Thank you for reaching out. Your message has been received. CRUX will respond within 1–2 business days.');e.target.reset();return false}
+(function(){const s=localStorage.getItem('crux-lang');if(s)setLang(s)})();
+</script>
+
+</body>
+</html>

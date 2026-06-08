@@ -1,0 +1,304 @@
+{
+  "name": "XOP Wiki Q&A Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "telegram-trigger",
+      "name": "📨 Telegram受信",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME",
+          "name": "XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-text",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              }
+            },
+            {
+              "id": "not-command",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "filter-text",
+      "name": "🔍 テキストメッセージのみ",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [420, 400]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "q",
+              "name": "question",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "c",
+              "name": "chatId",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "u",
+              "name": "username",
+              "value": "={{ $json.message.from.username || $json.message.from.first_name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-vars",
+      "name": "📝 質問・ユーザー抽出",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [640, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "FILL_ME_GAS_ENDPOINT",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "get-wiki",
+      "name": "📚 Wiki全文取得 (GAS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Wikiコンテンツ + 質問を Claude プロンプトに整形する\n\nconst question = $('📝 質問・ユーザー抽出').first().json.question;\nconst chatId   = $('📝 質問・ユーザー抽出').first().json.chatId;\nconst username = $('📝 質問・ユーザー抽出').first().json.username;\n\nconst wikiData = $input.first().json;\n\nif (!wikiData.success) {\n  throw new Error('Wiki取得失敗: ' + wikiData.error);\n}\n\nconst systemPrompt = `あなたはプロテケアXOP（株式会社クラックス）の社内Q&Aアシスタントです。\n以下のXOP_Wikiの内容を唯一の情報源として、質問に日本語で答えてください。\n\n【ルール】\n- Wikiに記載のある情報だけを使って回答する\n- 数字（価格・スペック・実績）は正確に引用する\n- Wikiに情報がない場合は「Wikiに記載がありません。詳細は宮脇さんへご確認ください」と答える\n- 回答は簡潔に（最大400文字程度）。重要なポイントを箇条書きで整理する\n- 内部文書なので、社外秘データ（価格・交渉情報等）もそのまま答えてよい\n\n【XOP_Wiki 全文】\n${wikiData.content}`;\n\nconst userMessage = `【質問者】${username}\\n【質問】${question}`;\n\nreturn {\n  chatId,\n  question,\n  username,\n  systemPrompt,\n  userMessage,\n  wikiFileCount: wikiData.fileCount\n};"
+      },
+      "id": "build-prompt",
+      "name": "🧩 プロンプト構築",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1080, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.httpHeaderAuth.value }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"claude-3-5-haiku-20241022\",\n  \"max_tokens\": 1024,\n  \"system\": {{ JSON.stringify($json.systemPrompt) }},\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.userMessage) }}\n    }\n  ]\n}",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "claude-api",
+      "name": "🤖 Claude API呼び出し",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FILL_ME_ANTHROPIC",
+          "name": "Anthropic API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Claude レスポンスからテキストを抽出\nconst response = $input.first().json;\nconst answer = response.content?.[0]?.text || 'エラー: 回答を取得できませんでした';\n\nconst chatId = $('🧩 プロンプト構築').first().json.chatId;\nconst question = $('🧩 プロンプト構築').first().json.question;\nconst wikiFileCount = $('🧩 プロンプト構築').first().json.wikiFileCount;\n\n// Telegramに送るテキストを整形\nconst telegramText = `💡 *XOP Bot の回答*\n\n${answer}\n\n_Wiki参照: ${wikiFileCount}ファイル_`;\n\nreturn {\n  chatId,\n  text: telegramText,\n  originalQuestion: question\n};"
+      },
+      "id": "extract-answer",
+      "name": "✂️ 回答抽出・整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1520, 400]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "telegram-send",
+      "name": "📤 Telegram送信",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1740, 400],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME",
+          "name": "XopGp_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('📝 質問・ユーザー抽出').first().json.chatId }}",
+        "text": "⚠️ エラーが発生しました。しばらく時間をおいて再度お試しください。",
+        "additionalFields": {}
+      },
+      "id": "error-notify",
+      "name": "⚠️ エラー通知",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1300, 600],
+      "credentials": {
+        "telegramApi": {
+          "id": "FILL_ME",
+          "name": "XopGp_bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "📨 Telegram受信": {
+      "main": [
+        [
+          {
+            "node": "🔍 テキストメッセージのみ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 テキストメッセージのみ": {
+      "main": [
+        [
+          {
+            "node": "📝 質問・ユーザー抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 質問・ユーザー抽出": {
+      "main": [
+        [
+          {
+            "node": "📚 Wiki全文取得 (GAS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📚 Wiki全文取得 (GAS)": {
+      "main": [
+        [
+          {
+            "node": "🧩 プロンプト構築",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧩 プロンプト構築": {
+      "main": [
+        [
+          {
+            "node": "🤖 Claude API呼び出し",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Claude API呼び出し": {
+      "main": [
+        [
+          {
+            "node": "✂️ 回答抽出・整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✂️ 回答抽出・整形": {
+      "main": [
+        [
+          {
+            "node": "📤 Telegram送信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["xop", "qa-bot", "telegram"],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-19T00:00:00.000Z",
+  "versionId": "xop-qa-v1"
+}

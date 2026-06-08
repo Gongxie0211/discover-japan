@@ -1,0 +1,688 @@
+{
+  "name": "n8n_xop_qa_bot_v4",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "8dc2e912-1382-4147-9e06-a1ed74a82a81",
+      "name": "📨 Telegram受信",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2000,
+        0
+      ],
+      "webhookId": "e48425fb-c9f3-4ebd-b2c3-0d79c91f4327",
+      "credentials": {
+        "telegramApi": {
+          "id": "tZeGHW8opDbFGKuX",
+          "name": "XOP QA2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "has-text",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              }
+            },
+            {
+              "id": "not-command",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "20ca9af9-7b44-4839-aacb-ea879d5ab63c",
+      "name": "🔍 テキストのみ通過",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        -896,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "question",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "name": "chatId",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "name": "username",
+              "value": "={{ $json.message.from.username || $json.message.from.first_name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0f9a9539-0ca8-4ac6-8f84-bc7e21717782",
+      "name": "📝 変数抽出",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -688,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ──────────────────────────────────────────\n// XOP 音声入力 正規化ノード\n// Whisper の誤認識パターンを修正する\n// ──────────────────────────────────────────\nconst item = $input.first().json;\nlet text = item.question || '';\n\n// 1. 製品・技術用語\ntext = text.replace(/ゾップ|ゾッポ|ExOP|X\\.O\\.P/gi, 'XOP');\ntext = text.replace(/プロテア(?!ケア)|プロテカ|プロテーケア|プロテラ/g, 'プロテケア');\ntext = text.replace(/ウォーターセラミックス|水セラミック/g, 'ウォーターセラミック');\ntext = text.replace(/クラック(?!ス)|クラクス/g, 'クラックス');\n\n// 2. 人名\ntext = text.replace(/湯沢/g, '湯澤');\ntext = text.replace(/稲沢/g, '稲澤');\ntext = text.replace(/中沢/g, '中澤');\ntext = text.replace(/笹木/g, '佐々木');\n\n// 3. 会社名\ntext = text.replace(/パナホーム(?!リフォーム)/g, 'Panaホームリフォーム');\ntext = text.replace(/アルティス/g, 'Artis');\ntext = text.replace(/起訴者/g, 'キーストーン社');\n\n// 先頭の記号除去（= + - @ はスプレッドシートで数式として誤解釈される）\ntext = text.replace(/^[=+\\-@]+/, '');\n\n// 前後の空白・改行を除去\ntext = text.trim();\n\nreturn {\n  ...item,\n  question: text,\n  _normalized: text !== item.question\n};"
+      },
+      "id": "95d15a1e-3c76-428d-bbb8-49991d77d982",
+      "name": "🔤 テキスト正規化",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -464,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://script.google.com/macros/s/AKfycbx1JGu8Qdtinn2ISQGegBLP95E1R48S4_eMEnytR_kxDT-xwCLFkoCqXPvFHfCiwfC5Ug/exec",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "6de0bd4d-56ba-4c4c-ab0c-b1e35cbdb79a",
+      "name": "📚 Wiki取得 (GAS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://app.nocodb.com/api/v2/tables/m4dt4qlrw9ag6k0/records",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "nocoDbApiToken",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            },
+            {
+              "name": "where",
+              "value": "(ステータス,neq,完了)"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xc-token",
+              "value": "=nc_pat_iMb1Gt3rNkvtQk-clGRjtVMVfT2KdOLc2ovQjpxM"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "d03a9244-b0f2-4a6b-adc1-dc4117aa478d",
+      "name": "💼 Deals取得 (NocoDB)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        16
+      ],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "nTeeCZB9IYMUh3EM",
+          "name": "NocoDB Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://app.nocodb.com/api/v2/tables/m83uxghrdtij7gc/records",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "nocoDbApiToken",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "50"
+            },
+            {
+              "name": "where",
+              "value": "(ステータス,neq,Done)"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xc-token",
+              "value": "=nc_pat_iMb1Gt3rNkvtQk-clGRjtVMVfT2KdOLc2ovQjpxM"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "81347bc4-7b9b-4d0d-b7d8-dc5fb8f31ebf",
+      "name": "✅ Tasks取得 (NocoDB)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -240,
+        176
+      ],
+      "credentials": {
+        "nocoDbApiToken": {
+          "id": "nTeeCZB9IYMUh3EM",
+          "name": "NocoDB Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
+      "id": "f4a2b8c1-3e5d-4f67-9012-a8b7c6d5e4f3",
+      "name": "🔀 Merge (Wiki+Deals+Tasks)",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        80,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// 現在日時（JST = UTC+9）\nconst jstNow = new Date(Date.now() + 9 * 60 * 60 * 1000);\nconst todayStr = jstNow.toISOString().slice(0, 10); // YYYY-MM-DD\nconst nowStr   = jstNow.toISOString().slice(0, 16).replace('T', ' '); // YYYY-MM-DD HH:MM\n\nconst question = $('🔤 テキスト正規化').first().json.question;\nconst chatId   = $('🔤 テキスト正規化').first().json.chatId;\nconst username = $('🔤 テキスト正規化').first().json.username;\n\n// 1. Wiki\nconst wikiData = $('📚 Wiki取得 (GAS)').first().json;\nconst wikiContent = wikiData.success ? wikiData.content : '(Wiki取得失敗)';\n\n// 2. Deals\nlet dealsText = '## 現在の案件パイプライン\\n';\nlet dealsCount = 0;\ntry {\n  const dealsData = $('💼 Deals取得 (NocoDB)').first().json;\n  dealsCount = dealsData.list?.length || 0;\n  if (dealsCount > 0) {\n    dealsData.list.forEach(deal => {\n      const fields = Object.entries(deal)\n        .filter(([k]) => !k.startsWith('nc_') && k !== 'Id' && deal[k])\n        .map(([k, v]) => `  ${k}: ${v}`)\n        .join('\\n');\n      dealsText += `\\n### 案件ID: ${deal.Id}\\n${fields}\\n`;\n    });\n    dealsText += `\\n合計 ${dealsCount} 件（完了除く）`;\n  } else {\n    dealsText += '現在アクティブな案件なし';\n  }\n} catch(e) {\n  dealsText += '(取得スキップ)';\n}\n\n// 3. Tasks\nlet tasksText = '## 未完了タスク一覧\\n';\nlet tasksCount = 0;\ntry {\n  const tasksData = $('✅ Tasks取得 (NocoDB)').first().json;\n  tasksCount = tasksData.list?.length || 0;\n  if (tasksCount > 0) {\n    tasksData.list.forEach(task => {\n      const fields = Object.entries(task)\n        .filter(([k]) => !k.startsWith('nc_') && k !== 'Id' && task[k])\n        .map(([k, v]) => `  ${k}: ${v}`)\n        .join('\\n');\n      tasksText += `\\n### タスクID: ${task.Id}\\n${fields}\\n`;\n    });\n    tasksText += `\\n合計 ${tasksCount} 件（Done除く）`;\n  } else {\n    tasksText += '未完了タスクなし';\n  }\n} catch(e) {\n  tasksText += '(取得スキップ)';\n}\n\n// 4. System Prompt\nconst systemPrompt = `あなたはプロテケアXOP（株式会社クラックス）の社内AIアシスタントです。\n以下の情報源を使って、質問に日本語で答えてください。\n\n【現在日時】${nowStr} JST（今日は ${todayStr} です）\n「今日」「今週」「明日」などの相対日付は、必ずこの日付を基準に判断すること。\n\n【ルール】\n- 数字（価格・スペック・日付）は正確に引用する\n- 情報がない場合は「記録にありません。詳細は宮脇さんへご確認ください」と答える\n- 回答は箇条書きで整理する（質問が複数ある場合はすべてに答える）\n- 内部文書なので社外秘データもそのまま回答してよい\n\n【音声誤認識の補正】\n\"ゾップ\"→\"XOP\"、\"プロテカ\"→\"プロテケア\"、\"クラック\"→\"クラックス\" などの誤認識を自動補正して解釈すること。\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n【情報源1: XOP製品・戦略Wiki】\n${wikiContent}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n【情報源2: 案件パイプライン（リアルタイム）】\n${dealsText}\n\n━━━━━━━━━━━━━━━━━━━━━━━━\n【情報源3: タスク管理（リアルタイム）】\n${tasksText}`;\n\nconst userMessage = `【質問者】${username}\\n【質問】${question}`;\n\nreturn {\n  chatId,\n  question,\n  username,\n  systemPrompt,\n  userMessage,\n  wikiFileCount: wikiData.fileCount || 0,\n  dealsCount,\n  tasksCount\n};"
+      },
+      "id": "3d75165d-eee4-474b-b675-cf3c5159b855",
+      "name": "🧩 プロンプト構築 (Wiki+DB)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"system_instruction\": {\n    \"parts\": [{\"text\": {{ JSON.stringify($json.systemPrompt) }}}]\n  },\n  \"contents\": [\n    {\n      \"role\": \"user\",\n      \"parts\": [{\"text\": {{ JSON.stringify($json.userMessage) }}}]\n    }\n  ],\n  \"generationConfig\": {\n    \"maxOutputTokens\": 8192,\n    \"temperature\": 0.3\n  }\n}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "7acf7b3d-8ad0-45a4-b843-51d1b6c2ce56",
+      "name": "🤖 Gemini API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        16
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "4sWPIcRFBrnteNvV",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n\n// Gemini の Markdown を Telegram HTML に変換\nfunction mdToHtml(text) {\n  return text\n    // コードブロック（```）\n    .replace(/```[\\s\\S]*?```/g, m => `<pre>${m.replace(/```/g, '').trim()}</pre>`)\n    // インラインコード\n    .replace(/`([^`]+)`/g, '<code>$1</code>')\n    // 太字 **text** or __text__\n    .replace(/\\*\\*(.+?)\\*\\*/g, '<b>$1</b>')\n    .replace(/__(.+?)__/g, '<b>$1</b>')\n    // 斜体 *text* or _text_\n    .replace(/\\*(.+?)\\*/g, '<i>$1</i>')\n    .replace(/_([^_]+)_/g, '<i>$1</i>')\n    // 見出し → 太字\n    .replace(/^#{1,3} (.+)$/gm, '<b>$1</b>')\n    // 箇条書き - → •\n    .replace(/^[\\-\\*] /gm, '• ')\n    // HTML特殊文字のエスケープ（変換後の < > は除外）\n    // ※ <b> <i> <code> <pre> は既に挿入済みなのでそのまま\n    .trim();\n}\n\nconst rawAnswer = response.candidates?.[0]?.content?.parts?.[0]?.text\n  || 'エラー：回答を取得できませんでした';\n\nconst answer  = mdToHtml(rawAnswer);\nconst chatId  = $('🧩 プロンプト構築 (Wiki+DB)').first().json.chatId;\nconst question = $('🧩 プロンプト構築 (Wiki+DB)').first().json.question;\nconst wikiCount  = $('🧩 プロンプト構築 (Wiki+DB)').first().json.wikiFileCount;\nconst dealsCount = $('🧩 プロンプト構築 (Wiki+DB)').first().json.dealsCount;\nconst tasksCount = $('🧩 プロンプト構築 (Wiki+DB)').first().json.tasksCount;\n\nconst footer = `\\n\\n<i>参照: Wiki${wikiCount}件 / 案件${dealsCount}件 / タスク${tasksCount}件</i>`;\nconst text = `💡 <b>XOP Bot</b>\\n\\n❓ <b>${question}</b>\\n\\n${answer}${footer}`;\n\nreturn { chatId, text, question, answer: rawAnswer };  // ログ用にrawAnswerを保持\n"
+      },
+      "id": "2d1af2f5-36c0-4972-a879-fbef7af82207",
+      "name": "✂️ 回答整形",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "76b23a41-611c-4f13-ad8b-b9e0db696dbe",
+      "name": "📤 Telegram返信",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        16
+      ],
+      "webhookId": "ee0c93c5-298e-4387-b660-c5946aacbc55",
+      "credentials": {
+        "telegramApi": {
+          "id": "tZeGHW8opDbFGKuX",
+          "name": "XOP QA2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-voice",
+              "leftValue": "={{ $json.message.voice ? 'yes' : 'no' }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "974e2ca6-f071-429e-aec2-7ecd8973e8de",
+      "name": "IF Voice",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "286332a8-8a35-443f-b280-c778eb2ea63f",
+      "name": "Telegram Get Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1536,
+        -64
+      ],
+      "webhookId": "50a19bd0-3b50-4a65-8f64-2a5929f49b1c",
+      "credentials": {
+        "telegramApi": {
+          "id": "tZeGHW8opDbFGKuX",
+          "name": "XOP QA2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "id": "7a02896b-c47a-44fb-9cf0-ae5258f48641",
+      "name": "Transcribe a recording",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1312,
+        -64
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "4sWPIcRFBrnteNvV",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4dbbd64-df87-43f4-b636-a35cc1310ccd",
+              "name": "message.text",
+              "value": "=={{ $('Transcribe a recording').item.json.content.parts[0].text }}",
+              "type": "string"
+            },
+            {
+              "id": "f71b8cc0-a57d-43a8-ad2d-b0fbcc68a17e",
+              "name": "message.from.username",
+              "value": "={{ $('📨 Telegram受信').first().json.message.from.username }}",
+              "type": "string"
+            },
+            {
+              "id": "1a17871b-e3a7-4005-86d5-5237c550e2c2",
+              "name": "message.from.first_name",
+              "value": "=={{ $('📨 Telegram受信').first().json.message.from.first_name }}",
+              "type": "string"
+            },
+            {
+              "id": "735bee95-72a4-4b28-a6ac-7a34fa16490f",
+              "name": "message.chat.id",
+              "value": "={{ $('📨 Telegram受信').first().json.message.chat.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        -224
+      ],
+      "id": "5e1d5343-17de-43bb-94d4-7fb256903328",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://script.google.com/macros/s/AKfycbx1JGu8Qdtinn2ISQGegBLP95E1R48S4_eMEnytR_kxDT-xwCLFkoCqXPvFHfCiwfC5Ug/exec",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"action\": \"log_qa\",\n  \"timestamp\": \"{{ $now.toISO() }}\",\n  \"username\": {{ JSON.stringify(($('📨 Telegram受信').first().json.message?.from?.first_name || '') + ($('📨 Telegram受信').first().json.message?.from?.last_name ? ' ' + $('📨 Telegram受信').first().json.message?.from?.last_name : '')) }},\n  \"question\": {{ JSON.stringify($('✂️ 回答整形').first().json.question) }},\n  \"answer\": {{ JSON.stringify($('✂️ 回答整形').first().json.answer) }},\n  \"chatId\": {{ JSON.stringify(String($('✂️ 回答整形').first().json.chatId)) }}\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 15000
+        }
+      },
+      "id": "b9c8d7e6-f5a4-3b21-c0d9-e8f7a6b5c4d3",
+      "name": "📊 QAログ記録",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        16
+      ],
+      "notes": "質問・回答をスプレッドシートにログ記録（GAS doPost）",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "📨 Telegram受信": {
+      "main": [
+        [
+          {
+            "node": "IF Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Voice": {
+      "main": [
+        [
+          {
+            "node": "Telegram Get Voice File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🔍 テキストのみ通過",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Get Voice File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "🔍 テキストのみ通過",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 テキストのみ通過": {
+      "main": [
+        [
+          {
+            "node": "📝 変数抽出",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 変数抽出": {
+      "main": [
+        [
+          {
+            "node": "🔤 テキスト正規化",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔤 テキスト正規化": {
+      "main": [
+        [
+          {
+            "node": "📚 Wiki取得 (GAS)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "💼 Deals取得 (NocoDB)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "✅ Tasks取得 (NocoDB)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📚 Wiki取得 (GAS)": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge (Wiki+Deals+Tasks)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💼 Deals取得 (NocoDB)": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge (Wiki+Deals+Tasks)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "✅ Tasks取得 (NocoDB)": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge (Wiki+Deals+Tasks)",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "🔀 Merge (Wiki+Deals+Tasks)": {
+      "main": [
+        [
+          {
+            "node": "🧩 プロンプト構築 (Wiki+DB)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧩 プロンプト構築 (Wiki+DB)": {
+      "main": [
+        [
+          {
+            "node": "🤖 Gemini API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 Gemini API": {
+      "main": [
+        [
+          {
+            "node": "✂️ 回答整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "✂️ 回答整形": {
+      "main": [
+        [
+          {
+            "node": "📤 Telegram返信",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📤 Telegram返信": {
+      "main": [
+        [
+          {
+            "node": "📊 QAログ記録",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e918e993-1da2-491b-b989-1da2efc208a4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "816fb8f2b603f590a4ad66bc1106a6802f6c764ce0e0ba6b43d123387f80d7eb"
+  },
+  "id": "BFvqTOz30GdgZJgV",
+  "tags": []
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>秘密保持契約書（NDA）修正経緯・戦略サマリー</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+            line-height: 1.8;
+            color: #2d3748;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background-color: #f7fafc;
+        }
+        h1 {
+            text-align: center;
+            color: #1a202c;
+            border-bottom: 3px solid #3182ce;
+            padding-bottom: 15px;
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #2b6cb0;
+            border-left: 5px solid #2b6cb0;
+            padding-left: 12px;
+            margin-top: 30px;
+        }
+        .overview-box {
+            background-color: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+        }
+        .overview-box p {
+            margin: 0;
+            font-weight: bold;
+            color: #2b6cb0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        th {
+            background-color: #edf2f7;
+            color: #4a5568;
+            font-weight: bold;
+            width: 25%;
+        }
+        .v1-text {
+            color: #e53e3e;
+            background-color: #fff5f5;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        .v2-text {
+            color: #38a169;
+            background-color: #f0fff4;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.95em;
+            font-weight: bold;
+        }
+        .intent {
+            font-size: 0.95em;
+            color: #4a5568;
+        }
+        .highlight {
+            background-color: #fefcbf;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>秘密保持契約書（NDA）修正経緯・戦略サマリー</h1>
+
+    <div class="overview-box">
+        <p>【基本方針】製造元キーストン社が最も懸念する「海外顧客（甲）による成分分析・コピー製品の製造」の絶対的阻止と、実務コスト（円安リスク等）を考慮した現実的な防衛ラインの構築。</p>
+    </div>
+
+    <h2>主要な修正箇所と変更のロジック</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>対象条項</th>
+                <th>元案（V1）の課題・リスク</th>
+                <th>確定案（V2）の設計</th>
+                <th>修正の戦略的意図</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>第1条<br>（秘密情報）<br>立証責任</th>
+                <td>秘密情報から除外される条件（公知情報など）について、<b>どちらが証明すべきか</b>が曖昧。</td>
+                <td class="v2-text">「除外事由の立証責任は、それを主張する側が負う」旨を明記。</td>
+                <td class="intent">顧客側が「これは既に知っていた」と言い張って勝手に秘密扱いをやめるリスクを封じ込めました。</td>
+            </tr>
+            <tr>
+                <th>第2条<br>（秘密保持）<br>主客転倒のバグ</th>
+                <td>「乙（クラックス）がキーストンや下請に開示できる」となっており、流用による<b>主客が逆転したコピペミス</b>が存在。</td>
+                <td class="v2-text">「甲（顧客）が現地業者を使う場合、乙の事前書面承諾を必須とする」形へ修正。</td>
+                <td class="intent">海外の顧客が、現地の施工業者を巻き込んで製品情報をリーク・悪用するルートを完全にコントロール下に置きました。</td>
+            </tr>
+            <tr>
+                <th>第6条<br>（新設）<br>成分分析の禁止</th>
+                <td>リバースエンジニアリング（成分分析）を禁止する規定が<b>一切存在しなかった</b>。</td>
+                <td class="v2-text">「知的財産権等の取扱い」という一般的な条項の中に、リバースエンジニアリング禁止を自然に混入。</td>
+                <td class="intent">「成分を分析するな」と強調しすぎると逆に好奇心を煽るため、<b>よくある知財条項を装ってカモフラージュ</b>しました。</td>
+            </tr>
+            <tr>
+                <th>第7条<br>（有効期間）<br>耐久年数への対応</th>
+                <td>秘密保持の存続期間が「2〜3年」の空欄。製品保証（15年）・寿命（30年）に対して<b>短すぎて破綻</b>していた。</td>
+                <td class="v2-text">契約自体は3年、満了後の秘密保持・知財条項は<span class="highlight">「期間の定めなく無期限」</span>に。</td>
+                <td class="intent">16年目以降に「まだ現役で機能している製品」を削り取って分析されるのを防ぐため永続化。交渉されたら「製品寿命が30年だから」と30年へ着地させる2の矢も確保。</td>
+            </tr>
+            <tr>
+                <th>第8条<br>（損害賠償）<br>実効性の担保</th>
+                <td>「通常の損害を賠償する」のみ。海外企業相手に日本側が「実際の損害額」を証明するのは困難。</td>
+                <td class="v2-text">分析・コピーの違反に対し、損害の有無を問わず<span class="highlight">「違約金100,000ドル」</span>の支払いを義務付け。</td>
+                <td class="intent">円安下での国際仲裁はコスト（3〜5倍）が合いません。裁判籍は「東京地裁」に据え置き、その代わり契約書上の文字の力（高額な違約金）で強い威嚇効果を持たせました。</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>今後の交渉戦略アドバイス</h2>
+    <ul>
+        <li>相手方の法務から<b>「無期限（第7条）は長すぎる」</b>と突っ込まれた場合、「本製品は30年以上の耐久性を持つ特殊溶剤であるため、技術保護の観点からこれ未満にはできない」とロジカルに反論し、最終的に<b>「30年間」</b>の存続で合意を取り付けるのがベストな落とし所です。</li>
+        <li><b>違約金100,000ドル</b>の表記により、真面目な海外企業であれば「コピーに手を染めたときのリスクが割に合わない」と判断するため、事前の抑止力として極めて強固に機能します。</li>
+    </ul>
+
+</body>
+</html>

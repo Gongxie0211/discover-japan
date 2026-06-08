@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>XOP / kichi ドバイ展示会 ガントチャート</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', 'Helvetica Neue', Arial, sans-serif;
+  background: #eef0f3;
+  padding: 32px;
+  color: #2d3436;
+}
+h1 { font-size: 19px; color: #1F4E79; margin-bottom: 4px; }
+.meta { font-size: 11px; color: #999; margin-bottom: 20px; }
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 14px rgba(0,0,0,.08);
+  overflow-x: auto;
+}
+
+/* ─── Row layout ─── */
+.row { display: flex; align-items: center; margin: 3px 0; min-height: 32px; }
+.row:hover { background: #f8f9fa; border-radius: 4px; }
+
+.label-col { width: 285px; min-width: 285px; padding-right: 14px; }
+.t-name  { font-size: 12px; color: #2d3436; display: flex; align-items: center; gap: 4px; }
+.t-sub   { font-size: 10px; color: #b2bec3; margin-top: 1px; padding-left: 18px; }
+
+/* ─── Timeline column ─── */
+.tl {
+  flex: 1; min-width: 520px;
+  position: relative; height: 28px;
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent calc(100%/17 - 1px), #f0f2f5 calc(100%/17 - 1px), #f0f2f5 calc(100%/17));
+}
+
+/* Month separators */
+.tl::before, .tl::after, .sep3 {
+  content: ''; position: absolute; top: 0; bottom: 0;
+  width: 1px; background: #c8cdd3; pointer-events: none; z-index: 1;
+}
+.tl::before { left: 24.6%; }   /* Jul 1  = day 29/118 */
+.tl::after  { left: 50.8%; }   /* Aug 1  = day 60/118 */
+
+/* Sep 1 separator injected via extra span */
+.sep3 { position: absolute; top: 0; bottom: 0; left: 77.1%; width: 1px; background: #c8cdd3; pointer-events: none; z-index: 1; }
+
+/* ─── Bars ─── */
+.bar {
+  position: absolute; top: 5px; height: 18px;
+  border-radius: 4px;
+  font-size: 10px; color: #fff; font-weight: 500;
+  padding: 0 7px;
+  white-space: nowrap; overflow: hidden;
+  display: flex; align-items: center;
+  z-index: 2;
+}
+.bar.hi  { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+.bar.mid { background: linear-gradient(90deg, #d35400, #e67e22); }
+.bar.dep { background: linear-gradient(90deg, #1a5276, #2980b9); }
+.bar.ok  { background: linear-gradient(90deg, #1e8449, #27ae60); }
+.bar.ms  { background: linear-gradient(90deg, #6c3483, #9b59b6); border-radius: 4px 10px 10px 4px; }
+
+/* Today marker */
+.today-line {
+  position: absolute; top: 0; bottom: 0; width: 2px;
+  background: #e74c3c; opacity: .45; z-index: 5;
+}
+.today-line::before {
+  content: '▼ 今日'; position: absolute;
+  top: -17px; left: -12px;
+  font-size: 9px; color: #e74c3c; font-weight: 700; white-space: nowrap;
+}
+
+/* Deadline flag */
+.dl {
+  position: absolute; top: 0; height: 28px;
+  width: 2px; background: rgba(231,76,60,.55); z-index: 5;
+}
+.dl::before {
+  content: '締切'; position: absolute;
+  top: -16px; left: -10px;
+  font-size: 9px; color: #e74c3c; white-space: nowrap;
+}
+
+/* ─── Section headers ─── */
+.section {
+  display: flex; align-items: center; gap: 10px;
+  background: #1F4E79; color: #fff;
+  padding: 6px 12px; margin: 14px 0 5px 0;
+  border-radius: 5px; font-size: 12px; font-weight: 700;
+}
+.section .s-sub { font-size: 10px; background: rgba(255,255,255,.2); padding: 1px 7px; border-radius: 10px; margin-left: auto; }
+.ms-section { background: linear-gradient(90deg, #5b2c83, #8e44ad); }
+
+/* ─── Header row ─── */
+.header-row { display: flex; margin-bottom: 2px; }
+.h-label {
+  width: 285px; min-width: 285px;
+  font-size: 11px; color: #aaa; padding-bottom: 6px;
+  border-bottom: 2px solid #1F4E79;
+}
+.h-months {
+  flex: 1; min-width: 520px;
+  display: flex;
+  border-bottom: 2px solid #1F4E79; padding-bottom: 6px;
+}
+.hm { font-size: 11px; font-weight: 700; color: #1F4E79; text-align: center; }
+.hm-june { width: 24.6%; }
+.hm-july { width: 26.3%; }
+.hm-aug  { width: 26.3%; }
+.hm-sep  { width: 22.9%; }
+
+/* ─── Legend ─── */
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px; font-size: 11px; color: #636e72; }
+.leg { display: flex; align-items: center; gap: 5px; }
+.ld { width: 18px; height: 10px; border-radius: 2px; }
+
+/* ─── Risk box ─── */
+.risk-box {
+  margin-top: 18px;
+  background: #fef9e7;
+  border-left: 3px solid #f39c12;
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  font-size: 11px; color: #555; line-height: 1.75;
+}
+</style>
+</head>
+<body>
+
+<h1>XOP / kichi　ドバイ展示会　アクションプラン</h1>
+<p class="meta">作成：2026年6月1日　　展示会：2026年9月27日（残り約118日）　　Timeline: 6/1 → 9/27（17週）</p>
+
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header-row">
+    <div class="h-label">タスク / 担当</div>
+    <div class="h-months">
+      <div class="hm hm-june">6月　June</div>
+      <div class="hm hm-july">7月　July</div>
+      <div class="hm hm-aug">8月　Aug</div>
+      <div class="hm hm-sep">9月　Sep</div>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 1: 今すぐ ════ -->
+  <div class="section">
+    🔴 今すぐ（今週中）
+    <span class="s-sub">着手：6月第1週</span>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🔴 キーストンへ一括確認</div>
+      <div class="t-sub">吉岡さん → キーストン社</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="today-line" style="left:0.8%;"></div>
+      <div class="bar hi" style="left:0%;width:5.9%;">SDS・PFAS・CAS</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🔴 展示会事務局へ確認</div>
+      <div class="t-sub">北庄司 or 吉岡さん</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar hi" style="left:0%;width:4.2%;">一時輸入・申込書類</div>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 2: 1〜2週間 ════ -->
+  <div class="section">
+    🟡 1〜2週間以内
+    <span class="s-sub">〜6月15日目安</span>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🔴 NDA 英語版ドラフト作成</div>
+      <div class="t-sub">宮脇 ＋ 弁護士レビュー　※最優先</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar hi" style="left:0%;width:11.9%;">バイヤー接触前に完成必須</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🟡 TDS（技術仕様書）英語版 完成</div>
+      <div class="t-sub">宮脇 ＋ AI　（70%完成済み）</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar mid" style="left:0%;width:8.5%;">残り30%</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🟡 ロゴ発注・デザイナー契約</div>
+      <div class="t-sub">北庄司　（6/30 締切）</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar mid" style="left:0%;width:24.6%;">〜6月30日</div>
+      <div class="dl" style="left:24.6%;"></div>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 3: キーストン回答後 ════ -->
+  <div class="section">
+    🔵 キーストン回答後（2〜4週間後想定）
+    <span class="s-sub">6月中旬〜7月</span>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🔴 英語版 SDS 完成</div>
+      <div class="t-sub">吉岡 → キーストン　⚠️ 外部依存</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar dep" style="left:5.9%;width:17.8%;">キーストン次第でズレる</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🔴 アラビア語 SDS 翻訳</div>
+      <div class="t-sub">AI ドラフト ＋ 翻訳者レビュー</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar hi" style="left:23.7%;width:11.9%;">英語SDS完成後すぐ</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🔴 アラビア語ラベル設計</div>
+      <div class="t-sub">宮脇</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar hi" style="left:29.7%;width:17.8%;"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🟡 英語版 販売契約書・見積書</div>
+      <div class="t-sub">宮脇 ＋ 弁護士</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar mid" style="left:5.9%;width:23.7%;"></div>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 4: 7月末まで ════ -->
+  <div class="section">
+    📋 7月末まで
+    <span class="s-sub">展示会2ヶ月前</span>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🟡 販売価格・代理店規約 社長確認</div>
+      <div class="t-sub">吉岡 ＋ 宮脇 → 社長</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar mid" style="left:36.4%;width:14.4%;"></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🟡 DED 輸入ライセンス申請</div>
+      <div class="t-sub">現地コンサル経由　（処理に2〜3週間）</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar mid" style="left:42.4%;width:17.8%;">処理期間含む</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">🟡 展示会サンプル 一時輸入手配</div>
+      <div class="t-sub">吉岡 or 北庄司</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar mid" style="left:42.4%;width:23.7%;"></div>
+    </div>
+  </div>
+
+  <!-- ════ SECTION 5: 8月末まで ════ -->
+  <div class="section">
+    ✅ 8月末まで
+    <span class="s-sub">展示会1ヶ月前</span>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name">✅ 全書類 最終確認</div>
+      <div class="t-sub">クラックス全体　SDS・ラベル・NDA・DED</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar ok" style="left:72%;width:12.7%;">全員でダブルチェック</div>
+    </div>
+  </div>
+
+  <!-- ════ MILESTONE ════ -->
+  <div class="section ms-section">
+    🎯 9月27日　ドバイ展示会　本番
+    <span class="s-sub">目標：代理店候補との接点獲得</span>
+  </div>
+
+  <div class="row">
+    <div class="label-col">
+      <div class="t-name" style="font-weight:700;color:#6c3483;">🎯 ドバイ展示会</div>
+      <div class="t-sub">全員</div>
+    </div>
+    <div class="tl">
+      <span class="sep3"></span>
+      <div class="bar ms" style="left:94.9%;width:5.1%;">9/27</div>
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg"><div class="ld" style="background:linear-gradient(90deg,#c0392b,#e74c3c)"></div>🔴 高優先・必須</div>
+    <div class="leg"><div class="ld" style="background:linear-gradient(90deg,#d35400,#e67e22)"></div>🟡 中優先</div>
+    <div class="leg"><div class="ld" style="background:linear-gradient(90deg,#1a5276,#2980b9)"></div>🔵 外部依存あり</div>
+    <div class="leg"><div class="ld" style="background:linear-gradient(90deg,#1e8449,#27ae60)"></div>✅ 最終確認</div>
+    <div class="leg"><div class="ld" style="background:linear-gradient(90deg,#6c3483,#9b59b6)"></div>🎯 マイルストーン</div>
+    <div class="leg"><div style="width:2px;height:12px;background:#e74c3c;opacity:.5;"></div> 締切ライン</div>
+    <div class="leg"><div style="width:2px;height:12px;background:#e74c3c;"></div> 今日（6/1）</div>
+  </div>
+
+  <!-- RISK BOX -->
+  <div class="risk-box">
+    <strong>⚠️ スケジュール上の最大リスク：</strong><br>
+    「英語版 SDS」はキーストン社の対応次第。遅れると <strong>アラビア語SDS → ラベル設計 → UAE輸入手続き</strong> がすべて後ろ倒しになる。<br>
+    <strong>今週中のキーストンへの依頼が、展示会に間に合うかどうかを決める。</strong>
+  </div>
+
+</div>
+
+</body>
+</html>

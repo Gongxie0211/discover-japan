@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>SDS重要確認依頼 — 株式会社キーストン御中</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:   #1F4E79;
+  --red:    #C0392B;
+  --orange: #D35400;
+  --lred:   #FDEDEC;
+  --lorange:#FEF5EC;
+  --lblue:  #EBF5FB;
+  --gray:   #636E72;
+  --border: #DFE6E9;
+  --text:   #2D3436;
+}
+
+body {
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic UI', sans-serif;
+  color: var(--text);
+  font-size: 11pt;
+  line-height: 1.7;
+  background: #fff;
+  padding: 0;
+  margin: 0;
+}
+
+.page {
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 20mm 18mm;
+}
+
+/* ── Header ── */
+.doc-header {
+  background: var(--navy);
+  color: #fff;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+.doc-header h1 {
+  font-size: 14pt;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.doc-header .sub {
+  font-size: 9pt;
+  opacity: 0.75;
+  margin-top: 3px;
+}
+
+/* ── Meta table ── */
+.meta-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 10pt; }
+.meta-table td { padding: 5px 8px; vertical-align: top; }
+.meta-table .label { width: 80px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+.meta-table .urgent { color: var(--red); font-weight: 700; }
+
+/* ── Divider ── */
+.divider { border: none; border-top: 2.5px solid var(--navy); margin: 16px 0; }
+
+/* ── Section heading ── */
+.section-title {
+  font-size: 11pt;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 8px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px; height: 16px;
+  background: var(--navy);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ── Body text ── */
+.body-text { font-size: 10pt; margin-bottom: 12px; }
+
+/* ── Flag card ── */
+.flag-card {
+  border-radius: 6px;
+  margin-bottom: 18px;
+  overflow: hidden;
+  border: 1.5px solid;
+}
+.flag-card.red  { border-color: var(--red); }
+.flag-card.orange { border-color: var(--orange); }
+
+.flag-header {
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 11pt;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flag-card.red    .flag-header { background: var(--red);    color: #fff; }
+.flag-card.orange .flag-header { background: var(--orange); color: #fff; }
+
+.flag-body { padding: 12px 14px; }
+.flag-card.red    .flag-body { background: var(--lred); }
+.flag-card.orange .flag-body { background: var(--lorange); }
+
+.flag-row { display: flex; gap: 10px; margin-bottom: 6px; font-size: 10pt; }
+.flag-row .flabel {
+  font-weight: 700; color: var(--navy);
+  min-width: 130px; flex-shrink: 0;
+  font-size: 9.5pt;
+}
+
+/* ── Comparison table ── */
+.comp-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt; }
+.comp-table th {
+  background: var(--navy); color: #fff;
+  padding: 6px 10px; text-align: left;
+  font-weight: 700;
+}
+.comp-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.comp-table tr:nth-child(even) td { background: #F8FAFB; }
+.badge {
+  display: inline-block;
+  padding: 1px 7px; border-radius: 10px;
+  font-size: 9pt; font-weight: 700;
+}
+.badge.ok  { background: #D5F5E3; color: #1E8449; }
+.badge.ng  { background: #FADBD8; color: var(--red); }
+
+/* ── Response table ── */
+.resp-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10pt; }
+.resp-table th {
+  background: var(--navy); color: #fff;
+  padding: 7px 10px; text-align: left;
+  font-weight: 700; font-size: 9.5pt;
+}
+.resp-table th:first-child { width: 42%; }
+.resp-table td {
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+.resp-table tr:nth-child(odd) td:first-child  { background: var(--lblue); }
+.resp-table tr:nth-child(even) td:first-child { background: #F4F6F8; }
+.resp-table .hint { font-size: 8.5pt; color: #AAAAAA; font-style: italic; }
+
+/* ── Footer ── */
+.doc-footer {
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 9pt;
+  color: var(--gray);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+/* ── Print ── */
+@media print {
+  body { font-size: 10pt; }
+  .page { padding: 15mm 14mm; max-width: 100%; }
+  .flag-card { page-break-inside: avoid; }
+  .resp-table { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <h1>安全データシート（SDS）作成に関する重要確認依頼</h1>
+    <div class="sub">Confirmation Request regarding Safety Data Sheet Preparation — Protocare XOP / kichi</div>
+  </div>
+
+  <!-- META -->
+  <table class="meta-table">
+    <tr><td class="label">宛　先</td><td>株式会社キーストン　御中</td></tr>
+    <tr><td class="label">発　信</td><td>クラックス株式会社　（担当：吉岡 / 宮脇）</td></tr>
+    <tr><td class="label">日　付</td><td>2026年6月</td></tr>
+    <tr><td class="label">件　名</td><td>プロトケアXOP 英語版・アラビア語版SDS作成に係る技術情報の確認</td></tr>
+    <tr><td class="label">緊急度</td><td class="urgent">⚠️ 早急にご回答をお願いします（ドバイ展示会：2026年9月27日）</td></tr>
+  </table>
+
+  <hr class="divider">
+
+  <!-- 背景 -->
+  <div class="section-title">確認の背景および目的</div>
+  <p class="body-text">
+    クラックス株式会社は、プロトケアXOPを「kichi」ブランドで海外展開することを計画しており、2026年9月27日のドバイ展示会（UAE）への出品を予定しています。UAE市場への輸入・展示・販売にあたり、英語版およびアラビア語版の安全データシート（SDS）がGHS規格（16セクション形式）で必要となります。
+  </p>
+  <p class="body-text">
+    SDS作成作業の過程で、GHS分類に影響を与える可能性のある<strong>2点の技術的事項</strong>について、製造元であるキーストン様への確認が必要であることが判明しました。誤った分類のままSDSを発行することはUAE当局への申請において重大なコンプライアンス上の問題となることから、下記の通りご確認をお願い申し上げます。
+  </p>
+
+  <!-- FLAG 1 -->
+  <div class="section-title">重要フラグ</div>
+
+  <div class="flag-card red">
+    <div class="flag-header">
+      🚨&nbsp; 確認事項１　含有シリカの種類（非晶質 / 結晶質）
+    </div>
+    <div class="flag-body">
+      <div class="flag-row">
+        <span class="flabel">【状況】</span>
+        <span>SDSのSection 3（成分情報）作成において、シリカ（Silica）のCAS番号を記載する必要が生じました。シリカには以下の2種類があり、GHS分類上の取り扱いが根本的に異なります。</span>
+      </div>
+
+      <table class="comp-table">
+        <thead>
+          <tr><th>種類</th><th>CAS番号</th><th>GHS発がん性分類</th><th>影響</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>非晶質シリカ<br><small>Amorphous Silica</small></td>
+            <td>7631-86-9</td>
+            <td><span class="badge ok">分類対象外</span></td>
+            <td>SDS変更不要</td>
+          </tr>
+          <tr>
+            <td><strong>結晶質シリカ</strong><br><small>Crystalline Silica</small></td>
+            <td><strong>14808-60-7</strong></td>
+            <td><span class="badge ng">発がん性 区分1A<br>IARC Group 1</span></td>
+            <td><strong>Section 2・8・11が大幅変更必要</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="flag-row" style="margin-top:10px;">
+        <span class="flabel">【影響範囲】</span>
+        <span>結晶質シリカが含まれる場合、SDSのSection 2（危険有害性の要約）・Section 8（ばく露防止措置）・Section 11（有害性情報）の記載が大幅に変わります。また、UAE当局への申請書類全体に影響します。</span>
+      </div>
+      <div class="flag-row">
+        <span class="flabel">【お願い】</span>
+        <span>含まれるシリカの種類（非晶質 or 結晶質）と、正確なCAS番号および含有量（%）をご教示ください。</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLAG 2 -->
+  <div class="flag-card orange">
+    <div class="flag-header">
+      ⚠️&nbsp; 確認事項２　フッ素ポリマーのPFAS（有機フッ素化合物）該当性
+    </div>
+    <div class="flag-body">
+      <div class="flag-row">
+        <span class="flabel">【状況】</span>
+        <span>プロトケアXOPの主成分はフッ素ポリマー（Fluoropolymer）です。近年、PFAS（有機フッ素化合物）に対する国際的な規制強化が急速に進んでいます。</span>
+      </div>
+
+      <table class="comp-table">
+        <thead><tr><th>地域</th><th>規制状況</th></tr></thead>
+        <tbody>
+          <tr><td>EU（REACH）</td><td>2023年以降大幅強化。多くのフッ素系化合物が使用制限対象に</td></tr>
+          <tr><td>米国（EPA）</td><td>2024年にPFAS最終規制を発表</td></tr>
+          <tr><td>UAE・中東</td><td>現時点では包括規制なし。ただしEUに追随する傾向あり</td></tr>
+        </tbody>
+      </table>
+
+      <div class="flag-row" style="margin-top:10px;">
+        <span class="flabel">【影響範囲】</span>
+        <span>SDSのSection 11（有害性情報）・Section 12（環境影響）・Section 15（適用法令）の記載に直接影響します。また、欧州系バイヤーへの販売時に「PFAS不含証明」を求められる可能性があります。</span>
+      </div>
+      <div class="flag-row">
+        <span class="flabel">【お願い】</span>
+        <span>① 製品にPFOS（ペルフルオロオクタンスルホン酸）またはPFOA（ペルフルオロオクタン酸）が含まれますか？　② 製品全体としてPFAS定義に該当する化合物を含みますか？</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 回答欄 -->
+  <div class="section-title">ご回答欄</div>
+  <table class="resp-table">
+    <thead><tr><th>確認項目</th><th>ご回答（記入欄）</th></tr></thead>
+    <tbody>
+      <tr><td>① シリカの種類</td><td><span class="hint">非晶質 ／ 結晶質 ／ 両方 ／ 含有なし</span></td></tr>
+      <tr><td>② シリカのCAS番号</td><td><span class="hint">7631-86-9 ／ 14808-60-7 ／ その他：</span></td></tr>
+      <tr><td>③ シリカの含有量（%）</td><td><span class="hint">例：9.3〜9.6%</span></td></tr>
+      <tr><td>④ PFOS 不含の可否</td><td><span class="hint">不含 ／ 含有（含有量：　　　%）</span></td></tr>
+      <tr><td>⑤ PFOA 不含の可否</td><td><span class="hint">不含 ／ 含有（含有量：　　　%）</span></td></tr>
+      <tr><td>⑥ PFAS該当フッ素化合物の有無</td><td><span class="hint">なし ／ あり（種類：　　　　　　）</span></td></tr>
+      <tr><td>⑦ ご回答いただける期日</td><td><span class="hint">　　年　　月　　日</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- 追加確認事項 -->
+  <div class="section-title" style="margin-top:18px; color:var(--gray);">
+    <span style="font-size:10pt; color:var(--gray);">あわせてご確認いただきたい事項（SDS完成のために必要）</span>
+  </div>
+  <table class="resp-table">
+    <thead><tr><th>確認項目</th><th>ご回答（記入欄）</th></tr></thead>
+    <tbody>
+      <tr><td>⑧ 緊急連絡先（海外用）</td><td><span class="hint">電話番号・担当者名</span></td></tr>
+      <tr><td>⑨ VOC含有量</td><td><span class="hint">例：〇g/L以下、または無溶剤</span></td></tr>
+      <tr><td>⑩ 保管条件・有効期限</td><td><span class="hint">例：5〜35℃、直射日光を避ける。製造から2年</span></td></tr>
+      <tr><td>⑪ 容器サイズ・規格</td><td><span class="hint">例：1L缶、5L缶、20L缶</span></td></tr>
+      <tr><td>⑫ 全成分のCAS番号開示可否</td><td><span class="hint">UAE輸出用に開示可能な範囲をご指示ください</span></td></tr>
+    </tbody>
+  </table>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <div>
+      ご多忙のところ誠に恐縮ですが、ドバイ展示会（2026年9月27日）に向けた準備の都合上、<br>
+      できる限り早急にご回答いただけますと幸いです。
+    </div>
+    <div style="text-align:right;">
+      クラックス株式会社<br>
+      担当：吉岡 / 宮脇
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

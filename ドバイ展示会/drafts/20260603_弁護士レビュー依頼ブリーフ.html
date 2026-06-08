@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>弁護士向けレビュー依頼ブリーフ — クラックス合同会社</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 11pt;
+    line-height: 1.65;
+    color: #222;
+    background: #fff;
+    padding: 0;
+  }
+  .page {
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 18mm 20mm 16mm 20mm;
+  }
+
+  /* Header */
+  .doc-header {
+    border-top: 4px solid #1a3a5c;
+    border-bottom: 2px solid #1a3a5c;
+    padding: 10px 0 8px 0;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .doc-header .title-block h1 {
+    font-size: 15pt;
+    font-weight: bold;
+    color: #1a3a5c;
+    letter-spacing: 0.03em;
+  }
+  .doc-header .title-block .subtitle {
+    font-size: 9pt;
+    color: #555;
+    margin-top: 2px;
+  }
+  .doc-header .meta {
+    text-align: right;
+    font-size: 8.5pt;
+    color: #888;
+  }
+  .confidential-badge {
+    display: inline-block;
+    background: #8b0000;
+    color: #fff;
+    font-size: 8pt;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+
+  /* Sections */
+  .section {
+    margin-bottom: 18px;
+  }
+  h2 {
+    font-size: 11.5pt;
+    font-weight: bold;
+    color: #1a3a5c;
+    border-left: 4px solid #1a3a5c;
+    padding-left: 9px;
+    margin-bottom: 10px;
+    margin-top: 0;
+  }
+  h3 {
+    font-size: 10.5pt;
+    font-weight: bold;
+    color: #1a3a5c;
+    margin-bottom: 6px;
+    margin-top: 12px;
+  }
+  p {
+    margin-bottom: 6px;
+  }
+
+  /* Info block */
+  .info-block {
+    background: #f4f7fb;
+    border: 1px solid #c5d4e8;
+    border-left: 4px solid #1a3a5c;
+    padding: 10px 14px;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 12px;
+  }
+  .info-block p { margin-bottom: 3px; font-size: 10.5pt; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+    margin-bottom: 10px;
+  }
+  th {
+    background: #1a3a5c;
+    color: #fff;
+    padding: 6px 9px;
+    text-align: left;
+    font-weight: bold;
+    font-size: 9.5pt;
+  }
+  td {
+    padding: 6px 9px;
+    border: 1px solid #d0d9e6;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  tr:nth-child(odd) td { background: #fff; }
+  th:first-child { width: 28px; }
+
+  /* Priority badges */
+  .p-red {
+    display: inline-block;
+    background: #c0392b;
+    color: #fff;
+    font-size: 8pt;
+    font-weight: bold;
+    padding: 1px 7px;
+    border-radius: 2px;
+  }
+  .p-orange {
+    display: inline-block;
+    background: #e67e22;
+    color: #fff;
+    font-size: 8pt;
+    font-weight: bold;
+    padding: 1px 7px;
+    border-radius: 2px;
+  }
+
+  /* Check point boxes */
+  .check-block {
+    border: 1px solid #c5d4e8;
+    border-left: 4px solid #c0392b;
+    padding: 9px 13px;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+    background: #fff;
+  }
+  .check-block.orange {
+    border-left-color: #e67e22;
+  }
+  .check-block h3 {
+    margin-top: 0;
+    font-size: 10pt;
+    color: #1a3a5c;
+  }
+  .check-block .label {
+    font-size: 8.5pt;
+    color: #fff;
+    font-weight: bold;
+    padding: 1px 7px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 5px;
+  }
+  .check-block .label.red { background: #c0392b; }
+  .check-block .label.orange { background: #e67e22; }
+  .check-block ul { padding-left: 18px; margin-top: 4px; }
+  .check-block ul li { margin-bottom: 3px; font-size: 10pt; }
+  .sub-label {
+    font-size: 9pt;
+    font-weight: bold;
+    color: #555;
+    margin-top: 5px;
+    margin-bottom: 2px;
+    display: block;
+  }
+
+  /* Milestone table */
+  .milestone-table th { background: #2c5282; }
+  .milestone-table td:last-child { font-weight: bold; color: #1a3a5c; }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 24px;
+    border-top: 1px solid #c5d4e8;
+    padding-top: 8px;
+    font-size: 8.5pt;
+    color: #999;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Two-column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .page { padding: 14mm 16mm 12mm 16mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== HEADER ===== -->
+  <div class="doc-header">
+    <div class="title-block">
+      <h1>国際取引書類 法務レビュー ご依頼ブリーフ</h1>
+      <div class="subtitle">NDA（秘密保持契約書）英語版 および 原液販売契約書英語版 — 確認依頼</div>
+    </div>
+    <div class="meta">
+      <div class="confidential-badge">弁護士向け内部資料 / 秘密</div><br>
+      作成日：2026年6月3日<br>
+      作成者：クラックス合同会社<br>
+      担当：吉岡代表
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1: 依頼背景 ===== -->
+  <div class="section">
+    <h2>1. 依頼背景</h2>
+    <div class="info-block">
+      <p><strong>依頼企業：</strong>クラックス合同会社（東京都）— フッ素系浸透性コーティング剤の国際販売</p>
+      <p><strong>相手方：</strong>UAE（ドバイ）のディストリビューター候補（具体的社名は商談段階）</p>
+      <p><strong>製品特性：</strong>特許なし → NDAが唯一の技術保護手段。法的に堅牢なNDAが事業継続の要。</p>
+      <p><strong>展示会：</strong>Middle East Coatings Show 2026（2026年9月28〜30日 / Expo City Dubai）</p>
+      <p><strong>申込締切：</strong>2026年6月末 → <strong style="color:#c0392b;">書類整備が急務</strong></p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: 依頼書類一覧 ===== -->
+  <div class="section">
+    <h2>2. 確認依頼書類一覧</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>書類名</th>
+          <th>ファイル名</th>
+          <th>優先度</th>
+          <th>主な確認事項</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align:center;">1</td>
+          <td><strong>NDA（秘密保持契約書）英語版</strong></td>
+          <td style="font-size:9pt; font-family:monospace;">NDA_en_V3_DRAFT.md</td>
+          <td style="text-align:center;"><span class="p-red">最優先</span></td>
+          <td>準拠法・仲裁条項、競業避止、違約金</td>
+        </tr>
+        <tr>
+          <td style="text-align:center;">2</td>
+          <td><strong>原液販売契約書 英語版</strong></td>
+          <td style="font-size:9pt; font-family:monospace;">SalesContract_en_DRAFT.md</td>
+          <td style="text-align:center;"><span class="p-red">優先</span></td>
+          <td>CISG除外、支払条件、準拠法統一</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:9pt; color:#666;">※ ファイルはメール添付または共有フォルダにてご提供いたします。</p>
+  </div>
+
+  <!-- ===== SECTION 3: NDA確認ポイント ===== -->
+  <div class="section">
+    <h2>3. NDA英語版（V3 DRAFT）— 最重要確認ポイント</h2>
+
+    <!-- ポイント① -->
+    <div class="check-block">
+      <span class="label red">① 最重要</span>
+      <h3>準拠法・紛争解決条項（Article 14）</h3>
+      <span class="sub-label">現状：</span>
+      <p>日本法準拠 + 東京地方裁判所管轄（第一審専属的合意管轄）</p>
+      <span class="sub-label">問題点：</span>
+      <p>UAE当事者に対して東京地裁判決の執行が困難な可能性がある。日本とUAEは相互執行条約を未締結。NDA違反があっても差止命令・損害賠償の実効性が低くなるリスクがある。</p>
+      <span class="sub-label">確認依頼事項：</span>
+      <ul>
+        <li>ICC仲裁またはSIAC仲裁への変更の要否・メリット・デメリット</li>
+        <li>推奨代替案：Singapore International Arbitration Centre (SIAC) / ICC Paris</li>
+        <li>仲裁地・使用言語（英語）・費用分担の推奨条項文案</li>
+      </ul>
+    </div>
+
+    <!-- ポイント② -->
+    <div class="check-block orange">
+      <span class="label orange">② 重要</span>
+      <h3>競業避止条項（Article 5）— UAE法下での執行可能性</h3>
+      <span class="sub-label">現状：</span>
+      <p>ドバイ展示会期間中およびその後一定期間、フッ素系類似製品の開発・販売を禁止</p>
+      <span class="sub-label">問題点：</span>
+      <p>UAE Commercial Code（連邦法第18号）および Competition Law（連邦法第4号/2012年）における有効性が不明。過度な競業避止は公序良俗違反として無効となる可能性がある。</p>
+      <span class="sub-label">確認依頼事項：</span>
+      <ul>
+        <li>UAE法下における競業避止条項の有効要件（期間・地理的範囲・対象行為の限定）</li>
+        <li>条項の有効性確認、必要に応じた条件・期間の調整案の提示</li>
+      </ul>
+    </div>
+
+    <!-- ポイント③ -->
+    <div class="check-block orange">
+      <span class="label orange">③ 要確認</span>
+      <h3>違約金額（Article 11.2）— 合理性確認</h3>
+      <span class="sub-label">現状：</span>
+      <p>¥50,000,000（約333,333 USD）を損害賠償の上限額として設定</p>
+      <span class="sub-label">問題点：</span>
+      <p>UAE相手方との実取引規模（初回発注は少量の可能性）と比較して過大である場合、UAE法またはUAE仲裁廷において合理性を欠くと判断される可能性がある。</p>
+      <span class="sub-label">確認依頼事項：</span>
+      <ul>
+        <li>現在の金額設定の合理性評価</li>
+        <li>$100,000 USD（約1,500万円）への変更の当否と推奨額</li>
+        <li>罰則的損害賠償（punitive damages）排除条項の追加要否</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: 販売契約書確認ポイント ===== -->
+  <div class="section">
+    <h2>4. 販売契約書英語版（DRAFT）— 確認ポイント</h2>
+
+    <!-- ポイント① -->
+    <div class="check-block orange">
+      <span class="label orange">① 確認</span>
+      <h3>CISG適用除外（Article 19.1）</h3>
+      <span class="sub-label">現状：</span>
+      <p>「United Nations Convention on Contracts for the International Sale of Goods (CISG)」を明示的に除外</p>
+      <span class="sub-label">確認依頼事項：</span>
+      <ul>
+        <li>除外条項の有効性（日本法・UAE法いずれの観点からも問題がないか）</li>
+        <li>CISG除外が売主にとって有利か不利かの整理</li>
+        <li>推奨事項の提示</li>
+      </ul>
+    </div>
+
+    <!-- ポイント② -->
+    <div class="check-block orange">
+      <span class="label orange">② 確認</span>
+      <h3>支払条件（100%前払い）— 執行可能性</h3>
+      <span class="sub-label">現状：</span>
+      <p>100% advance payment required（電信送金 T/T のみ、信用状は原則不可）</p>
+      <span class="sub-label">確認依頼事項：</span>
+      <ul>
+        <li>UAE商慣習（ドバイ貿易）との整合性評価</li>
+        <li>L/C（信用状）条項を代替手段として整備すべきかどうか</li>
+        <li>前払い条件がUAEバイヤーとの交渉上問題となる場面への対処方針</li>
+      </ul>
+    </div>
+
+    <!-- ポイント③ -->
+    <div class="check-block orange">
+      <span class="label orange">③ 調整</span>
+      <h3>準拠法・管轄（NDAとの統一）</h3>
+      <span class="sub-label">現状：</span>
+      <p>NDAと同様に東京地裁管轄（Article 19.2）</p>
+      <span class="sub-label">確認依頼事項：</span>
+      <ul>
+        <li>NDA（Article 14）の紛争解決条項と<strong>同一内容に統一すること</strong></li>
+        <li>NDAが仲裁条項に変更された場合、販売契約書の当該条項も連動して変更すること</li>
+        <li>両書類の紛争解決条項を完全に整合させた最終文案の提示</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: スケジュール ===== -->
+  <div class="section">
+    <h2>5. スケジュール感</h2>
+    <table class="milestone-table">
+      <thead>
+        <tr>
+          <th>マイルストーン</th>
+          <th>目標日</th>
+          <th>備考</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>弁護士レビュー完了 + 修正方針確定</td>
+          <td>2026年6月20日（金）</td>
+          <td>最優先：NDA英語版から着手依頼</td>
+        </tr>
+        <tr>
+          <td>NDA最終版（V4）完成</td>
+          <td>2026年6月25日（水）</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>展示会申込締切</td>
+          <td>2026年6月末</td>
+          <td>書類整備と並行</td>
+        </tr>
+        <tr>
+          <td>展示会：初回商談（NDA交付）</td>
+          <td>2026年9月28日〜30日</td>
+          <td>Middle East Coatings Show 2026</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== SECTION 6: 費用負担 ===== -->
+  <div class="section">
+    <h2>6. 費用負担・連絡先</h2>
+    <div class="two-col">
+      <div class="info-block">
+        <p><strong>費用負担：</strong>クラックス合同会社（吉岡代表確認済み）</p>
+        <p><strong>見積依頼：</strong>書類確認後、速やかにお送りください</p>
+      </div>
+      <div class="info-block">
+        <p><strong>連絡先：</strong>クラックス合同会社 代表</p>
+        <p><strong>対応言語：</strong>日本語</p>
+        <p><strong>書類言語：</strong>NDA・販売契約書ともに英語正文</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="doc-footer">
+    <span>クラックス合同会社 — 弁護士向け内部資料（秘密）— 2026年6月3日作成</span>
+    <span>本書面はドラフト段階の法務整備を目的とした内部資料です。</span>
+  </div>
+
+</div>
+</body>
+</html>

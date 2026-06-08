@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gantt",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "7654", "--directory", "/Users/gon/Documents/AIMemory/crux"],
+      "port": 7654
+    }
+  ]
+}

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRUX 事業方針書 2026</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-mid: #243560;
+    --gold: #c9a84c;
+    --gold-light: #f5e9c8;
+    --red: #c00000;
+    --green-dark: #1e3a14;
+    --green-mid: #3d8a30;
+    --off-white: #f4f6fb;
+    --border: #d0d8e8;
+    --text: #1a1a1a;
+    --muted: #556;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: #e8edf5;
+    color: var(--text);
+    padding: 32px 20px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ===== ヘッダー ===== */
+  .doc-header {
+    background: var(--navy);
+    border-radius: 14px 14px 0 0;
+    border-bottom: 5px solid var(--gold);
+    padding: 36px 44px 32px;
+    color: #fff;
+    position: relative;
+  }
+  .doc-header .badge {
+    position: absolute; top: 28px; right: 36px;
+    background: var(--gold); color: var(--navy);
+    font-size: 11px; font-weight: 900; letter-spacing: 2px;
+    padding: 5px 14px; border-radius: 4px;
+  }
+  .doc-header .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 5px;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 12px;
+  }
+  .doc-header h1 {
+    font-size: 28px; font-weight: 900; line-height: 1.3;
+    letter-spacing: 1px;
+  }
+  .doc-header .tagline {
+    margin-top: 12px; font-size: 14px; opacity: 0.7;
+    font-style: italic; letter-spacing: 0.5px;
+  }
+  .doc-header .meta {
+    margin-top: 16px; font-size: 12px; opacity: 0.55;
+    display: flex; gap: 24px;
+  }
+
+  /* ===== メインカード ===== */
+  .doc-body {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+
+  /* ===== ミッション帯 ===== */
+  .mission-band {
+    background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy) 100%);
+    padding: 28px 44px;
+    text-align: center;
+    border-bottom: 3px solid var(--gold);
+  }
+  .mission-band .mission-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .mission-band .mission-text {
+    font-size: 18px; font-weight: 900; color: #fff; line-height: 1.6;
+    letter-spacing: 1px;
+  }
+  .mission-band .mission-text span { color: var(--gold); }
+  .mission-band .vision-text {
+    margin-top: 10px; font-size: 13px; color: rgba(255,255,255,0.65);
+    line-height: 1.7;
+  }
+
+  /* ===== セクション ===== */
+  .section {
+    padding: 32px 44px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section:last-child { border-bottom: none; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .section-num {
+    background: var(--navy); color: var(--gold);
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 900; flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 16px; font-weight: 900; color: var(--navy);
+    letter-spacing: 0.5px;
+  }
+  .section-sub {
+    font-size: 12px; color: var(--muted); margin-left: auto;
+    font-weight: 600; letter-spacing: 1px;
+  }
+
+  /* ===== 3本柱 ===== */
+  .pillar-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+  }
+  .pillar {
+    border-radius: 10px; padding: 20px 18px;
+    border: 2px solid transparent;
+  }
+  .pillar-A {
+    background: #f0f4ff;
+    border-color: #6080d0;
+  }
+  .pillar-B {
+    background: #f0fff4;
+    border-color: #60c080;
+  }
+  .pillar-C {
+    background: #fffaf0;
+    border-color: var(--gold);
+  }
+  .pillar-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 3px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .pillar-A .pillar-label { color: #3050a0; }
+  .pillar-B .pillar-label { color: var(--green-dark); }
+  .pillar-C .pillar-label { color: #8a6000; }
+  .pillar-name {
+    font-size: 15px; font-weight: 900; line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .pillar-A .pillar-name { color: #1a2a70; }
+  .pillar-B .pillar-name { color: var(--green-dark); }
+  .pillar-C .pillar-name { color: #6a4400; }
+  .pillar-items {
+    font-size: 12.5px; color: #444; line-height: 2;
+  }
+  .pillar-items li { list-style: none; padding-left: 14px; position: relative; }
+  .pillar-items li::before { content: "▶"; font-size: 9px; position: absolute; left: 0; top: 4px; opacity: 0.5; }
+
+  /* ===== 製品ポートフォリオ ===== */
+  .product-row {
+    display: flex; gap: 14px;
+  }
+  .product-card {
+    flex: 1; border-radius: 10px; padding: 18px 20px;
+    border: 1.5px solid var(--border);
+    background: var(--off-white);
+  }
+  .product-card .prod-tag {
+    display: inline-block; font-size: 11px; font-weight: 800;
+    padding: 3px 10px; border-radius: 30px; margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  .tag-xop { background: var(--navy); color: var(--gold); }
+  .tag-fc { background: var(--green-mid); color: #fff; }
+  .product-card .prod-name {
+    font-size: 16px; font-weight: 900; margin-bottom: 6px;
+  }
+  .product-card .prod-desc {
+    font-size: 12.5px; color: var(--muted); line-height: 1.8;
+  }
+  .product-card .prod-strength {
+    margin-top: 10px; padding: 8px 12px;
+    background: #fff; border-radius: 6px; border: 1px solid var(--border);
+    font-size: 12px; font-weight: 700; color: var(--navy);
+  }
+
+  /* ===== ビジネスモデル ===== */
+  .model-flow {
+    display: flex; align-items: center; gap: 0;
+    background: var(--off-white); border-radius: 10px;
+    overflow: hidden; border: 1.5px solid var(--border);
+  }
+  .model-node {
+    flex: 1; padding: 16px 14px; text-align: center;
+    font-size: 12.5px; font-weight: 700; line-height: 1.5;
+  }
+  .model-node .node-label {
+    font-size: 10px; font-weight: 600; color: var(--muted);
+    letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .model-node.highlight { background: var(--navy); color: var(--gold); }
+  .model-arrow {
+    font-size: 18px; color: var(--muted); flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .model-note {
+    margin-top: 10px; font-size: 12.5px; color: var(--muted);
+    line-height: 1.9;
+  }
+  .model-note b { color: var(--navy); }
+
+  /* ===== 組織・役割 ===== */
+  .org-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+  }
+  .org-table th {
+    background: var(--navy); color: var(--gold);
+    padding: 10px 14px; font-size: 11px; font-weight: 800;
+    letter-spacing: 1px; text-align: left;
+  }
+  .org-table td {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.7;
+  }
+  .org-table tr:last-child td { border-bottom: none; }
+  .org-table tr:nth-child(even) td { background: var(--off-white); }
+  .name-cell { font-weight: 800; color: var(--navy); white-space: nowrap; }
+  .role-badge {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 3px; margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge-exec { background: var(--navy); color: var(--gold); }
+  .badge-ops { background: var(--green-mid); color: #fff; }
+  .badge-sales { background: #5070c0; color: #fff; }
+  .badge-support { background: #888; color: #fff; }
+  .badge-overseas { background: #0e7490; color: #fff; }
+  .badge-web { background: #6d28d9; color: #fff; }
+
+  /* ===== 2026重点KPI ===== */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  }
+  .kpi-card {
+    background: var(--navy); border-radius: 10px;
+    padding: 18px 14px; text-align: center;
+  }
+  .kpi-card .kpi-label {
+    font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55);
+    letter-spacing: 1px; margin-bottom: 8px;
+  }
+  .kpi-card .kpi-value {
+    font-size: 22px; font-weight: 900; color: var(--gold);
+    line-height: 1.2;
+  }
+  .kpi-card .kpi-sub {
+    font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 4px;
+  }
+
+  /* ===== 行動規範 ===== */
+  .values-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  }
+  .value-card {
+    padding: 16px 18px; border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--off-white);
+  }
+  .value-card .v-num {
+    font-size: 28px; font-weight: 900; color: var(--gold-light);
+    line-height: 1; margin-bottom: 4px;
+  }
+  .value-card .v-title {
+    font-size: 14px; font-weight: 900; color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .value-card .v-desc {
+    font-size: 12.5px; color: var(--muted); line-height: 1.8;
+  }
+
+  /* ===== フッター ===== */
+  .doc-footer {
+    background: var(--navy); color: rgba(255,255,255,0.5);
+    padding: 16px 44px; font-size: 11px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-radius: 0 0 14px 14px;
+  }
+  .doc-footer b { color: var(--gold); }
+
+  @media (max-width: 680px) {
+    .pillar-grid, .kpi-grid { grid-template-columns: 1fr; }
+    .product-row { flex-direction: column; }
+    .values-grid { grid-template-columns: 1fr; }
+    .section, .mission-band, .doc-header { padding-left: 20px; padding-right: 20px; }
+    .model-flow { flex-direction: column; }
+    .model-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="doc-header">
+  <div class="badge">2026年度版</div>
+  <div class="eyebrow">Output D — Business Policy</div>
+  <h1>株式会社CRUX<br>事業方針書 2026</h1>
+  <div class="tagline">"Protect what matters. Build what lasts."</div>
+  <div class="meta">
+    <span>制定日：2026年5月22日</span>
+    <span>制定者：吉岡（代表）・宮脇（COO）</span>
+    <span>対象：全スタッフ</span>
+  </div>
+</div>
+
+<div class="doc-body">
+
+  <!-- ミッション -->
+  <div class="mission-band">
+    <div class="mission-label">Mission &amp; Vision</div>
+    <div class="mission-text">
+      日本発の<span>高性能コーティング技術</span>を、<span>国内と世界</span>に届ける。
+    </div>
+    <div class="vision-text">
+      プロテケアの施工ネットワークを国内に根付かせ、KICHIブランドで世界市場に存在感を示す。<br>
+      2026年を「守りから攻めへ」の転換点とする。
+    </div>
+  </div>
+
+  <!-- 1. 事業概要 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">事業概要 — 何をしているか</div>
+    </div>
+    <div class="product-row">
+      <div class="product-card">
+        <span class="prod-tag tag-xop">Protecare XOP</span>
+        <div class="prod-name">フッ素系無機浸透性コーティング</div>
+        <div class="prod-desc">
+          石材・タイル・コンクリート向け。<br>
+          日本初の無機浸透型。六本木ヒルズ・GINZA SIXなど大型施設の施工実績あり。<br>
+          海外ブランド名：<b>KICHI</b>
+        </div>
+        <div class="prod-strength">IP戦略：特許なし → トレードシークレット ＋ NDA で保護</div>
+      </div>
+      <div class="product-card">
+        <span class="prod-tag tag-fc">Protecare FC</span>
+        <div class="prod-name">ファインセラミック浸透性コーティング</div>
+        <div class="prod-desc">
+          木材向け（フローリング・ウッドデッキ等）。<br>
+          木材の質感を保ちながら防護。BtoB（工務店・建材店）・BtoC（個人）両面展開。
+        </div>
+        <div class="prod-strength">FCフランチャイズ（Aトラック）の中核製品</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ビジネスモデル -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">ビジネスモデル — どう稼ぐか</div>
+      <div class="section-sub">国内：シェアモデル ／ 海外：原液輸出</div>
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <div style="font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px;">【国内 Bトラック — シェアモデル】</div>
+      <div class="model-flow">
+        <div class="model-node">
+          <div class="node-label">仕入</div>
+          キーストーン社<br>（製造元）
+        </div>
+        <div class="model-arrow">▶</div>
+        <div class="model-node highlight">
+          <div class="node-label" style="color:rgba(255,255,255,0.6)">CRUX</div>
+          液剤供給<br>＋技術支援
+        </div>
+        <div class="model-arrow">▶</div>
+        <div class="model-node">
+          <div class="node-label">代理店/施工業者</div>
+          Bronze / Silver / Gold<br>ティア認定
+        </div>
+        <div class="model-arrow">▶</div>
+        <div class="model-node">
+          <div class="node-label">エンドユーザー</div>
+          施工費用を支払う
+        </div>
+      </div>
+      <div class="model-note">
+        代理店が施工 → 売上を<b>CRUX（液剤コスト回収＋シェア分）</b>と<b>代理店（施工利益）</b>で分配。<br>
+        最低単価：<b>¥5,500/㎡</b>。CRUXの損益分岐点：シェア37%。<br>
+        ティア：Bronze（初期¥20万・50-50）／Silver（¥50万・45-55）／Gold（¥100万・40-60）
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px;">【海外 — KICHIブランド 原液輸出モデル】</div>
+      <div class="model-flow">
+        <div class="model-node">
+          <div class="node-label">仕入</div>
+          キーストーン社<br>¥110,000/L
+        </div>
+        <div class="model-arrow">▶</div>
+        <div class="model-node highlight">
+          <div class="node-label" style="color:rgba(255,255,255,0.6)">CRUX（海外独占権）</div>
+          KICHI として販売
+        </div>
+        <div class="model-arrow">▶</div>
+        <div class="model-node">
+          <div class="node-label">海外バイヤー</div>
+          $5,000/L<br>（≒¥750,000/L）
+        </div>
+        <div class="model-arrow">▶</div>
+        <div class="model-node">
+          <div class="node-label">現地エンドユーザー</div>
+          ハワイ・ドバイ<br>韓国・シンガポール
+        </div>
+      </div>
+      <div class="model-note">
+        現在庫40L → 最大売上ポテンシャル<b>¥20,000,000</b>。<br>
+        NDAが唯一のIP保護手段。<b>海外バイヤーへのNDA締結は交渉の前提条件</b>とする。
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 3本柱 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">2026年 事業の3本柱</div>
+    </div>
+    <div class="pillar-grid">
+      <div class="pillar pillar-A">
+        <div class="pillar-label">Pillar A</div>
+        <div class="pillar-name">国内<br>代理店ネットワーク構築</div>
+        <ul class="pillar-items">
+          <li>Bトラック シェアモデル展開</li>
+          <li>6/10 営業説明会の実施</li>
+          <li>北庄司によるWeb集客・LP整備</li>
+          <li>Bronze→Silver→Gold 段階認定</li>
+          <li>エリア優先権の整備</li>
+        </ul>
+      </div>
+      <div class="pillar pillar-B">
+        <div class="pillar-label">Pillar B</div>
+        <div class="pillar-name">海外<br>KICHIブランド展開</div>
+        <ul class="pillar-items">
+          <li>英語版SDS・パンフ作成</li>
+          <li>ドバイ展示会（9/27〜）準備</li>
+          <li>ハワイ・シンガポール 初商談</li>
+          <li>通関・化学品規制クリア</li>
+          <li>NDA締結 → 海外初売上</li>
+        </ul>
+      </div>
+      <div class="pillar pillar-C">
+        <div class="pillar-label">Pillar C</div>
+        <div class="pillar-name">会社基盤<br>整備・人材強化</div>
+        <ul class="pillar-items">
+          <li>役割・権限の明文化</li>
+          <li>事業方針の制定と共有</li>
+          <li>営業職1名採用（年内）</li>
+          <li>キーストーン社との関係強化</li>
+          <li>財務・法務体制の整備</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 組織と役割 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">組織と役割分担</div>
+    </div>
+    <table class="org-table">
+      <thead>
+        <tr>
+          <th style="width:160px">名前 / 役職</th>
+          <th>主担当領域</th>
+          <th style="width:220px">2026年の重点ミッション</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="name-cell">
+            吉岡<span class="role-badge badge-exec">代表取締役</span>
+          </td>
+          <td>海外展開統括、キーストーン社との関係管理、重要意思決定</td>
+          <td>ドバイ・ハワイへの海外初商談完結。キーストーン社トップとの定期対話確立。採用判断。</td>
+        </tr>
+        <tr>
+          <td class="name-cell">
+            小林<span class="role-badge badge-sales">国内営業</span>
+          </td>
+          <td>国内の新規顧客開拓・既存顧客フォロー。吉岡社長の国内商談に同行し推進</td>
+          <td>Bトラック代理店候補へのアプローチ。宮脇と連携し説明会後のクロージングを担当。</td>
+        </tr>
+        <tr>
+          <td class="name-cell">
+            高田<span class="role-badge badge-overseas">海外担当</span>
+          </td>
+          <td>海外販売業務の推進。英語資料作成、バイヤー対応、輸出手続き・NDA管理</td>
+          <td>英語版SDS・KICHIパンフレット作成。海外バイヤーへのNDA締結対応。通関・規制書類の整備。</td>
+        </tr>
+        <tr>
+          <td class="name-cell">
+            宮脇<span class="role-badge badge-ops">COO</span>
+          </td>
+          <td>国内事業オペレーション統括、営業資料・契約書、社内制度設計</td>
+          <td>Bトラック説明会から代理店認定まで一気通貫で推進。各種書類・制度の整備。</td>
+        </tr>
+        <tr>
+          <td class="name-cell">
+            北庄司<span class="role-badge badge-web">Web担当</span>
+          </td>
+          <td>キーストーン社・CRUX・KICHIの各Webサイト制作・運営・更新管理</td>
+          <td>3ブランド（キーストーン社・CRUX・KICHI）のWeb戦略を統括。代理店向けランディングページ、海外向けKICHIサイトの構築・運用。</td>
+        </tr>
+        <tr>
+          <td class="name-cell">
+            長谷川<span class="role-badge badge-support">事務（PA）</span>
+          </td>
+          <td>庶務・書類管理・スケジュール調整</td>
+          <td>代理店契約書の発送管理、請求書処理、社内情報整理。</td>
+        </tr>
+        <tr>
+          <td class="name-cell">
+            営業職（採用予定）<span class="role-badge badge-sales">TBD</span>
+          </td>
+          <td>国内営業強化（年内採用目標）</td>
+          <td>Bトラック代理店獲得の推進力。宮脇と連携し、面的な展開を加速。</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top: 12px; font-size: 12.5px; color: var(--muted); line-height: 1.8; padding: 12px 16px; background: var(--off-white); border-radius: 8px; border: 1px solid var(--border);">
+      <b>原則：</b>吉岡・小林・高田は「海外」、宮脇は「国内・制度・オペレーション」、北庄司は「Web全般（3ブランド）」を主担当とする。<br>
+      担当外の領域へ介入する際は必ず事前に相互確認する。意思決定のボトルネックを作らない。
+    </div>
+  </div>
+
+  <!-- 5. KPI -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">2026年 重点KPI</div>
+      <div class="section-sub">年内達成目標</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">国内代理店数</div>
+        <div class="kpi-value">数十社</div>
+        <div class="kpi-sub">Bronze以上 認定済み</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">海外売上</div>
+        <div class="kpi-value">初売上<br>達成</div>
+        <div class="kpi-sub">ドバイ or ハワイ 1件以上</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">採用</div>
+        <div class="kpi-value">1名<br>内定</div>
+        <div class="kpi-sub">営業職 年内内定</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">キーストーン関係</div>
+        <div class="kpi-value">定期MT<br>開始</div>
+        <div class="kpi-sub">四半期1回 トップ対話</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 行動規範 -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">行動規範 — 私たちが大切にすること</div>
+    </div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="v-num">01</div>
+        <div class="v-title">スピードで信頼を作る</div>
+        <div class="v-desc">
+          小さな会社の唯一の武器は「速さ」。返答・判断・行動はすべて即断即実行を基本とする。「検討します」は期限とセットで言う。
+        </div>
+      </div>
+      <div class="value-card">
+        <div class="v-num">02</div>
+        <div class="v-title">事実に基づいて動く</div>
+        <div class="v-desc">
+          仮説は持ってよい。しかし意思決定は数字・根拠・確認に基づく。「だと思う」で動いて失敗するコストは、確認コストより高い。
+        </div>
+      </div>
+      <div class="value-card">
+        <div class="v-num">03</div>
+        <div class="v-title">NDAと秘密保持は絶対</div>
+        <div class="v-desc">
+          プロテケアXOPのIPはトレードシークレット。海外バイヤー・代理店を問わず、成分・製法に関する情報共有はNDA締結後のみとする。
+        </div>
+      </div>
+      <div class="value-card">
+        <div class="v-num">04</div>
+        <div class="v-title">キーストーン社を戦略パートナーとして扱う</div>
+        <div class="v-desc">
+          単なる仕入れ先ではなく、事業の根幹を支えるパートナー。保守的な企業文化を尊重しながら、中長期の信頼関係を積み上げる。
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- フッター -->
+<div class="doc-footer">
+  <span><b>株式会社CRUX</b> 事業方針書 2026年度版</span>
+  <span>制定：2026年5月22日　次回見直し：2026年12月</span>
+</div>
+
+</body>
+</html>

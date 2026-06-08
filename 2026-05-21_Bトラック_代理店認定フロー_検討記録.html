@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bトラック 代理店認定フロー 検討記録</title>
+<style>
+  :root {
+    --primary: #2c4a1e;
+    --accent:  #5BBD4E;
+    --accent2: #3d8a30;
+    --warn:    #C00000;
+    --bg:      #eef4ec;
+    --step-bg: #f6faf5;
+    --border:  #c8dcc4;
+    --text:    #1a1a1a;
+    --muted:   #555;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 32px 16px 80px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── ヘッダー ── */
+  .page-header {
+    background: var(--primary);
+    color: #fff;
+    padding: 32px 40px 28px;
+    border-radius: 10px;
+    margin-bottom: 32px;
+  }
+  .page-header .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    opacity: .7;
+    margin-bottom: 8px;
+  }
+  .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: .04em; margin-bottom: 6px; }
+  .page-header .meta { font-size: 12px; opacity: .65; margin-top: 8px; }
+
+  /* ── セクションタイトル ── */
+  .section-heading {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary);
+    border-left: 4px solid var(--accent);
+    padding-left: 12px;
+    margin: 40px 0 16px;
+  }
+
+  /* ── 決定事項サマリー ── */
+  .decision-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    margin-bottom: 8px;
+  }
+  .decision-table th {
+    background: var(--primary);
+    color: #fff;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+  }
+  .decision-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .decision-table tr:last-child td { border-bottom: none; }
+  .decision-table tr:nth-child(even) td { background: var(--step-bg); }
+  .decided { color: #1a7a1a; font-weight: 700; }
+  .pending { color: var(--warn); font-weight: 700; }
+
+  /* ── Q&Aカード ── */
+  .qa-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  }
+  .qa-header {
+    background: var(--primary);
+    color: #fff;
+    padding: 12px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .qa-num {
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .qa-question { font-size: 14px; font-weight: 700; line-height: 1.5; }
+
+  .qa-body { display: grid; grid-template-columns: 1fr 1fr; }
+  .qa-section {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .qa-section:last-child { border-right: none; }
+  .qa-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .qa-text { color: var(--text); }
+  .qa-answer { color: #1a5c1a; font-weight: 600; }
+
+  /* インサイトリスト */
+  .insight-list { list-style: none; padding: 0; }
+  .insight-list li {
+    padding: 4px 0 4px 16px;
+    position: relative;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .insight-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* 発見・警告ボックス */
+  .alert-box {
+    background: #fff5f5;
+    border: 1.5px solid #e88;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #7a1a1a;
+    margin-top: 10px;
+  }
+  .alert-box strong { color: var(--warn); }
+
+  /* ティア表 */
+  .tier-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 8px;
+  }
+  .tier-table th {
+    background: var(--step-bg);
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .tier-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #eaf3e8;
+    line-height: 1.5;
+  }
+  .tier-table tr:last-child td { border-bottom: none; }
+  .bronze { color: #8B5A00; font-weight: 700; }
+  .silver { color: #555; font-weight: 700; }
+  .gold   { color: #8B6914; font-weight: 700; }
+
+  /* アクションリスト */
+  .action-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  }
+  .action-table th {
+    background: var(--primary);
+    color: #fff;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+  }
+  .action-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+  .action-table tr:last-child td { border-bottom: none; }
+  .pri-high { background: #fff0f0; color: var(--warn); font-weight: 700; text-align: center; }
+  .pri-mid  { background: #fffce6; color: #7a5c00; font-weight: 700; text-align: center; }
+  .pri-low  { background: var(--step-bg); color: var(--accent2); font-weight: 700; text-align: center; }
+
+  /* ナンバリング */
+  .number-badge {
+    display: inline-block;
+    background: var(--accent2);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 22px;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 680px) {
+    .qa-body { grid-template-columns: 1fr; }
+    .qa-section { border-right: none; border-bottom: 1px solid var(--border); }
+    .qa-section:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ページヘッダー -->
+<div class="page-header">
+  <div class="label">CRUX / XOP 営業戦略</div>
+  <h1>Bトラック 代理店認定フロー 検討記録</h1>
+  <div style="font-size:13px;opacity:.85;margin-top:8px;">事業設計の深堀りインタビューを通じて確定した決定事項・残課題・次のアクション</div>
+  <div class="meta">実施日：2026/05/21　｜　担当：吉岡営業チーム</div>
+</div>
+
+<!-- ── 決定事項サマリー ── -->
+<div class="section-heading">決定事項サマリー</div>
+<table class="decision-table">
+  <thead>
+    <tr><th>テーマ</th><th>決定内容</th><th>ステータス</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>代理店モデルの型</td>
+      <td>パターンC（一体型・分業型の両方）。まずAタイプ（施工＋販売一体）からスタートし、規模拡大後にBタイプ（分業）を追加。</td>
+      <td class="decided">決定</td>
+    </tr>
+    <tr>
+      <td>独占性の訴求方法</td>
+      <td>「エリア独占」ではなく「事実ベースの独占性」。<br>→「XOP製品はCRUXを通じてしか国内で入手できない。あなたの地域でXOPを施工できるのはあなただけにする」</td>
+      <td class="decided">決定</td>
+    </tr>
+    <tr>
+      <td>収益モデル</td>
+      <td>液剤先行購入なしの<strong>シェアモデル</strong>に転換。施工売上をCRUXと代理店で分配。</td>
+      <td class="decided">決定</td>
+    </tr>
+    <tr>
+      <td>最低施工単価</td>
+      <td>¥5,500/㎡（CRUXが設定）。代理店はそれ以上で自由に価格設定可。</td>
+      <td class="decided">決定</td>
+    </tr>
+    <tr>
+      <td>3層ティア・分配率</td>
+      <td>Bronze（初期¥200K / CRUX50% / 代理店50%）<br>Silver（初期¥500K / CRUX45% / 代理店55%）<br>Gold（初期¥1,000K / CRUX40% / 代理店60%）</td>
+      <td class="decided">決定</td>
+    </tr>
+    <tr>
+      <td>不正対策の基本方針</td>
+      <td>液剤数量トラッキングを基本に。供給量と申告面積を照合。「信頼関係のためにも最初から透明なルールを設ける」方針。</td>
+      <td class="decided">決定</td>
+    </tr>
+    <tr>
+      <td>ティア差別化軸</td>
+      <td>Silver：エリア優先権・マーケ資料提供<br>Gold：エリア優先権・専属サポート・案件優先紹介（AトラックからのOB案件）・下部卸設定権</td>
+      <td class="decided">決定（合意取り付け中）</td>
+    </tr>
+    <tr>
+      <td>エリア独占の制度化</td>
+      <td>キーストン社との打ち合わせが必要。結果次第でSilver/Goldの「エリア優先権」内容が確定。</td>
+      <td class="pending">要確認</td>
+    </tr>
+    <tr>
+      <td>ティアアップ条件</td>
+      <td>昇格要件（実績件数・施工面積など）の設計が未完。</td>
+      <td class="pending">要検討</td>
+    </tr>
+    <tr>
+      <td>フェーズA→B移行条件</td>
+      <td>「ある程度でBタイプも」の「ある程度」の定義が未確定。</td>
+      <td class="pending">要検討</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ── Q&A詳細記録 ── -->
+<div class="section-heading">Q&A 詳細記録</div>
+
+<!-- Q1 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q1</span>
+    <span class="qa-question">代理店と施工業者は同一法人か、別ロールか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        3パターンを検討。<br>
+        A：施工＋販売一体型<br>
+        B：代理店（営業専門）と施工業者（施工専門）を分離<br>
+        C：両方あり<br><br>
+        推奨はA。責任の所在が明確、マージン構造がシンプル。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">パターンC。ただしマンパワーの制約からまずAタイプで開始し、ある程度成長したらBタイプも追加する段階的方針。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q2 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q2</span>
+    <span class="qa-question">フェーズAからBへの「卒業条件」は何か？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        「ある程度」が曖昧なまま走ると判断基準がブレる。<br>
+        推奨：「認定業者10社 OR 2027年4月以降」など件数＋時間の組み合わせ。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">要検討事項として保留。引き続き検討する。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q3 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q3</span>
+    <span class="qa-question">代理店になる側の「うまみ」が数字で言えるか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        STEP2で「利益率・市場独占性・ブランド価値」を説明するとあるが、数字で即答できるかどうかで転換率が変わる。<br>
+        確認項目：利益率・独占エリアの定義・研修費用負担者。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・判明事項</div>
+      <div class="qa-answer">
+        施工設計単価：¥5,500/㎡（100㎡以上・2回塗）<br>
+        材料原価：¥2,000/㎡　人件費：¥350/㎡<br>
+        粗利：¥3,150/㎡（57%）<br>
+        初期投資：¥1,800,000（後に液剤¥1,600,000＋研修¥200,000と判明）<br>
+        エリア独占：国内代理店への独占エリア付与の記録なし（Q4へ）
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q4 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q4</span>
+    <span class="qa-question">「市場独占性」という言葉が契約トラブルの火種になっていないか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        STEP2提案書に「市場独占性」と記載があるが、実態は「国内代理店への独占エリア付与なし」。相手が誤解する。<br><br>
+        推奨：「事実ベースの独占性」として訴求し直す。<br>
+        →「CRUXを通じてしか入手できない製品。あなたの地域でXOPを施工できるのはあなただけにする。」
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">「事実ベースの独占性」に修正することで合意。エリア独占の制度化はキーストン社との打ち合わせ待ち。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q5 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q5</span>
+    <span class="qa-question">¥1,800,000の内訳は何か？「研修費」として一括提示すると何が起きるか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        研修費と液剤在庫を混在させて提示すると：<br>
+        ①「研修に180万も取られる」と誤解される<br>
+        ②「研修費を下げて」と言われても液剤原価は下げられない<br><br>
+        推奨：完全に分離して提示する。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・判明事項</div>
+      <div class="qa-answer">
+        内訳判明：<br>
+        液剤代（20L）：¥1,600,000<br>
+        講習代：¥200,000<br>
+        合計：¥1,800,000<br><br>
+        → 高額の本体は「液剤の初回仕入れ（在庫投資）」であり、研修費自体（¥200,000）は適正。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q6 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q6</span>
+    <span class="qa-question">液剤の最小仕入れ単位を下げる余地はあるか？（緊急：仕入れ原価の矛盾発覚前）</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        20Lを最小単位にする必要はない。10L（¥800,000）から始められれば参入障壁が半減する。<br>
+        キーストン社との交渉余地の確認が必要。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答</div>
+      <div class="qa-answer">この議論はQ7（仕入れ原価矛盾の発覚）によりシェアモデル転換で構造的に解決された。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q7 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q7</span>
+    <span class="qa-question">スライドのエリア独占とQ4の「事実ベース独占」が矛盾していないか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        戦略スライドにはSilver「エリア準独占」、Gold「エリア完全独占」と記載。しかしQ4で「国内代理店への独占エリア付与記録なし」と確認済み。<br><br>
+        エリア独占を制度化するにはキーストン社の承認が必要。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">キーストン社との打ち合わせが必要。それまでは「エリア優先権」として扱い、具体的な内容は確認後に確定。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q8 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q8</span>
+    <span class="qa-question">ブロンズの「販売のみ」はBトラック認定フロー（施工認定）と矛盾していないか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        Bトラックは施工業者の認定が目的なのに、ブロンズは「販売のみ（非独占）」。施工できないなら認定研修の意味がない。<br><br>
+        推奨：ブロンズは「施工・販売可（非独占）」に修正。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">ブロンズも施工する（初期費用を抑えるため最小ロットで参入できる設計）。「販売のみ」表記は誤りで「施工・販売可（非独占）」に修正。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q9 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q9</span>
+    <span class="qa-question">ブロンズからシルバーへ「上がる動機」が設計されているか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        仕入れ価格差¥8,000/Lは強い昇格動機（月10L仕入れなら年間¥96万のコスト差）。<br>
+        ただし昇格条件未定。推奨：「累計500㎡以上でシルバー昇格可」など実績ベースの条件。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">要検討事項として保留（シェアモデル転換後は分配率の差が昇格動機となる設計に変更）。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q10 緊急 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q10（緊急発覚）</span>
+    <span class="qa-question">CRUXの仕入れ原価と代理店への販売価格が逆転していないか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">判明した矛盾</div>
+      <div class="qa-text">
+        CRUXのキーストン社からの仕入れ価格：<strong>¥110,000/L</strong><br><br>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;">
+          <tr style="background:#f5f5f5;"><th style="padding:6px;border:1px solid #ddd;">ティア</th><th style="padding:6px;border:1px solid #ddd;">代理店への売価</th><th style="padding:6px;border:1px solid #ddd;">損益</th></tr>
+          <tr><td style="padding:6px;border:1px solid #ddd;">Bronze</td><td style="padding:6px;border:1px solid #ddd;">¥50,000/L</td><td style="padding:6px;border:1px solid #ddd;color:#c00;font-weight:700;">▲¥60,000/L 赤字</td></tr>
+          <tr><td style="padding:6px;border:1px solid #ddd;">Silver</td><td style="padding:6px;border:1px solid #ddd;">¥42,000/L</td><td style="padding:6px;border:1px solid #ddd;color:#c00;font-weight:700;">▲¥68,000/L 赤字</td></tr>
+          <tr><td style="padding:6px;border:1px solid #ddd;">Gold</td><td style="padding:6px;border:1px solid #ddd;">¥35,000/L</td><td style="padding:6px;border:1px solid #ddd;color:#c00;font-weight:700;">▲¥75,000/L 赤字</td></tr>
+        </table>
+        <div class="alert-box" style="margin-top:10px;"><strong>代理店に液剤を売るほどCRUXが赤字になる構造。3層モデルの液剤価格は全て間違い。</strong></div>
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">
+        仕入れ¥110,000/Lは正しい。スライドの代理店価格が誤り。<br>
+        → <strong>シェアモデルに転換</strong>（液剤を代理店に「販売」するのではなく、CRUXが供給し施工売上を分配する仕組みへ）。<br><br>
+        3層の差別化軸を液剤価格から「分配率・サービス・権限」に変更。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- シェアモデル -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">決定事項</span>
+    <span class="qa-question">シェアモデルの設計（正しい収益構造）</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">シェアモデルの仕組み</div>
+      <div class="qa-text">
+        ①代理店が顧客を開拓・施工<br>
+        ②顧客から代理店が代金を収受<br>
+        ③売上の一定%をCRUXへ入金<br>
+        ④CRUXが液剤を各案件に供給<br><br>
+        <strong>最低施工単価：¥5,500/㎡</strong>（代理店は自由に上乗せ可）
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">採用した理由</div>
+      <div class="qa-answer">
+        液剤が急激に売れるわけではない現実に即している。代理店の参入障壁を¥200,000（研修費のみ）に下げられる。CRUXは液剤在庫リスクを抱えるが、スケールで成立するモデル。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q11 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q11</span>
+    <span class="qa-question">施工単価は誰が設定するか？代理店に価格自由度を与えるか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        A：CRUX固定（¥5,500/㎡）<br>
+        B：CRUX最低単価設定＋代理店自由<br>
+        C：代理店完全自由<br><br>
+        推奨：B。代理店が高単価エリアで¥7,000〜8,000/㎡を取れると、CRUX利益も連動して増える。
+        <div style="margin-top:8px;font-size:12px;color:#555;">
+          ¥7,000/㎡・120㎡での試算（CRUX45%取り分）：<br>
+          CRUX利益：¥138,000/案件（¥5,500時の2.4倍）
+        </div>
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">CRUXが最低単価¥5,500/㎡を設定。代理店はそれ以上で自由に設定可。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q12 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q12</span>
+    <span class="qa-question">売上過少申告への対策は何があるか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">提示した4つの対策</div>
+      <div class="qa-text">
+        <strong>①液剤数量トラッキング</strong>：供給量から施工面積を逆算し申告と照合（1L=55㎡）<br>
+        <strong>②事前申請制</strong>：案件ごとにCRUX承認後に液剤を供給<br>
+        <strong>③クライアント直接請求</strong>：CRUXが施主に請求し代理店にコミッション支払い（構造的に過少申告不可）<br>
+        <strong>④認定失効条項</strong>：過少申告発覚時は違約金＋認定即時失効を契約に明記
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">
+        「信頼関係のためにも最初から透明なルールを設けるべき」という判断で、<strong>①液剤数量トラッキングから開始</strong>。<br>
+        長期的には③クライアント直接請求への移行も検討。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q13 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q13</span>
+    <span class="qa-question">3層の分配率はどう設定するか？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">損益分岐点の確認</div>
+      <div class="qa-text">
+        液剤原価：¥240,000（120㎡あたり、¥110,000/L × 2.18L）<br>
+        最低単価¥5,500/㎡、120㎡の売上：¥660,000<br><br>
+        CRUX取り分37%（¥244,200）が損益分岐点。<br>
+        それ以下だと最低単価案件でCRUXが赤字になる。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">
+        <table class="tier-table">
+          <thead><tr><th>ティア</th><th>初期費用</th><th>CRUX</th><th>代理店</th></tr></thead>
+          <tbody>
+            <tr><td class="bronze">Bronze</td><td>¥200,000</td><td>50%</td><td>50%</td></tr>
+            <tr><td class="silver">Silver</td><td>¥500,000</td><td>45%</td><td>55%</td></tr>
+            <tr><td class="gold">Gold</td><td>¥1,000,000</td><td>40%</td><td>60%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Q14 -->
+<div class="qa-card">
+  <div class="qa-header">
+    <span class="qa-num">Q14</span>
+    <span class="qa-question">Silver（¥500K）・Gold（¥1,000K）の初期費用差額は何の対価か？</span>
+  </div>
+  <div class="qa-body">
+    <div class="qa-section">
+      <div class="qa-label">論点・推奨</div>
+      <div class="qa-text">
+        シェアモデルでは液剤先行購入がないため、差額の根拠が必要。<br>
+        推奨の差別化軸：<br>
+        Silver：エリア優先権＋マーケ資料<br>
+        Gold：エリア優先権＋専属サポート＋下部卸設定権＋<strong>AトラックOB案件の優先紹介</strong><br><br>
+        「案件優先紹介」が最も強い実利的価値（払った分が仕事として返ってくる）。
+      </div>
+    </div>
+    <div class="qa-section">
+      <div class="qa-label">回答・決定</div>
+      <div class="qa-answer">この内容でまず既存3社への合意取り付けを試みる。エリア優先権の詳細はキーストン社確認後に確定。</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 次のアクション ── -->
+<div class="section-heading">次のアクション（優先順）</div>
+<table class="action-table">
+  <thead>
+    <tr><th>優先度</th><th>アクション</th><th>相手</th><th>期限目安</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="pri-high">最高</td>
+      <td>エリア優先権の可否・条件確認<br><small style="color:#888;">Silver/Goldの差別化に直結。早期に決着が必要。</small></td>
+      <td>キーストン社</td>
+      <td>できるだけ早急に</td>
+    </tr>
+    <tr>
+      <td class="pri-high">高</td>
+      <td>シェアモデルの合意取り付け<br><small style="color:#888;">既存3社へのBトラック新フロー提案。</small></td>
+      <td>既存取引先3社</td>
+      <td>今月中</td>
+    </tr>
+    <tr>
+      <td class="pri-high">高</td>
+      <td>収益シミュレーション資料の作成<br><small style="color:#888;">STEP2で必須。面積別・ティア別・単価別の試算表。</small></td>
+      <td>社内</td>
+      <td>提案前に準備</td>
+    </tr>
+    <tr>
+      <td class="pri-mid">中</td>
+      <td>シェアモデル契約書（ドラフト）の作成<br><small style="color:#888;">分配率・最低単価・液剤供給フロー・不正対策条項を含む。</small></td>
+      <td>社内（顧問弁護士確認推奨）</td>
+      <td>提案後・交渉前</td>
+    </tr>
+    <tr>
+      <td class="pri-mid">中</td>
+      <td>ティアアップ条件の設計<br><small style="color:#888;">「Bronze→Silver→Gold」の昇格要件を定義する。</small></td>
+      <td>社内</td>
+      <td>キーストン社確認後</td>
+    </tr>
+    <tr>
+      <td class="pri-low">低</td>
+      <td>フェーズA→B移行条件の設計<br><small style="color:#888;">「AタイプをいつBタイプに拡張するか」の基準定義。</small></td>
+      <td>社内</td>
+      <td>来期検討</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ── 成果物 ── -->
+<div class="section-heading">本セッションで作成・更新した成果物</div>
+<div style="background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:20px 24px;box-shadow:0 2px 8px rgba(0,0,0,.05);">
+  <ul class="insight-list">
+    <li>
+      <strong>Bトラック認定フロー（シェアモデル版）</strong><br>
+      <span style="color:#888;font-size:12px;">20260521_B-track_代理店_施工業者認定フロー_シェアモデル版.html</span><br>
+      今日の全決定事項を反映した7ステップフロー文書。シェアモデルの仕組みと3層ティア早見表を冒頭に追加。
+    </li>
+    <li style="margin-top:12px;">
+      <strong>本検討記録（このドキュメント）</strong><br>
+      <span style="color:#888;font-size:12px;">20260521_Bトラック_代理店認定フロー_検討記録.html</span><br>
+      Q&A14問の詳細・決定事項サマリー・次のアクション一覧を収録。
+    </li>
+  </ul>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社長への提言レター — 2026年5月22日</title>
+<style>
+  :root {
+    --navy: #1a2744;
+    --gold: #c9a84c;
+    --red: #c00000;
+    --green-dark: #1e3a14;
+    --green-mid: #3d8a30;
+    --green-light: #edf6e9;
+    --off-white: #f4f6fb;
+    --border: #d0d8e8;
+    --text: #1a1a1a;
+    --muted: #555;
+    --amber: #fff3cd;
+    --amber-border: #f0c040;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    background: #f0f4f0;
+    color: var(--text);
+    padding: 32px 20px 80px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ヘッダー */
+  .letterhead {
+    background: var(--navy);
+    color: #fff;
+    padding: 32px 40px;
+    border-radius: 12px 12px 0 0;
+    border-bottom: 5px solid var(--gold);
+    position: relative;
+  }
+  .letterhead .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 10px;
+  }
+  .letterhead h1 { font-size: 22px; font-weight: 900; line-height: 1.4; }
+  .letterhead .date-row {
+    margin-top: 12px; font-size: 12px; opacity: 0.65;
+    display: flex; gap: 24px;
+  }
+  .confidential-badge {
+    position: absolute; top: 28px; right: 36px;
+    background: var(--red); color: #fff;
+    font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    padding: 5px 12px; border-radius: 4px;
+  }
+
+  /* 本体カード */
+  .letter-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 0 0 40px 0;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.09);
+  }
+
+  /* リード文 */
+  .lead {
+    padding: 28px 40px 20px;
+    font-size: 14px; line-height: 2;
+    border-bottom: 1px solid var(--border);
+    color: #333;
+  }
+  .lead strong { color: var(--navy); }
+
+  /* 本質の一言 */
+  .core-message {
+    background: var(--navy);
+    color: #fff;
+    padding: 18px 40px;
+    font-size: 15px; font-weight: 700; line-height: 1.7;
+    letter-spacing: 0.5px;
+  }
+  .core-message span { color: var(--gold); }
+
+  /* セクション */
+  .section {
+    padding: 28px 40px 0;
+  }
+  .section-title {
+    font-size: 11px; font-weight: 800; letter-spacing: 3px;
+    color: var(--muted); text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* 提言アイテム */
+  .teigen-list { display: flex; flex-direction: column; gap: 16px; }
+
+  .teigen-item {
+    display: flex; gap: 18px;
+    padding: 18px 20px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    position: relative;
+  }
+  .teigen-item.urgent { border-color: var(--red); background: #fff8f8; }
+  .teigen-item.high { border-color: var(--amber-border); background: var(--amber); }
+  .teigen-item.medium { border-color: #b0c8b0; background: var(--green-light); }
+
+  .teigen-num {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .urgent .teigen-num { background: var(--red); color: #fff; }
+  .high .teigen-num { background: #c8860a; color: #fff; }
+  .medium .teigen-num { background: var(--green-mid); color: #fff; }
+
+  .teigen-body { flex: 1; }
+  .teigen-title {
+    font-size: 15px; font-weight: 800; line-height: 1.5;
+    margin-bottom: 6px;
+  }
+  .urgent .teigen-title { color: var(--red); }
+  .high .teigen-title { color: #7a5000; }
+  .medium .teigen-title { color: var(--green-dark); }
+
+  .teigen-desc {
+    font-size: 13px; color: #444; line-height: 1.8;
+    margin-bottom: 8px;
+  }
+
+  .teigen-meta {
+    display: flex; gap: 10px; flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 30px; letter-spacing: 0.5px;
+  }
+  .tag-deadline { background: var(--navy); color: var(--gold); }
+  .tag-blocker { background: var(--red); color: #fff; }
+  .tag-owner { background: #e0e8f8; color: var(--navy); }
+  .tag-impact { background: #d4edda; color: #155724; }
+
+  /* インパクト一覧 */
+  .impact-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-top: 16px;
+  }
+  .impact-card {
+    background: var(--off-white); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 14px 18px;
+  }
+  .impact-card .label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .impact-card .value {
+    font-size: 20px; font-weight: 900; color: var(--navy);
+  }
+  .impact-card .sub {
+    font-size: 12px; color: var(--muted); margin-top: 2px;
+  }
+
+  /* タイムライン */
+  .timeline {
+    margin-top: 12px;
+    background: var(--off-white); border: 1.5px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .timeline-row {
+    display: flex; align-items: center; gap: 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+  }
+  .timeline-row:last-child { border-bottom: none; }
+  .tl-date {
+    background: var(--navy); color: var(--gold);
+    font-size: 11px; font-weight: 800;
+    padding: 10px 14px; width: 88px; flex-shrink: 0;
+    text-align: center; letter-spacing: 0.5px;
+  }
+  .tl-action {
+    padding: 10px 16px; flex: 1; color: var(--text); line-height: 1.5;
+  }
+  .tl-action b { color: var(--navy); }
+  .tl-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    margin-right: 14px;
+  }
+  .dot-red { background: var(--red); }
+  .dot-amber { background: #f0a030; }
+  .dot-green { background: var(--green-mid); }
+
+  /* 締め */
+  .closing {
+    margin: 28px 40px 0;
+    padding: 20px 24px;
+    background: var(--navy);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13.5px; line-height: 2;
+  }
+  .closing .from {
+    margin-top: 16px; font-size: 12px; opacity: 0.65;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    padding-top: 12px;
+  }
+
+  /* 注記 */
+  .note-box {
+    margin: 24px 40px 0;
+    background: #fff9e6; border: 1.5px solid var(--amber-border);
+    border-radius: 8px; padding: 14px 18px;
+    font-size: 12.5px; color: #4a3900; line-height: 1.9;
+  }
+  .note-box strong { color: #7a5c00; }
+
+  @media (max-width: 600px) {
+    .impact-grid { grid-template-columns: 1fr; }
+    .letterhead, .lead, .core-message, .section,
+    .closing, .note-box { padding-left: 20px; padding-right: 20px; }
+    .teigen-item { flex-direction: column; }
+    .teigen-num { width: 28px; height: 28px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="letterhead">
+  <div class="confidential-badge">社外秘</div>
+  <div class="eyebrow">Output C — 社長への提言レター</div>
+  <h1>吉岡社長への提言<br>— 今、社長に動いていただく必要があること —</h1>
+  <div class="date-row">
+    <span>作成日：2026年5月22日</span>
+    <span>作成者：宮脇</span>
+    <span>対象者：吉岡社長（個人向け）</span>
+  </div>
+</div>
+
+<div class="letter-card">
+
+  <!-- リード -->
+  <div class="lead">
+    社長、お疲れ様です。<br>
+    国内・海外それぞれの案件を整理した結果、<strong>社長にしか判断・実行できないボトルネックが7点</strong>あることが明確になりました。<br>
+    これらが止まると、6月以降のすべての動きが止まります。本状にまとめましたので、ご確認の上、今週中にアクションを開始いただけますと幸いです。
+  </div>
+
+  <!-- 本質 -->
+  <div class="core-message">
+    現在CRUXが抱える問題の本質は、<span>「やること」が多いことではなく、「社長しかできないこと」が放置されていること</span>です。<br>
+    宮脇が動けるタスクは動きます。社長が動いてくれれば、すべてが動き出します。
+  </div>
+
+  <!-- 提言リスト -->
+  <div class="section">
+    <div class="section-title">提言 — 7つのアクション（優先順）</div>
+    <div class="teigen-list">
+
+      <!-- 1 -->
+      <div class="teigen-item urgent">
+        <div class="teigen-num">1</div>
+        <div class="teigen-body">
+          <div class="teigen-title">キーストーン社への確認メールを今週中に送付する</div>
+          <div class="teigen-desc">
+            宮脇が別紙（Output A）として下書きを用意しました。内容をご確認いただき、署名・送付してください。<br>
+            この1通が、国内代理店展開（エリア優先権）と海外販売（SDS・CAS番号・VOC・保管条件）の両方をアンブロックします。<br>
+            回答期限は<strong>6月13日</strong>に設定しています（ドバイ展示会9/27から3ヶ月逆算）。
+          </div>
+          <div class="teigen-meta">
+            <span class="tag tag-deadline">期限：今週中（5/28）</span>
+            <span class="tag tag-blocker">全案件のボトルネック</span>
+            <span class="tag tag-owner">実行者：社長</span>
+            <span class="tag tag-impact">国内＋海外 両方解放</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div class="teigen-item urgent">
+        <div class="teigen-num">2</div>
+        <div class="teigen-body">
+          <div class="teigen-title">代理店向け価格・最低発注量・支払条件を決定する</div>
+          <div class="teigen-desc">
+            6/10の営業説明会（Bトラック）に向けて、宮脇がシェアモデルの仕組みと収益シミュレーションを準備しています（Output B）。<br>
+            しかし<strong>「液剤の単価」「最低発注量」「支払条件（前払い/後払い/分割）」</strong>は社長の判断が必要です。<br>
+            現時点の仮設定：液剤 ¥150,000〜¥200,000/L、最低10L/月、前払いまたは着工時50%。<br>
+            この仮設定で問題なければ確認を、変更があればご指示ください。
+          </div>
+          <div class="teigen-meta">
+            <span class="tag tag-deadline">期限：5/30まで（6/10説明会前）</span>
+            <span class="tag tag-blocker">6/10説明会の前提条件</span>
+            <span class="tag tag-owner">決定者：社長</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div class="teigen-item high">
+        <div class="teigen-num">3</div>
+        <div class="teigen-body">
+          <div class="teigen-title">5/30 加藤先生との打ち合わせ — アジェンダを共有する</div>
+          <div class="teigen-desc">
+            5/30に加藤先生との打ち合わせが予定されています。目的・議題・社長として決めたいことを<strong>5/28までに宮脇に共有</strong>してください。<br>
+            事前に資料・想定問答等の準備が必要な場合、2日では準備できません。遅くとも5/27（水）夕方にはご連絡ください。
+          </div>
+          <div class="teigen-meta">
+            <span class="tag tag-deadline">共有期限：5/27夕方</span>
+            <span class="tag tag-owner">情報提供者：社長</span>
+            <span class="tag tag-impact">宮脇が事前準備を担当</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="teigen-item high">
+        <div class="teigen-num">4</div>
+        <div class="teigen-body">
+          <div class="teigen-title">パナソニックとの打ち合わせ — 目的と背景を共有する</div>
+          <div class="teigen-desc">
+            パナソニックとの商談または打ち合わせが予定されています。<br>
+            <strong>「何を提案するのか」「先方の期待は何か」「CRUXとして何を求めているか」</strong>を宮脇に共有してください。<br>
+            製品（XOP or FC）・用途・提案スコープが不明なままでは、支援資料を作れません。
+          </div>
+          <div class="teigen-meta">
+            <span class="tag tag-deadline">共有期限：打ち合わせ3日前</span>
+            <span class="tag tag-owner">情報提供者：社長</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <div class="teigen-item high">
+        <div class="teigen-num">5</div>
+        <div class="teigen-body">
+          <div class="teigen-title">ドバイ展示会（9/27〜）の参加 Go / No-Go を決定する</div>
+          <div class="teigen-desc">
+            ドバイ展示会への参加準備（通関書類・英語版SDS・製品パンフ・出展申込）には最低3ヶ月かかります。<br>
+            つまり<strong>6月末が判断の最終期限</strong>です。これを超えると物理的に間に合いません。<br>
+            参加する場合の概算費用：出展料＋渡航費＋梱包輸送で<strong>150〜200万円程度</strong>の予算確保が必要です。<br>
+            「参加する」「参加しない」どちらでも構いません。6月末までにご決断ください。
+          </div>
+          <div class="teigen-meta">
+            <span class="tag tag-deadline">判断期限：6月末（絶対）</span>
+            <span class="tag tag-owner">決定者：社長</span>
+            <span class="tag tag-impact">海外初売上の起点</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <div class="teigen-item medium">
+        <div class="teigen-num">6</div>
+        <div class="teigen-body">
+          <div class="teigen-title">キーストーン社トップとの定期対話チャネルを作る</div>
+          <div class="teigen-desc">
+            現在CRUXとキーストーン社の関係は「購買」のみです。代理店ネットワーク構築・海外展開・エリア優先権など、<br>
+            今後交渉が必要な議題はすべて<strong>経営レベルの信頼関係</strong>があってはじめて通ります。<br>
+            キーストーン社は保守的な組織のため、担当者への確認メールだけでは限界があります。<br>
+            社長から先方トップへ「事業構想を共有したい」と申し入れ、<strong>四半期1回の定期ミーティング</strong>を設定してください。
+          </div>
+          <div class="teigen-meta">
+            <span class="tag tag-deadline">申し入れ：6月中</span>
+            <span class="tag tag-owner">アクション者：社長</span>
+            <span class="tag tag-impact">中長期の交渉基盤</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7 -->
+      <div class="teigen-item medium">
+        <div class="teigen-num">7</div>
+        <div class="teigen-body">
+          <div class="teigen-title">採用する営業職の人物像を定義する</div>
+          <div class="teigen-desc">
+            年内採用が目標として挙がっています。採用活動は求人票作成・媒体掲載・面接から内定まで最低3ヶ月かかります。<br>
+            逆算すると<strong>9月に内定なら6月には募集開始</strong>が必要です。<br>
+            「どんな人を採りたいか」——経験年数・業種・スキル・給与レンジ・働き方——を<strong>6月末までに宮脇へ伝えてください</strong>。<br>
+            求人票の作成・媒体選定は宮脇が担当します。
+          </div>
+          <div class="teigen-meta">
+            <span class="tag tag-deadline">人物像定義：6月末</span>
+            <span class="tag tag-owner">定義者：社長 → 宮脇が実行</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- インパクト数字 -->
+  <div class="section" style="margin-top: 28px;">
+    <div class="section-title">これらが動いたときのインパクト（年内）</div>
+    <div class="impact-grid">
+      <div class="impact-card">
+        <div class="label">海外初売上ポテンシャル</div>
+        <div class="value">¥20,000,000</div>
+        <div class="sub">現在庫40L × 海外売価 ¥750,000/L（概算）</div>
+      </div>
+      <div class="impact-card">
+        <div class="label">国内代理店目標（年内）</div>
+        <div class="value">数十社</div>
+        <div class="sub">シェアモデル展開 × Bトラック説明会 × 北庄司支援</div>
+      </div>
+      <div class="impact-card">
+        <div class="label">代理店1社あたり最低粗利</div>
+        <div class="value">¥244,200</div>
+        <div class="sub">120㎡×¥5,500 × ブロンズ50%シェア、液剤¥240,000/10L控除後</div>
+      </div>
+      <div class="impact-card">
+        <div class="label">キーストーン確認後に解放されるタスク</div>
+        <div class="value">9タスク</div>
+        <div class="sub">国内3件 ＋ 海外6件が一気に前進</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- タイムライン -->
+  <div class="section" style="margin-top: 28px;">
+    <div class="section-title">社長アクション タイムライン</div>
+    <div class="timeline">
+      <div class="timeline-row">
+        <div class="tl-date">今週中<br>〜5/28</div>
+        <div class="tl-dot dot-red"></div>
+        <div class="tl-action">
+          <b>【最優先】</b>キーストーン社確認メール送付（下書きはOutput A参照）<br>
+          ＋ 5/30打ち合わせアジェンダを宮脇に共有（5/27夕方まで）
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="tl-date">5/30<br>週</div>
+        <div class="tl-dot dot-red"></div>
+        <div class="tl-action">
+          <b>代理店価格・発注条件を決定</b>（6/10説明会の前提。宮脇の仮設定を確認/修正）<br>
+          ＋ パナソニック打ち合わせ情報を宮脇に共有
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="tl-date">6月中</div>
+        <div class="tl-dot dot-amber"></div>
+        <div class="tl-action">
+          <b>キーストーン社トップへの定期対話申し入れ</b>（社長発信）
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="tl-date">6月末<br>（絶対）</div>
+        <div class="tl-dot dot-amber"></div>
+        <div class="tl-action">
+          <b>ドバイ展示会 Go/No-Go 最終決断</b>（これを超えると物理的に不可能）<br>
+          ＋ 採用人物像を宮脇へ伝達
+        </div>
+      </div>
+      <div class="timeline-row">
+        <div class="tl-date">9〜12月</div>
+        <div class="tl-dot dot-green"></div>
+        <div class="tl-action">
+          海外初売上 ／ 国内代理店ネットワーク稼働 ／ 営業担当内定 ／ ドバイ出展（Go判断の場合）
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 締め -->
+  <div class="closing">
+    社長がこの7点を動かしてくれれば、<strong>宮脇が残りの18タスクをすべて引き取ります。</strong><br>
+    CRUXが今年中に「国内数十社の代理店ネットワーク＋海外初売上＋次の採用」を実現できるかどうかは、<strong>この5月・6月の社長の判断速度</strong>にかかっています。<br>
+    一緒に動かしましょう。何かあればいつでも相談ください。
+    <div class="from">
+      2026年5月22日　株式会社CRUX　COO　宮脇 俊雄
+    </div>
+  </div>
+
+  <!-- 注記 -->
+  <div class="note-box">
+    <strong>【宮脇メモ — 社長への渡し方について】</strong><br>
+    ・このレターは社長が「自分ごと」として読めるよう、「宮脇がお願いする」ではなく「事実として何が止まっているか」の形式にしています。<br>
+    ・提言1（キーストーンメール）と提言2（代理店価格決定）は今週中のアクションです。これだけでも社長にお伝えください。<br>
+    ・提言5（ドバイGo/No-Go）は6月末が絶対期限。「まだ先だから」と後回しにすると取り返しがつきません。<br>
+    ・Output Aのメール下書きを印刷して一緒に渡すと、社長がすぐ判断できます。
+  </div>
+
+</div>
+
+</body>
+</html>
